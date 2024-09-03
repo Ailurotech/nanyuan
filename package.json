@@ -1,0 +1,17 @@
+{
+  "name": "nanyuan",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "studio"
+  ],
+  "scripts": {
+    "dev": "concurrently \"yarn dev:frontend\" \"yarn dev:studio\"",
+    "dev:frontend": "yarn workspace frontend dev",
+    "dev:studio": "yarn workspace studio dev",
+    "build": "yarn workspace frontend build && yarn workspace studio build"
+  },
+  "devDependencies": {
+    "concurrently": "^7.0.0"
+  }
+}
