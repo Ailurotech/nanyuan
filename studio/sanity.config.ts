@@ -1,54 +1,28 @@
-import {defineConfig, isDev} from 'sanity'
-
-import {structureTool} from 'sanity/structure'
+import {defineConfig, type PluginOptions} from 'sanity';
+import {deskTool} from 'sanity/desk';
+import {visionTool} from '@sanity/vision';
 import {schemaTypes} from './schemaTypes'
-import {structure} from './structure'
+import {formConfig} from './form';
+import {structureTool} from 'sanity/structure'
 
-import {visionTool} from '@sanity/vision'
-import {colorInput} from '@sanity/color-input'
-import {imageHotspotArrayPlugin} from 'sanity-plugin-hotspot-array'
-import {media, mediaAssetSource} from 'sanity-plugin-media'
-import {customDocumentActions} from './plugins/customDocumentActions'
-import Navbar from './components/studio/Navbar'
-
-const devOnlyPlugins = [visionTool()]
 
 export default defineConfig({
   name: 'default',
   title: 'Nanyuan',
 
   projectId: 'utvt9caf',
-  dataset: 'production',
+  dataset: 'test',
 
-  plugins: [
-    structureTool({structure}),
-    colorInput(),
-    imageHotspotArrayPlugin(),
-    customDocumentActions(),
-    media(),
-    ...(isDev ? devOnlyPlugins : []),
-  ],
+    plugins: [structureTool(), visionTool()],
 
-  schema: {
-    types: schemaTypes,
-  },
-
-  form: {
-    file: {
-      assetSources: (previousAssetSources) => {
-        return previousAssetSources.filter((assetSource) => assetSource !== mediaAssetSource)
-      },
+    schema: {
+      types: schemaTypes,
     },
-    image: {
-      assetSources: (previousAssetSources) => {
-        return previousAssetSources.filter((assetSource) => assetSource === mediaAssetSource)
-      },
-    },
-  },
+
+  form: formConfig,
 
   studio: {
     components: {
-      navbar: Navbar,
     },
   },
-})
+});
