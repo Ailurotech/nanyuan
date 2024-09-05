@@ -1,5 +1,13 @@
 import Link from "next/link";
 
+const Rout = {
+  Path: "/",
+  Name: "Home",
+  Link: ({ children }: { children: React.ReactNode }) => (
+    <Link href={Rout.Path}>{children}</Link>
+  ),
+};
+
 const Location = {
   Path: "/location",
   Name: "Location",
@@ -40,6 +48,10 @@ const FaceBook = {
 const Instagram = {
   Path: "https://www.instagram.com/nan_yuan_restaurant?igsh=MWE0djRocGd0OTNscg==",
   Name: "instagram",
+};
+
+export const RoutRoute = {
+  Rout,
 };
 
 export const NavigationRoute = {

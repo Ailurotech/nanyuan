@@ -1,6 +1,6 @@
 import Image from "next/image";
-import logo from "@/public/loge.jpeg";
-import { NavigationRoute, SocialRoute } from "./route";
+import logo from "@/public/logo.png";
+import { NavigationRoute, RoutRoute, SocialRoute } from "./route";
 import Link from "next/link";
 import { Icon } from "../common/Icon";
 import { Acme } from "next/font/google";
@@ -8,12 +8,18 @@ import clsx from "clsx";
 
 const acme = Acme({ weight: "400", subsets: ["latin"] });
 
-export default function Navigation() {
+export default function Navigation({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <>
       <header className={(clsx("fixed top-0"), acme.className)}>
         <nav className="bg-black w-screen flex items-center justify-evenly py-6">
-          <Image src={logo} alt="logo" width="100" />
+          <Link href={RoutRoute.Rout.Path}>
+            <Image src={logo} alt="logo" width="100" />
+          </Link>
           <ul className="flex gap-12 xl:gap-28 text-white text-lg xl:text-xl">
             {Object.values(NavigationRoute).map((route) => (
               <li key={route.Name}>
@@ -36,6 +42,7 @@ export default function Navigation() {
           </div>
         </nav>
       </header>
+      {children}
     </>
   );
 }

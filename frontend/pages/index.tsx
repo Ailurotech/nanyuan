@@ -5,10 +5,5 @@ import Navigation from "./components/Navigation/Navigation";
 const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
-  return (
-    <>
-      <Navigation />
-      <div>Home Page</div>
-    </>
-  );
+  return <div>Home Page</div>;
 }
