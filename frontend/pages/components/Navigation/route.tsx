@@ -32,9 +32,24 @@ const BookATable = {
   ),
 };
 
+const FaceBook = {
+  Path: "https://www.facebook.com/share/rMnJiotUYTE2acBq/?mibextid=LQQJ4d",
+  Name: "facebook",
+};
+
+const Instagram = {
+  Path: "https://www.instagram.com/nan_yuan_restaurant?igsh=MWE0djRocGd0OTNscg==",
+  Name: "instagram",
+};
+
 export const NavigationRoute = {
   Location,
   Menu,
   Takeaway,
   BookATable,
+};
+
+export const SocialRoute = {
+  FaceBook,
+  Instagram,
 };

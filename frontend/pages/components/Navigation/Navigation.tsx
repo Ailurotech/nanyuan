@@ -1,6 +1,6 @@
 import Image from "next/image";
 import logo from "@/public/loge.jpeg";
-import { NavigationRoute } from "./route";
+import { NavigationRoute, SocialRoute } from "./route";
 import Link from "next/link";
 import { Icon } from "../common/Icon";
 import { Acme } from "next/font/google";
@@ -8,45 +8,34 @@ import clsx from "clsx";
 
 const acme = Acme({ weight: "400", subsets: ["latin"] });
 
-export default function Navigation({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const array = Object.values(NavigationRoute);
-
+export default function Navigation() {
   return (
-    <div>
-      <header>
-        <nav className="fixed top-0 left-0 bg-black w-screen flex items-center justify-evenly py-6">
-          <div>
-            <Image src={logo} alt="logo" width="100" className="" />
-          </div>
-
-          <ul
-            className={clsx("flex gap-12 text-white text-base", acme.className)}
-          >
-            {array.map((route) => (
+    <>
+      <header className={(clsx("fixed top-0"), acme.className)}>
+        <nav className="bg-black w-screen flex items-center justify-evenly py-6">
+          <Image src={logo} alt="logo" width="100" />
+          <ul className="flex gap-28 text-white text-xl">
+            {Object.values(NavigationRoute).map((route) => (
               <li key={route.Name}>
-                <Link href={route.Path} className="">
-                  {route.Name}
-                </Link>
+                {<Link href={route.Path}>{route.Name}</Link>}
               </li>
             ))}
           </ul>
-          <div className="flex h-full text-white items-center">
-            <div className="flex border-r-[1px] px-3 gap-3">
-              <Icon name="facebook" className="text-xl font-bold" />
-              <Icon name="instagram" className=" text-xl font-bold" />
+          <div className="flex text-white items-center text-2xl ">
+            <div className="flex h-[60px] border-r-[1px] px-5 gap-5 items-center ">
+              {Object.values(SocialRoute).map((route) => (
+                <Link key={route.Name} href={route.Path} target="_blank">
+                  <Icon name={route.Name as Icon} className=" stroke-[2.3px]" />
+                </Link>
+              ))}
             </div>
-            <div className="px-3">
-              <Icon name="mobile" className=" text-xl font-bold " />
+            <div className="px-5 font-bold text-2xl">
+              <Icon name="mobile" />
             </div>
-            <h3 className="text-sm">(08)8271 3133</h3>
+            <h3 className="text-lg">(08)8271 3133</h3>
           </div>
         </nav>
       </header>
-      {children}
-    </div>
+    </>
   );
 }
