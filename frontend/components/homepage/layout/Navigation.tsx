@@ -1,10 +1,10 @@
 import Image from "next/image";
 import logo from "@/public/logo.png";
-import { NavigationRoute, RoutRoute, SocialRoute } from "./route";
 import Link from "next/link";
-import { Icon } from "../common/Icon";
+import { Icon } from "../../common/Icon";
 import { Acme } from "next/font/google";
 import clsx from "clsx";
+import { NavigationRoute, RoutRoute, SocialRoute } from "../route";
 
 const acme = Acme({ weight: "400", subsets: ["latin"] });
 
