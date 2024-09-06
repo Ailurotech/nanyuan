@@ -1,4 +1,5 @@
 import Link from "next/link";
+import path from "path";
 
 const Rout = {
   Path: "/",
@@ -65,3 +66,23 @@ export const SocialRoute = {
   FaceBook,
   Instagram,
 };
+
+export const HomePageContent = {
+  background: {
+    name: "homepage-background",
+    path: "https://s2.loli.net/2024/09/05/mjv9A8IeqlTwDyi.png",
+  },
+  dish: {
+    name: "homepage-dish",
+    path: "https://s2.loli.net/2024/09/05/2sTNeCwxcI4alPZ.png",
+  },
+  title: {
+    name: "homepage-title",
+    text: "Crafted with Tradition, Served with Care: Experience the Authentic Flavors of China at Nanyuan",
+    buttonText: "SEE OUR MENU",
+    path: NavigationRoute.Menu.Path,
+  }
+};
+
+
+
