@@ -81,6 +81,10 @@ export const HomePageContent = {
     text: "Crafted with Tradition, Served with Care: Experience the Authentic Flavors of China at Nanyuan",
     buttonText: "SEE OUR MENU",
     path: NavigationRoute.Menu.Path,
+  },
+  chef: {
+    name: "— Chef Leon",
+    text: "At Nanyuan, each dish is a blend of tradition and passion, bringing the authentic taste of China to your plate.",
   }
 };
 
