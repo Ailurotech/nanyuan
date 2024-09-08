@@ -6,6 +6,7 @@ import { sanityClient } from "../lib/sanityClient";
 import { HomePageContent as HomePageContentType } from "../types"; 
 import { NavigationRoute } from "@/components/homepage/route"; 
 import Arrow from '@/components/common/Arrow';
+
 interface HomePageProps {
   homePageContent: HomePageContentType;
 }
@@ -23,10 +24,7 @@ const Home = ({ homePageContent }: HomePageProps) => {
         <Link href={NavigationRoute.Menu.Path}> 
           <button className="mt-[4vh] sm:mt-[8vh] px-7 py-4 bg-[#F9BF28] text-black font-bold hover:bg-[#e0a622] flex items-center space-x-2 whitespace-nowrap">
             <span className="text-xl">SEE OUR MENU</span>
-            <div className="flex items-center relative">
-              <div className="w-[20px] h-0.5 bg-green-900 relative left-[12px]"></div> 
-              <Arrow />
-            </div>
+            <Arrow />
           </button>
         </Link>
       </div>
