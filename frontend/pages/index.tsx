@@ -5,7 +5,7 @@ import { GetStaticProps } from "next";
 import { sanityClient } from "../lib/sanityClient";
 import { HomePageContent as HomePageContentType } from "../types"; 
 import { NavigationRoute } from "@/components/homepage/route"; 
-import Arrow from '@/components/common/Arrow';
+import Arrow from '@/components/common/arrow';
 
 interface HomePageProps {
   homePageContent: HomePageContentType;
