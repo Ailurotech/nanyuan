@@ -1,0 +1,18 @@
+@import url('https://fonts.googleapis.com/css2?family=Alegreya+Sans+SC:wght@400&display=swap');
+
+
+.font-alegreya-sans {
+  font-family: 'Alegreya Sans SC', sans-serif;
+}
+
+
+.maskedImage {
+  mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 30%, rgba(0, 0, 0, 0) 80%);
+  -webkit-mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 20%, rgba(0, 0, 0, 0) 70%);
+}
+
+.background {
+  background-image: url('https://s2.loli.net/2024/09/05/mjv9A8IeqlTwDyi.png'); 
+}
+
+
