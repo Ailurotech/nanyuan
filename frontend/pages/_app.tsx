@@ -1,10 +1,22 @@
 import Navigation from "@/components/homepage/layout/Navigation";
+import { buttonTheme } from "@/components/styles/button-style";
 import "@/styles/globals.css";
-import { ChakraBaseProvider, extendBaseTheme } from "@chakra-ui/react";
+import {
+  ChakraBaseProvider,
+  extendBaseTheme,
+  theme as chakraTheme,
+} from "@chakra-ui/react";
 import type { AppProps } from "next/app";
 
 export default function App({ Component, pageProps }: AppProps) {
-  const theme = extendBaseTheme({});
+  const { Button, Drawer } = chakraTheme.components;
+
+  const theme = extendBaseTheme({
+    components: {
+      Button: buttonTheme,
+      Drawer,
+    },
+  });
 
   return (
     <ChakraBaseProvider theme={theme}>
