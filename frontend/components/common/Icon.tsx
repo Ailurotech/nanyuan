@@ -2,6 +2,7 @@ import { FaInstagram } from "react-icons/fa";
 import { IconBaseProps } from "react-icons";
 import { FiPhone } from "react-icons/fi";
 import { FiFacebook } from "react-icons/fi";
+import { IoMenu } from "react-icons/io5";
 
 const socialMedia = {
   facebook: FiFacebook,
@@ -10,6 +11,7 @@ const socialMedia = {
 
 const commonIcon = {
   mobile: FiPhone,
+  menu: IoMenu,
 };
 
 const icons = {
