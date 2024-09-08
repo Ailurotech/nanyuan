@@ -12,7 +12,11 @@ interface HomePageProps {
 
 const Home = ({ homePageContent }: HomePageProps) => {
   return (
-    <div className={`w-full bg-cover bg-center pt-40 ${styles['font-alegreya-sans']}`} style={{ backgroundImage: `url(${homePageContent.backgroundimg.asset.url})`}}>
+    <div 
+      className={`w-full bg-cover bg-center pt-40 ${styles['font-alegreya-sans']}`} 
+      style={{ backgroundImage: `url(${homePageContent.backgroundimg.asset.url})` }}
+    >
+      {/* Title and Button Section */}
       <div className="h-[80vh] mt-[1vh] sm:mt-[20vh] lg:mt-[25vh] w-[60%] mx-auto text-center flex flex-col items-center">
         <h1 className="text-white text-center text-[50px] font-normal leading-[43.2px]">
           {homePageContent.Homepagetitle}
@@ -25,21 +29,23 @@ const Home = ({ homePageContent }: HomePageProps) => {
           </button>
         </Link>
       </div>
-      <div className="w-[73%] h-screen flex flex-col md:flex-row mx-auto">
-        <div className="w-auto h-auto object-cover">
+
+      {/* Image and Chef Text Section */}
+      <div className="w-[73%] h-screen flex flex-col md:flex-row items-center mx-auto">
+        <div className="min-w-[350px] w-full md:w-[40%]  xl:w-[35%] h-auto object-cover flex-shrink-0">
           <Image
             src={homePageContent.dishimg?.asset?.url} 
             alt="Dish"
             width={500}
             height={500}
-            className={`rounded-full ${styles.maskedImage}`} 
+            className={`rounded-full ${styles.maskedImage} w-full h-full`} 
           />
         </div>
-        <div className="w-auto ml-[5%]">
-          <h1 className="text-white mt-[15%] text-[37px] font-normal leading-[38px]">
+        <div className=" md:w-auto ml-[0%] md:ml-[2%] flex flex-col justify-center text-center md:text-left ">
+          <h1 className="text-white mt-[5vh] text-[37px] font-normal leading-[38px]">
             {homePageContent.cheftext}
           </h1>
-          <h1 className="text-green-500 mt-[9%] text-[37px] font-normal leading-[38px]">
+          <h1 className="text-green-500 mt-[5vh] text-[37px] font-normal leading-[38px]">
             {homePageContent.chefname}
           </h1>
         </div>
@@ -48,7 +54,7 @@ const Home = ({ homePageContent }: HomePageProps) => {
   );
 };
 
-
+// Fetch data using `getStaticProps`
 export const getStaticProps: GetStaticProps = async () => {
   const query = `
     *[_type == "HomePageContent"][0]{
@@ -74,7 +80,6 @@ export const getStaticProps: GetStaticProps = async () => {
     props: {
       homePageContent, 
     },
-   
   };
 };
 
