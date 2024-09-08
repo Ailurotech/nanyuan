@@ -9,8 +9,7 @@ import {
   DrawerOverlay,
   useDisclosure,
 } from "@chakra-ui/react";
-import { NavigationRoute } from "../route";
-import Link from "next/link";
+import { NavigationMenu } from "./NavigationMenu";
 import clsx from "clsx";
 import { NextFont } from "next/dist/compiled/@next/font";
 import { Icon } from "@/components/common/Icon";
@@ -44,11 +43,7 @@ export function NavigationDrawer({ font }: { font: NextFont }) {
           </DrawerHeader>
           <DrawerBody>
             <ul className="space-y-4">
-              {Object.values(NavigationRoute).map((route) => (
-                <li key={route.Name}>
-                  <Link href={route.Path}>{route.Name}</Link>
-                </li>
-              ))}
+              <NavigationMenu />
             </ul>
           </DrawerBody>
         </DrawerContent>

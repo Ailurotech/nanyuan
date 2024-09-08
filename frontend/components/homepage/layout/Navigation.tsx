@@ -4,8 +4,9 @@ import Link from "next/link";
 import { Icon } from "../../common/Icon";
 import { Acme } from "next/font/google";
 import clsx from "clsx";
-import { NavigationRoute, RoutRoute, SocialRoute } from "../route";
-import { NavigationDrawer } from "./navigationDrawer";
+import { RoutRoute, SocialRoute } from "../route";
+import { NavigationMenu } from "./NavigationMenu";
+import { NavigationDrawer } from "./NavigationDrawer";
 
 const acme = Acme({ weight: "400", subsets: ["latin"] });
 
@@ -22,11 +23,7 @@ export default function Navigation({
             <Image src={logo} alt="logo" width="100" />
           </Link>
           <ul className="hidden md:flex md:gap-8 lg:gap-x-24 xl:gap-x-32 text-white text-lg lg:text-xl">
-            {Object.values(NavigationRoute).map((route) => (
-              <li key={route.Name}>
-                <Link href={route.Path}>{route.Name}</Link>
-              </li>
-            ))}
+            <NavigationMenu />
           </ul>
           <NavigationDrawer font={acme} />
           <div className="flex text-white items-center text-xl lg:text-2xl">
