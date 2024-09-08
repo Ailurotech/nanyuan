@@ -67,26 +67,5 @@ export const SocialRoute = {
   Instagram,
 };
 
-export const HomePageContent = {
-  background: {
-    name: "homepage-background",
-    path: "https://s2.loli.net/2024/09/05/mjv9A8IeqlTwDyi.png",
-  },
-  dish: {
-    name: "homepage-dish",
-    path: "https://s2.loli.net/2024/09/05/2sTNeCwxcI4alPZ.png",
-  },
-  title: {
-    name: "homepage-title",
-    text: "Crafted with Tradition, Served with Care: Experience the Authentic Flavors of China at Nanyuan",
-    buttonText: "SEE OUR MENU",
-    path: NavigationRoute.Menu.Path,
-  },
-  chef: {
-    name: "— Chef Leon",
-    text: "At Nanyuan, each dish is a blend of tradition and passion, bringing the authentic taste of China to your plate.",
-  }
-};
-
 
 
