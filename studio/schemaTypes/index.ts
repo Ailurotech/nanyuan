@@ -1,5 +1,5 @@
 // schemaTypes/index.ts
-import { createSchema } from 'sanity';
+import {createSchema} from 'sanity';
 import menu from './menu';
 import category from './category';
 import order from './order';

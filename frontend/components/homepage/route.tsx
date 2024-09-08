@@ -66,6 +66,3 @@ export const SocialRoute = {
   FaceBook,
   Instagram,
 };
-
-
-
