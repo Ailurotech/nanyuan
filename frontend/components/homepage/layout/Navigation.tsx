@@ -29,11 +29,11 @@ export default function Navigation({
             ))}
           </ul>
           <NavigationDrawer font={acme} />
-          <div className="flex text-white items-center text-xl lg:text-2xl ">
-            <div className="flex h-[60px] border-r-[1px] px-3 lg:px-5 gap-3 lg:gap-5 items-center ">
+          <div className="flex text-white items-center text-xl lg:text-2xl">
+            <div className="flex h-[60px] border-r-[1px] px-3 lg:px-5 gap-3 lg:gap-5 items-center">
               {Object.values(SocialRoute).map((route) => (
                 <Link key={route.Name} href={route.Path} target="_blank">
-                  <Icon name={route.Name as Icon} className=" stroke-[2.3px]" />
+                  <Icon name={route.Name as Icon} className="stroke-[2.3px]" />
                 </Link>
               ))}
             </div>
