@@ -1,23 +1,29 @@
-import HomePage from "../components/homepage/HomePage"; 
+import HomePage from "../components/homepage/HomePage";
 import { GetStaticProps } from "next";
 import { sanityClient } from "@/lib/sanityClient";
-import { HomePageContent as HomePageContentType } from "@/types"; 
+import { HomePageContent as HomePageContentType } from "@/types";
+import { Content } from "@/components/homepage/component/Content";
+import { GalleryWidget } from "@/components/homepage/component/GalleryWidget";
 
 interface IndexProps {
-  homePageContent: HomePageContentType | null;
+  homePageContent: HomePageContentType[];
 }
 
-export default function Index({ homePageContent }: IndexProps) { 
+export default function Index({ homePageContent }: IndexProps) {
+  const { galleryPhotos } = homePageContent[0];
   return (
-    <div>
-      <HomePage homePageContent={homePageContent} />
-    </div>
+    <>
+      <HomePage homePageContent={homePageContent[0]} />
+      <Content>
+        <GalleryWidget galleryPhotos={galleryPhotos} />
+      </Content>
+    </>
   );
 }
 
 export const getStaticProps: GetStaticProps = async () => {
   const query = `
-    *[_type == "HomePageContent"][0]{
+    *[_type == "HomePageContent"]{
       Homepagetitle,
       backgroundimg{
         asset->{
@@ -30,7 +36,12 @@ export const getStaticProps: GetStaticProps = async () => {
         }
       },
       cheftext,
-      chefname
+      chefname,
+      galleryPhotos[]{
+        asset -> {
+        url
+        }
+      }
     }
   `;
 
@@ -40,7 +51,6 @@ export const getStaticProps: GetStaticProps = async () => {
     props: {
       homePageContent,
     },
-    revalidate: 86400,
+    revalidate: 60,
   };
 };
-

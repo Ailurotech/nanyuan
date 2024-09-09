@@ -58,9 +58,6 @@ const HomePage = ({ homePageContent }: HomePageProps) => {
           </h1>
         </div>
       </div>
-      <Content>
-        <GalleryWidget />
-      </Content>
     </div>
   );
 };
