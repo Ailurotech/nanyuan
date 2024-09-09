@@ -1,9 +1,11 @@
 import Link from "next/link";
-import Image from "next/image"; 
-import styles from "@/styles/homepage.module.css";  
-import { HomePageContent as HomePageContentType } from "@/types"; 
-import { NavigationRoute } from "@/components/homepage/route"; 
-import Arrow from '@/components/common/arrow';
+import Image from "next/image";
+import styles from "@/styles/homepage.module.css";
+import { HomePageContent as HomePageContentType } from "@/types";
+import { NavigationRoute } from "@/components/homepage/route";
+import Arrow from "@/components/common/arrow";
+import { GalleryWidget } from "./component/GalleryWidget";
+import { Content } from "./component/Content";
 
 interface HomePageProps {
   homePageContent: HomePageContentType | null;
@@ -13,20 +15,24 @@ const HomePage = ({ homePageContent }: HomePageProps) => {
   if (!homePageContent) {
     return (
       <div className="w-full h-screen flex items-center justify-center">
-        <h1 className="text-red-500 text-3xl">Failed to load Homepage content. Please try again later.</h1>
+        <h1 className="text-red-500 text-3xl">
+          Failed to load Homepage content. Please try again later.
+        </h1>
       </div>
     );
   }
   return (
-    <div 
-      className={`w-full bg-cover bg-center pt-40 ${styles['font-alegreya-sans']}`} 
-      style={{ backgroundImage: `url(${homePageContent.backgroundimg.asset.url})` }}
+    <div
+      className={`w-full bg-cover bg-center pt-40 ${styles["font-alegreya-sans"]}`}
+      style={{
+        backgroundImage: `url(${homePageContent.backgroundimg.asset.url})`,
+      }}
     >
       <div className="h-[80vh] mt-[7vh] sm:mt-[20vh] lg:mt-[25vh] w-[60%] mx-auto text-center flex flex-col items-center">
         <h1 className="text-white text-center text-[50px] font-normal leading-[43.2px]">
           {homePageContent.Homepagetitle}
         </h1>
-        <Link href={NavigationRoute.Menu.Path}> 
+        <Link href={NavigationRoute.Menu.Path}>
           <button className="mt-[4vh] sm:mt-[8vh] px-7 py-4 bg-[#F9BF28] text-black font-bold hover:bg-[#e0a622] flex items-center space-x-2 whitespace-nowrap">
             <span className="text-xl">SEE OUR MENU</span>
             <Arrow />
@@ -36,11 +42,11 @@ const HomePage = ({ homePageContent }: HomePageProps) => {
       <div className="w-[73%] h-screen flex flex-col md:flex-row items-center mx-auto">
         <div className="min-w-[350px] w-full md:w-[40%]  xl:w-[35%] h-auto object-cover flex-shrink-0">
           <Image
-            src={homePageContent.dishimg?.asset?.url} 
+            src={homePageContent.dishimg?.asset?.url}
             alt="Dish"
             width={500}
             height={500}
-            className={`rounded-full ${styles.maskedImage} w-full h-full`} 
+            className={`rounded-full ${styles.maskedImage} w-full h-full`}
           />
         </div>
         <div className=" md:w-auto ml-[0%] md:ml-[2%] flex flex-col justify-center text-center md:text-left ">
@@ -52,6 +58,9 @@ const HomePage = ({ homePageContent }: HomePageProps) => {
           </h1>
         </div>
       </div>
+      <Content>
+        <GalleryWidget />
+      </Content>
     </div>
   );
 };
