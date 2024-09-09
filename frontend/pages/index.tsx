@@ -11,7 +11,7 @@ interface HomePageProps {
   homePageContent: HomePageContentType;
 }
 
-const Home = ({ homePageContent }: HomePageProps) => {
+const HomePage = ({ homePageContent }: HomePageProps) => {
   return (
     <div 
       className={`w-full bg-cover bg-center pt-40 ${styles['font-alegreya-sans']}`} 
@@ -51,7 +51,6 @@ const Home = ({ homePageContent }: HomePageProps) => {
   );
 };
 
-
 export const getStaticProps: GetStaticProps = async () => {
   const query = `
     *[_type == "HomePageContent"][0]{
@@ -80,4 +79,4 @@ export const getStaticProps: GetStaticProps = async () => {
   };
 };
 
-export default Home;
+export default HomePage;
