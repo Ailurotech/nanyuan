@@ -1,4 +1,5 @@
 import Link from "next/link";
+import path from "path";
 
 const Rout = {
   Path: "/",
