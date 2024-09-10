@@ -1,25 +1,22 @@
-import { GalleryPhoto } from "@/types";
 import clsx from "clsx";
 import Image from "next/image";
 
 interface IndividualPhotoProps {
-  photo: GalleryPhoto;
+  photo: any;
   isColor?: boolean;
-  index: number;
 }
 
 export function IndividualPhoto({
   photo,
   isColor = false,
-  index,
 }: IndividualPhotoProps) {
   return (
-    <div key={index} className="relative">
+    <div className="relative">
       <Image
         src={photo.asset.url}
         alt="Gallery Photo"
         fill
-        objectFit="cover"
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         className={clsx(isColor ? "" : "grayscale hover:grayscale-0")}
       />
     </div>

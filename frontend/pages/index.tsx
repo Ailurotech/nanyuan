@@ -1,29 +1,29 @@
 import HomePage from "../components/homepage/HomePage";
 import { GetStaticProps } from "next";
 import { sanityClient } from "@/lib/sanityClient";
-import { HomePageContent as HomePageContentType } from "@/types";
+import { GalleryContent, HeroContent } from "@/types";
 import { Content } from "@/components/homepage/component/Content";
 import { GalleryWidget } from "@/components/homepage/component/GalleryWidget";
 
 interface IndexProps {
-  homePageContent: HomePageContentType[];
+  heroContent: HeroContent[];
+  galleryContent: GalleryContent[];
 }
 
-export default function Index({ homePageContent }: IndexProps) {
-  const { galleryPhotos } = homePageContent[0];
+export default function Index({ heroContent, galleryContent }: IndexProps) {
   return (
     <>
-      <HomePage homePageContent={homePageContent[0]} />
+      <HomePage homePageContent={heroContent[0]} />
       <Content>
-        <GalleryWidget galleryPhotos={galleryPhotos} />
+        <GalleryWidget galleryContent={galleryContent[0]} />
       </Content>
     </>
   );
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-  const query = `
-    *[_type == "HomePageContent"]{
+  const heroQuery = `
+    *[_type == "HomePage"]{
       Homepagetitle,
       backgroundimg{
         asset->{
@@ -37,19 +37,35 @@ export const getStaticProps: GetStaticProps = async () => {
       },
       cheftext,
       chefname,
+    }
+  `;
+  const galleryWidgetQuery = `
+  *[_type == "HomePage"]{
       galleryPhotos[]{
         asset -> {
         url
+        }
+      },
+      menuName,
+      menuLink,
+      menuDescription[]{
+        children[]{
+          text
         }
       }
     }
   `;
 
-  const homePageContent = await sanityClient.fetch(query);
+  const homePageContent = await Promise.all([
+    sanityClient.fetch(heroQuery),
+    sanityClient.fetch(galleryWidgetQuery),
+  ]);
+  const [heroContent, galleryContent] = homePageContent;
 
   return {
     props: {
-      homePageContent,
+      heroContent,
+      galleryContent,
     },
     revalidate: 60,
   };

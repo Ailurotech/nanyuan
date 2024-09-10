@@ -20,8 +20,16 @@ const Location = {
 const Menu = {
   Path: "/menu",
   Name: "Menu",
-  Link: ({ children }: { children: React.ReactNode }) => (
-    <Link href={Menu.Path}>{children}</Link>
+  Link: ({
+    children,
+    className,
+  }: {
+    children: React.ReactNode;
+    className: string;
+  }) => (
+    <Link href={Menu.Path} className={className}>
+      {children}
+    </Link>
   ),
 };
 

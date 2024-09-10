@@ -8,7 +8,7 @@ export interface MenuItem {
     url: string;
   };
 }
-export interface HomePageContent {
+export interface HeroContent {
   title: string;
   backgroundimg: {
     asset: {
@@ -23,11 +23,19 @@ export interface HomePageContent {
   cheftext: string;
   chefname: string;
   Homepagetitle: string;
-  galleryPhotos: GalleryPhoto[];
 }
 
-export type GalleryPhoto = {
-  asset: {
-    url: string;
-  };
-};
+export interface GalleryContent {
+  galleryPhotos: {
+    asset: {
+      url: string;
+    };
+  }[];
+  menuName: string;
+  menuDescription: {
+    children: {
+      text: string;
+    }[];
+  }[];
+  menuLink: string;
+}

@@ -1,68 +1,57 @@
-import { GalleryPhoto } from "@/types";
+import { GalleryContent } from "@/types";
 import { IndividualPhoto } from "./IndividualPhoto";
-import Image from "next/image";
+import { NavigationRoute } from "../route";
+import { Icon } from "@/components/common/Icon";
+import clsx from "clsx";
+import React from "react";
 
 type GalleryWidgetProps = {
-  galleryPhotos: GalleryPhoto[];
+  galleryContent: GalleryContent;
 };
 
-export function GalleryWidget({ galleryPhotos }: GalleryWidgetProps) {
-  console.log("123", galleryPhotos);
+export function GalleryWidget({ galleryContent }: GalleryWidgetProps) {
+  const { galleryPhotos, menuName, menuDescription, menuLink } = galleryContent;
+  const menuDescriptionText = menuDescription[0].children[0].text;
   return (
-    <div className="grid bg-slate-500 w-[70%] aspect-[4/3] m-auto -translate-y-[20%] grid-cols-4 grid-rows-3">
+    <div className="grid w-[70%] aspect-[4/3] m-auto -translate-y-[20%] grid-cols-4 grid-rows-3">
       {galleryPhotos.map((photo, index) => {
         switch (index) {
           case 0:
-            return (
-              <IndividualPhoto
-                key={index}
-                photo={photo}
-                isColor
-                index={index}
-              />
-            );
+            return <IndividualPhoto key={index} photo={photo} isColor />;
           case 6:
             return (
-              <>
-                <div key={index} className="relative col-span-2 bg-white">
-                  123123123
+              <React.Fragment key={index}>
+                <div
+                  className={clsx(
+                    "relative col-span-2 bg-white flex flex-col items-end justify-center lg:justify-end text-right overflow-hidden",
+                    "p-2 sm:p-6 xl:pb-5 xl:px-12 2xl:pb-8 2xl:px-16",
+                    "gap-1 md:gap-2 lg:gap-4 xl:gap-6 2xl:gap-8"
+                  )}
+                >
+                  <h1
+                    className={clsx(
+                      "relative text-[1rem] sm:text-[1.3rem] lg:text-[2rem] xl:text-[2.5rem] 2xl:text-[3rem] font-serif",
+                      "after:content-[''] after:block after:w-[30%] after:h-[1px] after:bg-[#F9BF28] after:absolute",
+                      "after:right-0 after:top-full after:md:mt-1 after:2xl:mt-2"
+                    )}
+                  >
+                    {menuName}
+                  </h1>
+                  <span className="text-[0.6rem] xl:text-[0.8rem] hidden lg:block">
+                    {menuDescriptionText}
+                  </span>
+                  <NavigationRoute.Menu.Link className="mt-1 text-[0.5rem] xl:text-[0.8rem] flex gap-2 items-center font-bold">
+                    {`view ${menuLink}'s menus`.toUpperCase()}
+                    <Icon name="arrow" className="text-green-500" />
+                  </NavigationRoute.Menu.Link>
                 </div>
-                <IndividualPhoto key={index} photo={photo} index={index} />
-              </>
+                <IndividualPhoto photo={photo} />
+              </React.Fragment>
             );
           default:
-            return <IndividualPhoto key={index} photo={photo} index={index} />;
+            return <IndividualPhoto key={index + 1} photo={photo} />;
         }
       })}
     </div>
   );
 }
-
-// if (index === 0) {
-//   return (
-//     <div key={index} className="relative">
-//       <Image
-//         src={photo.asset.url}
-//         alt="Gallery Photo"
-//         fill
-//         objectFit="cover"
-//       />
-//     </div>
-//   );
-// }
-// if (index === 6) {
-//   return (
-//     <div key={index} className="relative col-span-2 bg-white"></div>
-//   );
-// }
-// return (
-//   <div key={index} className="relative">
-//     <Image
-//       src={photo.asset.url}
-//       alt="Gallery Photo"
-//       fill
-//       objectFit="cover"
-//       className="grayscale hover:grayscale-0"
-//     />
-//   </div>
-// );

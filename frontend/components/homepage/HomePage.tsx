@@ -1,14 +1,14 @@
 import Link from "next/link";
 import Image from "next/image";
 import styles from "@/styles/homepage.module.css";
-import { HomePageContent as HomePageContentType } from "@/types";
+import { HeroContent } from "@/types";
 import { NavigationRoute } from "@/components/homepage/route";
 import Arrow from "@/components/common/arrow";
 import { GalleryWidget } from "./component/GalleryWidget";
 import { Content } from "./component/Content";
 
 interface HomePageProps {
-  homePageContent: HomePageContentType | null;
+  homePageContent: HeroContent;
 }
 
 const HomePage = ({ homePageContent }: HomePageProps) => {
@@ -23,7 +23,7 @@ const HomePage = ({ homePageContent }: HomePageProps) => {
   }
   return (
     <div
-      className={`w-full bg-cover bg-center pt-40 ${styles["font-alegreya-sans"]}`}
+      className={`w-full bg-cover bg-center pt-40 backdrop-brightness-[0.1] ${styles["font-alegreya-sans"]}`}
       style={{
         backgroundImage: `url(${homePageContent.backgroundimg.asset.url})`,
       }}

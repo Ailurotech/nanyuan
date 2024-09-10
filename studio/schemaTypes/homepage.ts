@@ -1,8 +1,8 @@
 import {defineType} from 'sanity'
 
 export default defineType({
-  name: 'HomePageContent',
-  title: 'HomePageContent',
+  name: 'HomePage',
+  title: 'HomePage',
   type: 'document',
   groups: [
     {name: 'hero', title: 'Hero'},
@@ -53,6 +53,25 @@ export default defineType({
       title: 'Gallery Photos',
       type: 'array',
       of: [{type: 'image'}],
+      group: 'content',
+    },
+    {
+      name: 'menuName',
+      title: 'Menu Name',
+      type: 'string',
+      group: 'content',
+    },
+    {
+      name: 'menuDescription',
+      title: 'Menu Description',
+      type: 'array',
+      of: [{type: 'block'}],
+      group: 'content',
+    },
+    {
+      name: 'menuLink',
+      title: 'Menu Link Name',
+      type: 'string',
       group: 'content',
     },
   ],
