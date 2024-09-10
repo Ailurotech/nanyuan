@@ -26,11 +26,7 @@ export interface HeroContent {
 }
 
 export interface GalleryContent {
-  galleryPhotos: {
-    asset: {
-      url: string;
-    };
-  }[];
+  galleryPhotos: SinglePhoto[];
   menuName: string;
   menuDescription: {
     children: {
@@ -38,4 +34,10 @@ export interface GalleryContent {
     }[];
   }[];
   menuLink: string;
+}
+
+export interface SinglePhoto {
+  asset: {
+    url: string;
+  };
 }

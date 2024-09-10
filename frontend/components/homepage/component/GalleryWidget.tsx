@@ -49,7 +49,7 @@ export function GalleryWidget({ galleryContent }: GalleryWidgetProps) {
               </React.Fragment>
             );
           default:
-            return <IndividualPhoto key={index + 1} photo={photo} />;
+            return <IndividualPhoto key={index} photo={photo} />;
         }
       })}
     </div>

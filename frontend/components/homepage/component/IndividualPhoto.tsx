@@ -1,8 +1,9 @@
+import { SinglePhoto } from "@/types";
 import clsx from "clsx";
 import Image from "next/image";
 
 interface IndividualPhotoProps {
-  photo: any;
+  photo: SinglePhoto;
   isColor?: boolean;
 }
 
