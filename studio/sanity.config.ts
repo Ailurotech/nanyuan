@@ -1,5 +1,4 @@
 import {defineConfig, type PluginOptions} from 'sanity';
-import {deskTool} from 'sanity/desk';
 import {visionTool} from '@sanity/vision';
 import {schemaTypes} from './schemaTypes'
 import {formConfig} from './form';

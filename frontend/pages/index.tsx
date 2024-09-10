@@ -1,13 +1,13 @@
-import HomePage from "../components/homepage/HomePage"; 
+import HomePage from "../components/homepage/HomePage";
 import { GetStaticProps } from "next";
 import { sanityClient } from "@/lib/sanityClient";
-import { HomePageContent as HomePageContentType } from "@/types"; 
+import { HomePageContent as HomePageContentType } from "@/types";
 
 interface IndexProps {
   homePageContent: HomePageContentType | null;
 }
 
-export default function Index({ homePageContent }: IndexProps) { 
+export default function Index({ homePageContent }: IndexProps) {
   return (
     <div>
       <HomePage homePageContent={homePageContent} />
@@ -40,7 +40,5 @@ export const getStaticProps: GetStaticProps = async () => {
     props: {
       homePageContent,
     },
-    revalidate: 86400,
   };
 };
-
