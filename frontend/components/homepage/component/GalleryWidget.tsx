@@ -3,7 +3,7 @@ import { IndividualPhoto } from "./IndividualPhoto";
 import { NavigationRoute } from "../route";
 import { Icon } from "@/components/common/Icon";
 import clsx from "clsx";
-import React from "react";
+import React, { useState } from "react";
 
 type GalleryWidgetProps = {
   galleryContent: GalleryContent;
@@ -12,12 +12,25 @@ type GalleryWidgetProps = {
 export function GalleryWidget({ galleryContent }: GalleryWidgetProps) {
   const { galleryPhotos, menuName, menuDescription, menuLink } = galleryContent;
   const menuDescriptionText = menuDescription[0].children[0].text;
+  const [isAnyPhotoHovered, setIsAnyPhotoHovered] = useState(false);
+
+  const handlePhotoHover = (isHovered: boolean) => {
+    setIsAnyPhotoHovered(isHovered);
+  };
+
   return (
     <div className="grid w-[70%] aspect-[4/3] m-auto -translate-y-[20%] grid-cols-4 grid-rows-3">
       {galleryPhotos.map((photo, index) => {
         switch (index) {
           case 0:
-            return <IndividualPhoto key={index} photo={photo} isColor />;
+            return (
+              <IndividualPhoto
+                key={index}
+                photo={photo}
+                isColor={!isAnyPhotoHovered}
+                onHover={handlePhotoHover}
+              />
+            );
           case 6:
             return (
               <React.Fragment key={index}>
@@ -45,11 +58,17 @@ export function GalleryWidget({ galleryContent }: GalleryWidgetProps) {
                     <Icon name="arrow" className="text-green-500" />
                   </NavigationRoute.Menu.Link>
                 </div>
-                <IndividualPhoto photo={photo} />
+                <IndividualPhoto photo={photo} onHover={handlePhotoHover} />
               </React.Fragment>
             );
           default:
-            return <IndividualPhoto key={index} photo={photo} />;
+            return (
+              <IndividualPhoto
+                key={index}
+                photo={photo}
+                onHover={handlePhotoHover}
+              />
+            );
         }
       })}
     </div>
