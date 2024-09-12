@@ -25,7 +25,7 @@ const Menu = {
     className,
   }: {
     children: React.ReactNode;
-    className: string;
+    className?: string;
   }) => (
     <Link href={Menu.Path} className={className}>
       {children}

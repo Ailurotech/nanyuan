@@ -67,6 +67,5 @@ export const getStaticProps: GetStaticProps = async () => {
       heroContent,
       galleryContent,
     },
-    revalidate: 60,
   };
 };
