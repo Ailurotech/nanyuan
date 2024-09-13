@@ -23,7 +23,9 @@ export function IndividualPhoto({
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className={clsx(
             "duration-500",
-            isColor ? "group-hover:grayscale" : "grayscale hover:grayscale-0"
+            isColor
+              ? "hover:!grayscale-0 group-hover:grayscale"
+              : "grayscale hover:grayscale-0"
           )}
         />
       </NavigationRoute.Menu.Link>
