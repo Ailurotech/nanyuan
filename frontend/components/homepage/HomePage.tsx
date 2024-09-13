@@ -33,7 +33,7 @@ const HomePage = ({ homePageContent }: HomePageProps) => {
           </button>
         </Link>
       </div>
-      <div className="w-[73%]  flex flex-col md:flex-row items-center mx-auto">
+      <div className="w-[73%] pb-[10%] flex flex-col md:flex-row items-center mx-auto">
         <div className="min-w-[350px] w-full md:w-[40%]  xl:w-[35%] h-auto object-cover flex-shrink-0">
           <Image
             src={homePageContent.dishimg?.asset?.url} 
