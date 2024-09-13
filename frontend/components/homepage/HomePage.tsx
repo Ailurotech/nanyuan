@@ -22,7 +22,7 @@ const HomePage = ({ homePageContent }: HomePageProps) => {
       className={`w-full bg-cover bg-center pt-40 ${styles['font-alegreya-sans']}`} 
       style={{ backgroundImage: `url(${homePageContent.backgroundimg.asset.url})` }}
     >
-      <div className="h-[60vh] mt-[7vh] mb-[13vh] sm:mt-[20vh] lg:mt-[25vh] w-[60%] mx-auto text-center flex flex-col items-center">
+      <div className="h-[60vh] mt-[7vh] mb-[13vh] sm:mt-[20vh]  mb-[0vh] lg:mt-[25vh] w-[60%] mx-auto text-center flex flex-col items-center">
         <h1 className="text-white text-center text-[50px] font-normal leading-[43.2px]">
           {homePageContent.Homepagetitle}
         </h1>
