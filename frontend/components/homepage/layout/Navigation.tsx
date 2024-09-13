@@ -4,7 +4,9 @@ import Link from "next/link";
 import { Icon } from "../../common/Icon";
 import { Acme } from "next/font/google";
 import clsx from "clsx";
-import { NavigationRoute, RoutRoute, SocialRoute } from "../route";
+import { RoutRoute, SocialRoute } from "../route";
+import { NavigationMenu } from "./NavigationMenu";
+import { NavigationDrawer } from "./navigationDrawer";
 
 const acme = Acme({ weight: "400", subsets: ["latin"] });
 
@@ -15,27 +17,24 @@ export default function Navigation({
 }) {
   return (
     <>
-      <header className={(clsx("fixed top-0"), acme.className)}>
+      <header className={clsx("top-0", acme.className)}>
         <nav className="bg-black w-screen flex items-center justify-evenly py-6">
           <Link href={RoutRoute.Rout.Path}>
             <Image src={logo} alt="logo" width="100" />
           </Link>
-          <ul className="flex gap-12 xl:gap-28 text-white text-lg xl:text-xl">
-            {Object.values(NavigationRoute).map((route) => (
-              <li key={route.Name}>
-                {<Link href={route.Path}>{route.Name}</Link>}
-              </li>
-            ))}
+          <ul className="hidden md:flex md:gap-8 lg:gap-x-24 xl:gap-x-32 text-white text-lg lg:text-xl">
+            <NavigationMenu />
           </ul>
-          <div className="flex text-white items-center text-xl xl:text-2xl ">
-            <div className="flex h-[60px] border-r-[1px] px-3 xl:px-5 gap-3 xl:gap-5 items-center ">
+          <NavigationDrawer font={acme} />
+          <div className="flex text-white items-center text-xl lg:text-2xl">
+            <div className="flex h-[60px] border-r-[1px] px-3 lg:px-5 gap-3 lg:gap-5 items-center">
               {Object.values(SocialRoute).map((route) => (
                 <Link key={route.Name} href={route.Path} target="_blank">
-                  <Icon name={route.Name as Icon} className=" stroke-[2.3px]" />
+                  <Icon name={route.Name as Icon} className="stroke-[2.3px]" />
                 </Link>
               ))}
             </div>
-            <div className="px-3 xl:px-5 font-bold text-xl xl:text-2xl">
+            <div className="px-3 lg:px-5 font-bold text-xl lg:text-2xl">
               <Icon name="mobile" />
             </div>
             <h3 className="text-lg">(08)8271 3133</h3>

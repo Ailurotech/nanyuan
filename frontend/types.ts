@@ -8,4 +8,19 @@ export interface MenuItem {
       url: string;
     };
   }
-  
+  export interface HomePageContent {
+    title: string;
+    backgroundimg: {
+      asset: {
+        url: string;
+      };
+    };
+    dishimg: {
+      asset: {
+        url: string;
+      };
+    };
+    cheftext: string;
+    chefname: string;
+    Homepagetitle: string;
+  }

@@ -10,6 +10,7 @@ interface MenuProps {
 
 const MenuPage = ({ menuItems }: MenuProps) => {
   return (
+    <div>
     <div className="bg-black min-h-screen py-12">
       <h1 className="text-center text-white text-4xl font-bold mb-8">Choose Our Menu</h1>
       <div className="container mx-auto grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-5 mt-5 justify-items-center px-5">
@@ -53,6 +54,7 @@ const MenuPage = ({ menuItems }: MenuProps) => {
           See All
         </button>
       </div>
+    </div>
     </div>
   );
 };
