@@ -4,8 +4,6 @@ import styles from "@/styles/homepage.module.css";
 import { HeroContent } from "@/types";
 import { NavigationRoute } from "@/components/homepage/route";
 import Arrow from "@/components/common/arrow";
-import { GalleryWidget } from "./component/GalleryWidget";
-import { Content } from "./component/Content";
 
 interface HomePageProps {
   homePageContent: HeroContent;
@@ -42,7 +40,7 @@ const HomePage = ({ homePageContent }: HomePageProps) => {
       <div className="w-[73%] h-screen flex flex-col md:flex-row items-center mx-auto">
         <div className="min-w-[350px] w-full md:w-[40%]  xl:w-[35%] h-auto object-cover flex-shrink-0">
           <Image
-            src={homePageContent.dishimg?.asset?.url}
+            src={homePageContent.dishimg.asset.url}
             alt="Dish"
             width={500}
             height={500}

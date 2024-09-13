@@ -6,23 +6,23 @@ import { Content } from "@/components/homepage/component/Content";
 import { GalleryWidget } from "@/components/homepage/component/GalleryWidget";
 
 interface IndexProps {
-  heroContent: HeroContent[];
-  galleryContent: GalleryContent[];
+  heroContent: HeroContent;
+  galleryContent: GalleryContent;
 }
 
 export default function Index({ heroContent, galleryContent }: IndexProps) {
   return (
     <>
-      <HomePage homePageContent={heroContent[0]} />
+      <HomePage homePageContent={heroContent} />
       <Content>
-        <GalleryWidget galleryContent={galleryContent[0]} />
+        <GalleryWidget galleryContent={galleryContent} />
       </Content>
     </>
   );
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-  const heroQuery = `
+  const query = `
     *[_type == "HomePage"]{
       Homepagetitle,
       backgroundimg{
@@ -37,10 +37,6 @@ export const getStaticProps: GetStaticProps = async () => {
       },
       cheftext,
       chefname,
-    }
-  `;
-  const galleryWidgetQuery = `
-  *[_type == "HomePage"]{
       galleryPhotos[]{
         asset -> {
         url
@@ -56,16 +52,32 @@ export const getStaticProps: GetStaticProps = async () => {
     }
   `;
 
-  const homePageContent = await Promise.all([
-    sanityClient.fetch(heroQuery),
-    sanityClient.fetch(galleryWidgetQuery),
-  ]);
-  const [heroContent, galleryContent] = homePageContent;
-
-  return {
-    props: {
-      heroContent,
-      galleryContent,
-    },
-  };
+  try {
+    const data = await sanityClient.fetch(query);
+    return {
+      props: {
+        heroContent: {
+          Homepagetitle: data[0].Homepagetitle,
+          backgroundimg: data[0].backgroundimg,
+          dishimg: data[0].dishimg,
+          cheftext: data[0].cheftext,
+          chefname: data[0].chefname,
+        },
+        galleryContent: {
+          galleryPhotos: data[0].galleryPhotos,
+          menuName: data[0].menuName,
+          menuLink: data[0].menuLink,
+          menuDescription: data[0].menuDescription,
+        },
+      },
+    };
+  } catch (e) {
+    console.error("Error fetching data:", e);
+    return {
+      props: {
+        heroContent: null,
+        galleryContent: null,
+      },
+    };
+  }
 };
