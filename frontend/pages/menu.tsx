@@ -2,7 +2,7 @@
 import { GetStaticProps } from "next";
 import { sanityClient } from "../lib/sanityClient";
 import { MenuItem } from "../types"; // Define your types if needed
-import { Card, CardBody, Heading, Stack, Text, Button } from '@chakra-ui/react';
+import { Card, CardBody, Heading, Stack, Text, Button, Image, CardFooter } from '@chakra-ui/react';
 
 interface MenuProps {
   menuItems: MenuItem[];
@@ -10,41 +10,50 @@ interface MenuProps {
 
 const MenuPage = ({ menuItems }: MenuProps) => {
   return (
-<div className="bg-black min-h-screen py-12">
-  <h1 className="text-center text-white text-4xl font-bold mb-8">Choose Our Menu</h1>
-  <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-5 mt-5">
-    {menuItems.map((item) => (
-      <div key={item._id} className="rounded-lg p-5 text-center transition-transform duration-300">
-        <Card className="shadow-lg bg-[#191919] text-black relative rounded-lg p-4">
-          <CardBody className="relative">
-            <div className="flex justify-center mb-4">
-                <img
+    <div className="bg-black min-h-screen py-12">
+      <h1 className="text-center text-white text-4xl font-bold mb-8">Choose Our Menu</h1>
+      <div className="container mx-auto grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-5 mt-5 justify-items-center px-5">
+        {menuItems.map((item) => (
+          <Card key={item._id} sx={{ backgroundColor: "#191919" }} maxW="300px" className="shadow-lg rounded-lg p-4">
+            <CardBody className="relative">
+              <div className="flex justify-center">
+                <Image
                   src={item.image.url}
                   alt={item.name}
-                  className="object-cover"
+                  borderRadius='lg'
+                  style={{ maxHeight: "150px", objectFit: "cover", color: "white" }}
                 />
-            </div>
-            <Stack mt="6" spacing="3" className="text-center">
-              <Heading size="md" className="text-white">{item.name}</Heading>
-              <Text className="text-white">{item.description}</Text>
-              <div className="flex items-center justify-between mt-4">
-                <Text className="text-yellow-400 font-bold text-xl">${item.price}</Text>
-                <Button className="bg-white text-black w-8 h-8 rounded-full shadow-lg flex items-center justify-center">
-                  +
-                </Button>
               </div>
-            </Stack>
-          </CardBody>
-        </Card>
+              <Stack mt="6" spacing="3" className="text-center">
+                <Heading size="md" className="text-white">{item.name}</Heading>
+                <Text className="text-white">{item.description}</Text>
+              </Stack>
+            </CardBody>
+            <CardFooter display="flex" justifyContent="space-between" alignItems="center">
+              <Text color="yellow.400" fontSize="xl" fontWeight="bold">${item.price}</Text>
+              <Button
+                variant="solid"
+                bg="white"
+                color="black"
+                w="40px"
+                h="40px"
+                borderRadius="50%"
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+              >
+                +
+              </Button>
+            </CardFooter>
+          </Card>
+        ))}
       </div>
-    ))}
-  </div>
-  <div className="flex justify-center mt-10">
-    <button className="bg-yellow-400 text-white py-2 px-6 rounded-lg text-lg">
-      See All
-    </button>
-  </div>
-</div>
+      <div className="flex justify-center mt-10">
+        <button className="bg-yellow-400 text-white py-2 px-6 rounded-lg text-lg">
+          See All
+        </button>
+      </div>
+    </div>
   );
 };
 
