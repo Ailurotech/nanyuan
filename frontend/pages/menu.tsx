@@ -19,7 +19,7 @@ const MenuPage = ({ menuItems }: MenuProps) => {
             <CardBody className="relative">
               <div className="flex justify-center">
                 <Image
-                  src={item.image.url}
+                  src={item.image}
                   alt={item.name}
                   borderRadius='lg'
                   style={{ maxHeight: "150px", objectFit: "cover", color: "white" }}
