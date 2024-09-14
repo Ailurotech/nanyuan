@@ -17,8 +17,8 @@ export default function Navigation({
 }) {
   return (
     <>
-      <header className={clsx("fixed top-0", acme.className)}>
-        <nav className="bg-black w-screen flex items-center justify-evenly py-6">
+      <header className={clsx("fixed top-0 z-10", acme.className)}>
+        <nav className="bg-black/50 w-screen flex items-center justify-evenly py-6">
           <Link href={RoutRoute.Rout.Path}>
             <Image src={logo} alt="logo" width="100" />
           </Link>

@@ -1,23 +1,29 @@
-import HomePage from "../components/homepage/HomePage"; 
+import HomePage from "../components/homepage/HomePage";
 import { GetStaticProps } from "next";
 import { sanityClient } from "@/lib/sanityClient";
-import { HomePageContent as HomePageContentType } from "@/types"; 
+import { GalleryContent, HeroContent } from "@/types";
+import { Content } from "@/components/homepage/component/Content";
+import { GalleryWidget } from "@/components/homepage/component/GalleryWidget";
 
 interface IndexProps {
-  homePageContent: HomePageContentType | null;
+  heroContent: HeroContent;
+  galleryContent: GalleryContent;
 }
 
-export default function Index({ homePageContent }: IndexProps) { 
+export default function Index({ heroContent, galleryContent }: IndexProps) {
   return (
-    <div>
-      <HomePage homePageContent={homePageContent} />
-    </div>
+    <>
+      <HomePage homePageContent={heroContent} />
+      <Content>
+        <GalleryWidget galleryContent={galleryContent} />
+      </Content>
+    </>
   );
 }
 
 export const getStaticProps: GetStaticProps = async () => {
   const query = `
-    *[_type == "HomePageContent"][0]{
+    *[_type == "HomePage"]{
       Homepagetitle,
       backgroundimg{
         asset->{
@@ -30,17 +36,48 @@ export const getStaticProps: GetStaticProps = async () => {
         }
       },
       cheftext,
-      chefname
+      chefname,
+      galleryPhotos[]{
+        asset -> {
+        url
+        }
+      },
+      menuName,
+      menuLink,
+      menuDescription[]{
+        children[]{
+          text
+        }
+      }
     }
   `;
 
-  const homePageContent = await sanityClient.fetch(query);
-
-  return {
-    props: {
-      homePageContent,
-    },
-    revalidate: 86400,
-  };
+  try {
+    const data = await sanityClient.fetch(query);
+    return {
+      props: {
+        heroContent: {
+          Homepagetitle: data[0].Homepagetitle,
+          backgroundimg: data[0].backgroundimg,
+          dishimg: data[0].dishimg,
+          cheftext: data[0].cheftext,
+          chefname: data[0].chefname,
+        },
+        galleryContent: {
+          galleryPhotos: data[0].galleryPhotos,
+          menuName: data[0].menuName,
+          menuLink: data[0].menuLink,
+          menuDescription: data[0].menuDescription,
+        },
+      },
+    };
+  } catch (e) {
+    console.error("Error fetching data:", e);
+    return {
+      props: {
+        heroContent: null,
+        galleryContent: null,
+      },
+    };
+  }
 };
-
