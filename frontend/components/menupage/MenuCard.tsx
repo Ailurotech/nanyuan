@@ -1,5 +1,6 @@
 import { Card, CardBody, Heading, Stack, Text, Button, Image, CardFooter } from '@chakra-ui/react';
 import { MenuItem } from "../../types";
+import Link from "next/link";
 interface MenuProps {
     menuItems: MenuItem;
   }
@@ -27,20 +28,23 @@ const MenuCard = ({ menuItems }: MenuProps) => {
               </CardBody>
               <CardFooter display="flex" justifyContent="space-between" alignItems="center" mt={10}>
                 <Text color="yellow.400" fontSize="xl" fontWeight="bold">${menuItems.price}</Text>
-                <Button
-                  variant="solid"
-                  bg="white"
-                  color="black"
-                  w="40px"
-                  h="40px"
-                  borderRadius="50%"
-                  display="flex"
-                  justifyContent="center"
-                  alignItems="center"
-                  _hover={{ bg: "black", color: "white" }}
-                >
-                  +
-                </Button>
+                <Link href="/shoppingcart">
+                  <Button
+                    variant="solid"
+                    bg="white"
+                    color="black"
+                    w="40px"
+                    h="40px"
+                    borderRadius="50%"
+                    display="flex"
+                    justifyContent="center"
+                    alignItems="center"
+                    _hover={{ bg: "black", color: "white" }}
+                  >
+                    +
+                  </Button>
+                </Link>
+                
               </CardFooter>
             </Card>
       </>

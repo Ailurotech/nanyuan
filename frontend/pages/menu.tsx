@@ -3,7 +3,7 @@ import { GetStaticProps } from "next";
 import { sanityClient } from "../lib/sanityClient";
 import { MenuItem } from "../types"; // Define your types if needed
 import MenuCard from '../components/menupage/MenuCard';
-import { useState, useEffect, useRef, use } from 'react';
+import { useEffect} from 'react';
 
 interface MenuProps {
   menuItems: MenuItem[];
