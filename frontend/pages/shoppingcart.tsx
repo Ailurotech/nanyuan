@@ -44,11 +44,11 @@ const ShoppingCart = ({ shoppingCartItems }: ShoppingCartProps) => {
     });
   };
 
-  console.log('cartItems',cartItems);
+  // console.log('cartItems',cartItems);
 
   return (
     <div className="bg-black w-full py-48">
-      <h1 className="text-center text-white text-4xl font-bold mb-8">Our shopping Cart</h1>
+      <h1 className="text-center text-white text-4xl font-bold mb-8">Shopping Cart</h1>
       <div className="w-3/4 mx-auto p-12 bg-zinc-800 rounded-lg shadow-2xl">
       <Link href="/menu">
         <Button className="bg-yellow-400 p-3 gap-2">
