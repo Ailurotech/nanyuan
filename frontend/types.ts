@@ -39,3 +39,12 @@ export interface SinglePhoto {
     url: string;
   };
 }
+
+export interface ShoppingCartItem {
+  _id: string;
+  name: string;
+  description: string;
+  price: number;
+  image: string;
+  quantity: number;
+}

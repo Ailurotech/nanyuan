@@ -3,12 +3,42 @@ import { GetStaticProps } from "next";
 import { sanityClient } from "../lib/sanityClient";
 import { MenuItem } from "../types"; // Define your types if needed
 import MenuCard from '../components/menupage/MenuCard';
+import { useState, useEffect, useRef, use } from 'react';
 
 interface MenuProps {
   menuItems: MenuItem[];
 }
 
 const MenuPage = ({ menuItems }: MenuProps) => {
+  const cartData0=[
+    {
+      _id: 'd3ca3b72-2418-4035-abfa-245f8696e8d1',
+      name: 'Roasted Duck',
+      description: 'This is the delicious rosted duck',
+      price: 67,
+      image: 'https://cdn.sanity.io/images/utvt9caf/test/dd236eafdebea0498587ac31fb102de59ddc2637-381x308.png',
+      quantity:1,
+    },
+    {
+      _id: 'd3ca3b72-2418-4035-abfa-245f8696e8d2',
+      name: 'Roasted Duck',
+      description: 'This is the delicious rosted duck',
+      price: 67,
+      image: 'https://cdn.sanity.io/images/utvt9caf/test/dd236eafdebea0498587ac31fb102de59ddc2637-381x308.png',
+      quantity:2,
+    },
+    {
+      _id: 'd3ca3b72-2418-4035-abfa-245f8696e8d3',
+      name: 'Roasted Duck',
+      description: 'This is the delicious rosted duck',
+      price: 67,
+      image: 'https://cdn.sanity.io/images/utvt9caf/test/dd236eafdebea0498587ac31fb102de59ddc2637-381x308.png',
+      quantity:3,
+    },
+  ];
+  useEffect(() => {
+    localStorage.setItem('cart', JSON.stringify(cartData0));
+  })
   return (
     <div className="bg-black min-h-screen py-12 pt-40">
     <h1 className="text-center text-white text-4xl font-bold mb-8">Choose Our Menu</h1>
