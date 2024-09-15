@@ -1,17 +1,16 @@
 import { Card, CardBody, Heading, Stack, Text, Button, Image, CardFooter } from '@chakra-ui/react';
-import { MenuItem } from "../../../types";
+import { MenuItem } from "../../types";
 interface MenuProps {
-    menuItems: MenuItem[];
+    menuItems: MenuItem;
   }
 const MenuCard = ({ menuItems }: MenuProps) => {
     return (
-        <div className="container mx-auto grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-5 mt-5 justify-items-center px-5">
-          {menuItems.map((item) => (
-            <Card key={item._id} sx={{ backgroundColor: "#191919" }} maxW="300px" className="shadow-lg rounded-lg p-4 transform transition-transform duration-300 hover:scale-105">
+        <>
+            <Card key={menuItems._id} sx={{ backgroundColor: "#191919" }} maxW="300px" className="shadow-lg rounded-lg p-4 transform transition-transform duration-300 hover:scale-105">
               <CardBody className="relative" justifyContent="center"  >
                   <Image
-                    src={item.image}
-                    alt={item.name}
+                    src={menuItems.image}
+                    alt={menuItems.name}
                     boxSize="150px"
                     objectFit="cover"
                     width="150px"
@@ -22,12 +21,12 @@ const MenuCard = ({ menuItems }: MenuProps) => {
                     borderRadius="lg"
                   />
                 <Stack mt="6" spacing="3" width="268px" height="100px" className="text-center">
-                  <Heading size="md" className="text-white">{item.name}</Heading>
-                  <Text className="text-white">{item.description}</Text>
+                  <Heading size="md" className="text-white">{menuItems.name}</Heading>
+                  <Text className="text-white">{menuItems.description}</Text>
                 </Stack>
               </CardBody>
               <CardFooter display="flex" justifyContent="space-between" alignItems="center" mt={10}>
-                <Text color="yellow.400" fontSize="xl" fontWeight="bold">${item.price}</Text>
+                <Text color="yellow.400" fontSize="xl" fontWeight="bold">${menuItems.price}</Text>
                 <Button
                   variant="solid"
                   bg="white"
@@ -44,8 +43,7 @@ const MenuCard = ({ menuItems }: MenuProps) => {
                 </Button>
               </CardFooter>
             </Card>
-          ))}
-      </div>
+      </>
     );
   };
 
