@@ -1,4 +1,5 @@
 import HomePage from "../components/homepage/HomePage";
+import TestmonialAndOpeningHours from "../components/homepage/component/TestmonialAndOpeningHours";
 import { GetStaticProps } from "next";
 import { sanityClient } from "@/lib/sanityClient";
 import { GalleryContent, HeroContent } from "@/types";
@@ -17,6 +18,7 @@ export default function Index({ heroContent, galleryContent }: IndexProps) {
       <Content>
         <GalleryWidget galleryContent={galleryContent} />
       </Content>
+      <TestmonialAndOpeningHours />
     </>
   );
 }
