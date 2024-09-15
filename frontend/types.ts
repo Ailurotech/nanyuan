@@ -4,9 +4,7 @@ export interface MenuItem {
   name: string;
   description: string;
   price: number;
-  image: {
-    url: string;
-  };
+  image: string;
 }
 export interface HeroContent {
   title: string;

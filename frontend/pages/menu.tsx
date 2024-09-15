@@ -2,6 +2,7 @@
 import { GetStaticProps } from "next";
 import { sanityClient } from "../lib/sanityClient";
 import { MenuItem } from "../types"; // Define your types if needed
+import MenuCard from '../components/menupage/MenuCard';
 
 interface MenuProps {
   menuItems: MenuItem[];
@@ -9,19 +10,19 @@ interface MenuProps {
 
 const MenuPage = ({ menuItems }: MenuProps) => {
   return (
-    <div>
-      <h1>Our Menu</h1>
-      <ul>
-        {menuItems.map((item) => (
-          <li key={item._id}>
-            <h2>{item.name}</h2>
-            <p>{item.description}</p>
-            <p>Price: ${item.price}</p>
-            {item.image && <img src={item.image.url} alt={item.name} />}
-          </li>
+    <div className="bg-black min-h-screen py-12 pt-40">
+    <h1 className="text-center text-white text-4xl font-bold mb-8">Choose Our Menu</h1>
+    <div className="container mx-auto grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-5 justify-items-center px-5">
+      {menuItems.map((item) => (
+          <MenuCard key={item._id} menuItems={item}/> 
         ))}
-      </ul>
     </div>
+    <div className="flex justify-center mt-10">
+      <button className="bg-yellow-400 text-white py-2 px-6 rounded-lg text-lg">
+        See All
+      </button>
+    </div>
+  </div>
   );
 };
 
