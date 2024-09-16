@@ -2,23 +2,25 @@ import HomePage from "../components/homepage/HomePage";
 import TestmonialAndOpeningHours from "../components/homepage/component/TestmonialAndOpeningHours";
 import { GetStaticProps } from "next";
 import { sanityClient } from "@/lib/sanityClient";
-import { GalleryContent, HeroContent } from "@/types";
+import { GalleryContent, HeroContent, OpeningHoursContent } from "@/types";
 import { Content } from "@/components/homepage/component/Content";
 import { GalleryWidget } from "@/components/homepage/component/GalleryWidget";
+import OpeningHoursList from "@/components/homepage/component/OpeningHoursList";
 
 interface IndexProps {
   heroContent: HeroContent;
   galleryContent: GalleryContent;
+  openingHourcontent: OpeningHoursContent;
 }
 
-export default function Index({ heroContent, galleryContent }: IndexProps) {
+export default function Index({ heroContent, galleryContent,openingHourcontent }: IndexProps) {
   return (
     <>
       <HomePage homePageContent={heroContent} />
       <Content>
         <GalleryWidget galleryContent={galleryContent} />
       </Content>
-      <TestmonialAndOpeningHours />
+      <TestmonialAndOpeningHours openingHourcontent={openingHourcontent} />
     </>
   );
 }
@@ -50,6 +52,11 @@ export const getStaticProps: GetStaticProps = async () => {
         children[]{
           text
         }
+      },
+      OpeninghourPhotos[]{
+        asset -> {
+        url
+        }
       }
     }
   `;
@@ -71,6 +78,9 @@ export const getStaticProps: GetStaticProps = async () => {
           menuLink: data[0].menuLink,
           menuDescription: data[0].menuDescription,
         },
+        openingHourcontent: {
+          OpeninghourPhotos: data[0].OpeninghourPhotos,
+          },
       },
     };
   } catch (e) {
@@ -79,6 +89,7 @@ export const getStaticProps: GetStaticProps = async () => {
       props: {
         heroContent: null,
         galleryContent: null,
+        openingHourcontent: null,
       },
     };
   }

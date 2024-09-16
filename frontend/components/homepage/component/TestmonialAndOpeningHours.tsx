@@ -1,7 +1,14 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import OpeningHoursList from "./OpeningHoursList";
-export default function TestmonialAndOpeningHours() {
+import { OpeningHoursContent } from "@/types";
+import image from "next/image";
+
+type OpeningHourProps = {
+  openingHourcontent: OpeningHoursContent;
+};
+
+export default function TestmonialAndOpeningHours({ openingHourcontent }: OpeningHourProps){
   const [openingHours, setOpeningHours] = useState<string[]>([]);
 
   useEffect(() => {
@@ -13,13 +20,13 @@ export default function TestmonialAndOpeningHours() {
         console.error("Error fetching opening hours:", err);
       }
     };
-
+    console.log(openingHourcontent);
     fetchOpeningHours();
   }, []);
 
   return (
-    <div className={`h-[100vh] px-[8%] py-[5%] sm:px-[16%] bg-[#4E4E4E] text-white justify-center items-center`}>
-      <div className="flex flex-col gap-x-[8%] md:flex-row">
+    <div className={`h-[100vh] px-[8%] py-[5%] sm:px-[16%] bg-[#1E1E1E] text-white justify-center items-center `}>
+      <div className=" h-[auto] flex flex-col gap-x-[8%] md:flex-row">
         <div className="w-[100%]">
           <div>
             <h1 className="text-[3rem] sm:text-[2.5rem] xl:text-[3.7em] whitespace-nowrap">Opening Hours</h1>
@@ -28,8 +35,20 @@ export default function TestmonialAndOpeningHours() {
             <OpeningHoursList openingHours={openingHours} />
           </div>
         </div>
-        <div className="w-[100%]" >
-          dsadasdawdd
+        <div className="h-[auto] w-[100%] grid grid-cols-2 grid-rows-2 gap-5" >
+          <div >
+            <img
+              src={openingHourcontent?.OpeninghourPhotos?.[0]?.asset?.url}
+              alt="Opening Hours"
+              className="w-[100%] h-[100%] object-cover"
+            />
+          </div>
+          <div className=" row-span-2">
+            111
+          </div>
+          <div >  
+            112
+          </div>
         </div>
       </div>
     </div>

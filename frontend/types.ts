@@ -39,3 +39,9 @@ export interface SinglePhoto {
     url: string;
   };
 }
+
+export interface OpeningHoursContent {
+  OpeninghourPhotos: SinglePhoto[];
+}
+
+

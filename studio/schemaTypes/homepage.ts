@@ -7,6 +7,7 @@ export default defineType({
   groups: [
     {name: 'hero', title: 'Hero'},
     {name: 'content', title: 'Content'},
+    {name: 'openinghours', title: 'Openinghours'},
   ],
   fields: [
     {
@@ -73,6 +74,13 @@ export default defineType({
       title: 'Menu Link Name',
       type: 'string',
       group: 'content',
+    },
+    {
+      name: 'OpeninghourPhotos',
+      title: 'OpeninghourPhotos',
+      type: 'array',
+      of: [{type: 'image'}],
+      group: 'openinghours',
     },
   ],
 })
