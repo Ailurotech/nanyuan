@@ -4,19 +4,34 @@ import { sanityClient } from "@/lib/sanityClient";
 import { GalleryContent, HeroContent } from "@/types";
 import { Content } from "@/components/homepage/component/Content";
 import { GalleryWidget } from "@/components/homepage/component/GalleryWidget";
+import InstagramSection from "@/components/homepage/component/InstagramSection";
 
 interface IndexProps {
   heroContent: HeroContent;
   galleryContent: GalleryContent;
+  instagramContent: {
+    instagramUrls: { url: string; href?: string }[];
+    heading: string;
+    subheading: string;
+  };
 }
 
-export default function Index({ heroContent, galleryContent }: IndexProps) {
+export default function Index({
+  heroContent,
+  galleryContent,
+  instagramContent,
+}: IndexProps) {
   return (
     <>
       <HomePage homePageContent={heroContent} />
       <Content>
         <GalleryWidget galleryContent={galleryContent} />
       </Content>
+      <InstagramSection
+        instagramUrls={instagramContent.instagramUrls}
+        heading={instagramContent.heading}
+        subheading={instagramContent.subheading}
+      />
     </>
   );
 }
@@ -51,9 +66,20 @@ export const getStaticProps: GetStaticProps = async () => {
       }
     }
   `;
-
+  const instagramQuery = `
+  *[_type == "instagramContent"]{
+    instagramUrls[]{
+      url,
+      href
+    },
+    heading,
+    subheading
+  }
+`;
   try {
     const data = await sanityClient.fetch(query);
+    const instagramData = await sanityClient.fetch(instagramQuery);
+
     return {
       props: {
         heroContent: {
@@ -69,6 +95,7 @@ export const getStaticProps: GetStaticProps = async () => {
           menuLink: data[0].menuLink,
           menuDescription: data[0].menuDescription,
         },
+        instagramContent: instagramData[0],
       },
     };
   } catch (e) {
@@ -77,6 +104,11 @@ export const getStaticProps: GetStaticProps = async () => {
       props: {
         heroContent: null,
         galleryContent: null,
+        instagramContent: {
+          instagramUrls: [],
+          heading: "No content available",
+          subheading: "",
+        },
       },
     };
   }
