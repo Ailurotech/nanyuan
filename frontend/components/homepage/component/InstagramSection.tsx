@@ -25,11 +25,13 @@ const InstagramSection: React.FC<InstagramSectionProps> = ({ content }) => {
         >
           <div className="flex flex-col items-center gap-6">
             <h1 className="text-4xl font-bold font-abhaya-libre">{heading}</h1>
-            <h2 className="text-xl font-abhaya-libre">{subheading}</h2>
+            <h2 className="text-xl font-abhaya-libre px-4 sm:px-0">
+              {subheading}
+            </h2>
           </div>
         </a>
       </div>
-      <div className="instagram-container">
+      <div className="instagram-container px-3 sm:px-0">
         <InstagramEmbed urls={instagramUrls} />
       </div>
     </div>
