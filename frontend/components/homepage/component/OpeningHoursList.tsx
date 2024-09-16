@@ -11,7 +11,7 @@ const OpeningHoursList: React.FC<OpeningHoursListProps> = ({ openingHours }) => 
         openingHours.map((hour, index) => {
           const [day, time] = hour.split(/:(.+)/);
             return (
-            <div key={index} className="flex justify-between text-[1.5rem] sm:text-[1.2em] xl:text-[2rem]">
+            <div key={index} className="flex justify-between text-[1.5rem] sm:text-[1.2em] xl:text-[1.8rem]">
               <span className="font-bold">{day}:</span>
               <span className="text-right">
                 {time.split(",").map((t, i) => (
