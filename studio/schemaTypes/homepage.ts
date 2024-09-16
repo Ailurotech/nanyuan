@@ -7,6 +7,7 @@ export default defineType({
   groups: [
     {name: 'hero', title: 'Hero'},
     {name: 'content', title: 'Content'},
+    { name: 'instagram', title: 'Instagram' },
   ],
   fields: [
     {
@@ -74,5 +75,29 @@ export default defineType({
       type: 'string',
       group: 'content',
     },
+    {
+      name: 'instagramContent',
+      title: 'Instagram Content',
+      type: 'object',
+      group: 'instagram',
+      fields: [
+        { name: 'heading', title: 'Heading', type: 'string' },
+        { name: 'subheading', title: 'Subheading', type: 'string' },
+        {
+          name: 'instagramUrls',
+          title: 'Instagram URLs',
+          type: 'array',
+          of: [
+            {
+              type: 'object',
+              fields: [
+                { name: 'url', type: 'url', title: 'Image URL' },
+                { name: 'href', type: 'url', title: 'Link URL' },
+              ],
+            },
+          ],
+        },
+      ],
+    },
   ],
-})
+});

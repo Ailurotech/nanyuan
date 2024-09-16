@@ -1,4 +1,3 @@
-// types.ts
 export interface MenuItem {
   _id: string;
   name: string;
@@ -38,4 +37,13 @@ export interface SinglePhoto {
   asset: {
     url: string;
   };
+}
+
+export interface InstagramContent {
+  instagramUrls: {
+    url: string;
+    href?: string;
+  }[];
+  heading: string;
+  subheading: string;
 }

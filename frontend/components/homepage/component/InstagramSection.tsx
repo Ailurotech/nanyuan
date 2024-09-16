@@ -1,46 +1,36 @@
 import React from "react";
 import InstagramEmbed from "@/components/homepage/component/InstagramEmbed";
 
-interface InstagramSectionProps {
+interface InstagramContent {
   instagramUrls: { url: string; href?: string }[];
   heading: string;
   subheading: string;
 }
 
-const InstagramSection: React.FC<InstagramSectionProps> = ({
-  instagramUrls,
-  heading,
-  subheading,
-}) => {
+interface InstagramSectionProps {
+  content: InstagramContent;
+}
+
+const InstagramSection: React.FC<InstagramSectionProps> = ({ content }) => {
+  const { instagramUrls, heading, subheading } = content;
+
   return (
-    <div className="bg-[#1D1D1D] text-white py-10">
-      <div className="text-center mb-10">
+    <div className="bg-[#1D1D1D] text-white py-20 flex flex-col gap-20">
+      <div className="text-center">
         <a
           href="https://www.instagram.com/nan_yuan_restaurant/"
           target="_blank"
           rel="noopener noreferrer"
           className="no-underline text-white hover:text-gray-400"
         >
-          <h1 className="text-4xl font-bold mt-10 mb-2 font-abhaya-libre">
-            {heading}
-          </h1>
-          <h2 className="text-xl mt-5 font-abhaya-libre">{subheading}</h2>
+          <div className="flex flex-col items-center gap-6">
+            <h1 className="text-4xl font-bold font-abhaya-libre">{heading}</h1>
+            <h2 className="text-xl font-abhaya-libre">{subheading}</h2>
+          </div>
         </a>
       </div>
-      <div className="instagram-container py-10 mb-10">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-0">
-          {instagramUrls && instagramUrls.length > 0 ? (
-            instagramUrls.slice(0, 12).map((item, index) => (
-              <div key={index} className="relative">
-                <InstagramEmbed url={item.url} href={item.href} />
-              </div>
-            ))
-          ) : (
-            <p className="text-center text-white">
-              No Instagram content available.
-            </p>
-          )}
-        </div>
+      <div className="instagram-container">
+        <InstagramEmbed urls={instagramUrls} />
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 import HomePage from "../components/homepage/HomePage";
 import { GetStaticProps } from "next";
 import { sanityClient } from "@/lib/sanityClient";
-import { GalleryContent, HeroContent } from "@/types";
+import { GalleryContent, HeroContent, InstagramContent } from "@/types";
 import { Content } from "@/components/homepage/component/Content";
 import { GalleryWidget } from "@/components/homepage/component/GalleryWidget";
 import InstagramSection from "@/components/homepage/component/InstagramSection";
@@ -9,11 +9,7 @@ import InstagramSection from "@/components/homepage/component/InstagramSection";
 interface IndexProps {
   heroContent: HeroContent;
   galleryContent: GalleryContent;
-  instagramContent: {
-    instagramUrls: { url: string; href?: string }[];
-    heading: string;
-    subheading: string;
-  };
+  instagramContent: InstagramContent;
 }
 
 export default function Index({
@@ -27,11 +23,7 @@ export default function Index({
       <Content>
         <GalleryWidget galleryContent={galleryContent} />
       </Content>
-      <InstagramSection
-        instagramUrls={instagramContent.instagramUrls}
-        heading={instagramContent.heading}
-        subheading={instagramContent.subheading}
-      />
+      <InstagramSection content={instagramContent} />
     </>
   );
 }
@@ -63,22 +55,20 @@ export const getStaticProps: GetStaticProps = async () => {
         children[]{
           text
         }
+      },
+      instagramContent {
+        heading,
+        subheading,
+        instagramUrls[]{
+          url,
+          href
+        }
       }
     }
   `;
-  const instagramQuery = `
-  *[_type == "instagramContent"]{
-    instagramUrls[]{
-      url,
-      href
-    },
-    heading,
-    subheading
-  }
-`;
+
   try {
     const data = await sanityClient.fetch(query);
-    const instagramData = await sanityClient.fetch(instagramQuery);
 
     return {
       props: {
@@ -95,7 +85,7 @@ export const getStaticProps: GetStaticProps = async () => {
           menuLink: data[0].menuLink,
           menuDescription: data[0].menuDescription,
         },
-        instagramContent: instagramData[0],
+        instagramContent: data[0].instagramContent,
       },
     };
   } catch (e) {
