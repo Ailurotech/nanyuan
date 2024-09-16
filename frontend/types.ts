@@ -48,3 +48,9 @@ export interface ShoppingCartItem {
   image: string;
   quantity: number;
 }
+
+export interface CartCardProps {
+  shoppingCartItem: ShoppingCartItem;
+  removeItem: () => void;
+  updateQuantity: (newQuantity: number, id: string) => void;
+}

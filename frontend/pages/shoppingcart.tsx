@@ -1,31 +1,29 @@
 import { useState, useEffect} from 'react';
-// import { GetStaticProps } from "next";
-// import { sanityClient } from "../lib/sanityClient";
 import { ShoppingCartItem } from "../types"; // Define your types if needed
 import { Button} from '@chakra-ui/react';
 import { FaArrowLeftLong } from "react-icons/fa6";
 import CartCard from "@/components/shoppingcart/CartCard";
-// import { it } from 'node:test';
-// import { RoutRoute} from "../components/homepage/route";
 import Link from "next/link";
+import { NavigationRoute } from "@/components/homepage/route";
 interface ShoppingCartProps {
   shoppingCartItems: ShoppingCartItem[];
 }
 
 const ShoppingCart = ({ shoppingCartItems }: ShoppingCartProps) => {
   const [cartItems, setCartItems] = useState<ShoppingCartItem[]>([]);
-  const [shouldUpdateLocalStorage, setShouldUpdateLocalStorage] = useState(false);
-
   useEffect(() => {    
     const cartData = localStorage.getItem('cart');
+    console.log('cartData',cartData);
     if (cartData) {
       setCartItems(JSON.parse(cartData));
     }
-    if (shouldUpdateLocalStorage) {
+  }, []);
+
+  useEffect(() => {
+    if (cartItems.length > 0) { 
       localStorage.setItem('cart', JSON.stringify(cartItems));
-      setShouldUpdateLocalStorage(false);
     }
-  }, [shouldUpdateLocalStorage]);
+  }, [cartItems]); 
 
   const updateCart = (updatedItems: ShoppingCartItem[]) => {
     setCartItems(updatedItems);
@@ -39,18 +37,15 @@ const ShoppingCart = ({ shoppingCartItems }: ShoppingCartProps) => {
   const updateQuantity = (newQuantity:number,id: string) => {
     setCartItems((prevItem) => {
       const updatedItems = prevItem.map(item => item._id === id ? { ...item, quantity: newQuantity } : item);
-      setShouldUpdateLocalStorage(true);
       return updatedItems;
     });
   };
-
-  // console.log('cartItems',cartItems);
 
   return (
     <div className="bg-black w-full py-48">
       <h1 className="text-center text-white text-4xl font-bold mb-8">Shopping Cart</h1>
       <div className="w-3/4 mx-auto p-12 bg-zinc-800 rounded-lg shadow-2xl">
-      <Link href="/menu">
+      <Link href={NavigationRoute.Menu.Path}>
         <Button className="bg-yellow-400 p-3 gap-2">
           <FaArrowLeftLong />
           <span className="font-bold">Continue Ordering</span>
@@ -64,7 +59,7 @@ const ShoppingCart = ({ shoppingCartItems }: ShoppingCartProps) => {
             ))}
           </div>
           <div className="flex justify-between flex-col gap-5 mx-auto md:flex-row">
-            <Link href="/menu" className="w-100 flex justify-center">
+            <Link href={NavigationRoute.Menu.Path} className="w-100 flex justify-center">
               <Button className="bg-white p-3 font-bold px-32 w-1/3 md:ml-10 md:w-3/4">ADD MORE</Button>
             </Link>
             <Link href="" className="w-100 flex justify-center">

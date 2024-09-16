@@ -1,10 +1,12 @@
 import { Card, CardBody, Heading, Stack, Text, Button, Image, CardFooter } from '@chakra-ui/react';
 import { MenuItem } from "../../types";
 import Link from "next/link";
+import { ShoppingCart } from "@/components/homepage/route";
 interface MenuProps {
     menuItems: MenuItem;
+    addToCart: (item: MenuItem) => void;
   }
-const MenuCard = ({ menuItems }: MenuProps) => {
+const MenuCard = ({ menuItems,addToCart }: MenuProps) => {
     return (
         <>
             <Card key={menuItems._id} sx={{ backgroundColor: "#191919" }} maxW="300px" className="shadow-lg rounded-lg p-4 transform transition-transform duration-300 hover:scale-105">
@@ -28,7 +30,7 @@ const MenuCard = ({ menuItems }: MenuProps) => {
               </CardBody>
               <CardFooter display="flex" justifyContent="space-between" alignItems="center" mt={10}>
                 <Text color="yellow.400" fontSize="xl" fontWeight="bold">${menuItems.price}</Text>
-                <Link href="/shoppingcart">
+                <Link href={ShoppingCart.Path}>
                   <Button
                     variant="solid"
                     bg="white"
@@ -40,6 +42,7 @@ const MenuCard = ({ menuItems }: MenuProps) => {
                     justifyContent="center"
                     alignItems="center"
                     _hover={{ bg: "black", color: "white" }}
+                    onClick={() => addToCart(menuItems)}
                   >
                     +
                   </Button>

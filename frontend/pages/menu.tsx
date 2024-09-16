@@ -3,48 +3,40 @@ import { GetStaticProps } from "next";
 import { sanityClient } from "../lib/sanityClient";
 import { MenuItem } from "../types"; // Define your types if needed
 import MenuCard from '../components/menupage/MenuCard';
-import { useEffect} from 'react';
+import { useState, useEffect} from 'react';
+import { ShoppingCartItem } from "../types"; 
 
 interface MenuProps {
   menuItems: MenuItem[];
 }
 
-const MenuPage = ({ menuItems }: MenuProps) => {
-  const cartData0=[
-    {
-      _id: 'd3ca3b72-2418-4035-abfa-245f8696e8d1',
-      name: 'Roasted Duck',
-      description: 'This is the delicious rosted duck',
-      price: 67,
-      image: 'https://cdn.sanity.io/images/utvt9caf/test/dd236eafdebea0498587ac31fb102de59ddc2637-381x308.png',
-      quantity:1,
-    },
-    {
-      _id: 'd3ca3b72-2418-4035-abfa-245f8696e8d2',
-      name: 'Roasted Duck',
-      description: 'This is the delicious rosted duck',
-      price: 67,
-      image: 'https://cdn.sanity.io/images/utvt9caf/test/dd236eafdebea0498587ac31fb102de59ddc2637-381x308.png',
-      quantity:2,
-    },
-    {
-      _id: 'd3ca3b72-2418-4035-abfa-245f8696e8d3',
-      name: 'Roasted Duck',
-      description: 'This is the delicious rosted duck',
-      price: 67,
-      image: 'https://cdn.sanity.io/images/utvt9caf/test/dd236eafdebea0498587ac31fb102de59ddc2637-381x308.png',
-      quantity:3,
-    },
-  ];
+const MenuPage = ({ menuItems}: MenuProps) => {
+  const [cart, setCart] = useState<ShoppingCartItem[]>([]);
   useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(cartData0));
-  })
+    const cartData=localStorage.getItem('cart');
+    if (cartData) {
+      setCart(JSON.parse(cartData));
+    }
+  },[]);
+  
+  const addToCart = (item: MenuItem) => {
+    const updatedCart = [...cart];
+    const existingItem = updatedCart.find(cartItem => cartItem._id === item._id);
+    if (existingItem) {
+      existingItem.quantity += 1;
+    } else {
+      updatedCart.push({ ...item, quantity: 1 });
+    }
+    setCart(updatedCart);
+    localStorage.setItem('cart', JSON.stringify(updatedCart));
+  };
+
   return (
     <div className="bg-black min-h-screen py-12 pt-40">
     <h1 className="text-center text-white text-4xl font-bold mb-8">Choose Our Menu</h1>
     <div className="container mx-auto grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-5 justify-items-center px-5">
       {menuItems.map((item) => (
-          <MenuCard key={item._id} menuItems={item}/> 
+          <MenuCard key={item._id} menuItems={item} addToCart={addToCart}/> 
         ))}
     </div>
     <div className="flex justify-center mt-10">
