@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import OpeningHoursList from "./OpeningHoursList";
 import { OpeningHoursContent } from "@/types";
-import Image from "next/image";
 import ImageWrapper from "./ImageWrapper";
+import styles from "@/styles/homepage.module.css";
+import Image from "next/image";
+import logo from "@/public/logo.png";
 
 type OpeningHourProps = {
   openingHourcontent: OpeningHoursContent;
@@ -41,9 +43,21 @@ export default function TestmonialAndOpeningHours({ openingHourcontent }: Openin
           <ImageWrapper photos={openingHourcontent?.OpeninghourPhotos || []} />
         </div>
       </div>
-      <div className=" h-[20vh] w-full">
-        
+      <div className={`${styles["shadow-custom-right"]} ${styles["rounded-lg"]} h-[45vh] w-[95%] mx-auto bg-black mt-[9%] flex flex-col md:flex-row md:h-[60vh]`}>
+                  <div className="w-full h-auto md:w-[45%] md:h-[100%] flex flex-col items-center justify-center space-y-4">
+              <div>
+                <h1 className="text-[2rem] sm:text-[2.5rem] xl:text-[3rem] text-center">
+                  What our customer said
+                </h1>
+              </div>
+              <div className="w-full max-w-xs">
+                <Image src={logo} alt="testmonial" width={300} height={300} className="" />
+              </div>
+            </div>
 
+        <div className=" w-full h-[80%] md:w-[55%] md:h-[100%]">
+
+        </div>
       </div>
     </div>
   );

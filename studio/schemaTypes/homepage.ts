@@ -82,5 +82,24 @@ export default defineType({
       of: [{type: 'image'}],
       group: 'openinghours',
     },
+    {
+      name: 'customerReview',
+      title: 'CustomerReview',
+      type: 'string',
+      group: 'openinghours',
+    },
+    {
+      name: 'customerName',
+      title: 'CustomerName',
+      type: 'string',
+      group: 'openinghours',
+    },
+    {
+      name: 'customerIcon',
+      title: 'CustomerIcon',
+      type: 'array',
+      of: [{type: 'image'}],
+      group: 'openinghours',
+    },
   ],
 })
