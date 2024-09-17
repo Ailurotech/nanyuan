@@ -1,4 +1,4 @@
-import React from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -22,9 +22,9 @@ const getColumnsForWidth = (width: number) => {
 
 const InstagramEmbed: React.FC<InstagramEmbedProps> = ({ urls }) => {
   const numRows = 2;
-  const [columns, setColumns] = React.useState<number>(2);
+  const [columns, setColumns] = useState<number>(2);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (typeof window !== "undefined") {
       const handleResize = () => {
         setColumns(getColumnsForWidth(window.innerWidth));
