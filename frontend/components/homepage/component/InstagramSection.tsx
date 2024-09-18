@@ -1,5 +1,6 @@
 import React from "react";
 import InstagramEmbed from "@/components/homepage/component/InstagramEmbed";
+import Link from "next/link";
 
 interface InstagramContent {
   instagramUrls: { url: string; href?: string }[];
@@ -17,7 +18,7 @@ const InstagramSection: React.FC<InstagramSectionProps> = ({ content }) => {
   return (
     <div className="bg-[#1D1D1D] text-white py-20 flex flex-col gap-20">
       <div className="text-center">
-        <a
+        <Link
           href="https://www.instagram.com/nan_yuan_restaurant/"
           target="_blank"
           rel="noopener noreferrer"
@@ -29,7 +30,7 @@ const InstagramSection: React.FC<InstagramSectionProps> = ({ content }) => {
               {subheading}
             </h2>
           </div>
-        </a>
+        </Link>
       </div>
       <div className="instagram-container px-3 sm:px-0">
         <InstagramEmbed urls={instagramUrls} />

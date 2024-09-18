@@ -32,7 +32,6 @@ const InstagramEmbed: React.FC<InstagramEmbedProps> = ({ urls }) => {
 
       handleResize();
       window.addEventListener("resize", handleResize);
-      return () => window.removeEventListener("resize", handleResize);
     }
   }, []);
 
@@ -41,7 +40,7 @@ const InstagramEmbed: React.FC<InstagramEmbedProps> = ({ urls }) => {
 
   return (
     <div
-      className={`grid gap-0`}
+      className="grid"
       style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}
     >
       {limitedUrls.map((item, index) => (
