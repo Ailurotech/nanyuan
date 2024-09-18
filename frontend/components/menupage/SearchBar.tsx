@@ -24,6 +24,7 @@ const SearchBar = ({ onSearch }: { onSearch: (query: string) => void }) => {
       onClick={toggleSearchBar}
       mr={2}
       colorScheme="teal"
+      color="white"
     />
     {showSearch && (
       <Input

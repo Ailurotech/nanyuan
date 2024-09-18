@@ -16,10 +16,6 @@ const MenuPage = ({ menuItems }: MenuProps) => {
   const [filteredItems, setFilteredItems] = useState(menuItems);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchVisible, setIsSearchVisible] = useState(false);
-  const handleSearchIconClick = () => {
-    setIsSearchVisible(!isSearchVisible);
-  };
-
   const handleFilterChange = (value: string) => {
     setSelectedFilter(value);
   };
@@ -58,13 +54,7 @@ const MenuPage = ({ menuItems }: MenuProps) => {
         <div className="flex-grow max-w-xs relative">
             {/* 将放大镜和弹出框组合在一起 */}
             <div className="flex justify-center items-center">
-                <button
-                    className="text-white"
-                    onClick={handleSearchIconClick}
-                    
-                >
-                    <SearchBar onSearch={handleSearch} />
-                </button>
+              <SearchBar onSearch={handleSearch} />
             </div>
         </div>
     </div>
