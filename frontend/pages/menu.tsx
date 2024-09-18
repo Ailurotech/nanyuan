@@ -15,21 +15,41 @@ const MenuPage = ({ menuItems }: MenuProps) => {
   const [sortOrder, setSortOrder] = useState("");
   const [filteredItems, setFilteredItems] = useState(menuItems);
   const [searchQuery, setSearchQuery] = useState("");
-  const [isSearchVisible, setIsSearchVisible] = useState(false);
   const handleFilterChange = (value: string) => {
     setSelectedFilter(value);
+
+    let filtered = [...menuItems];
+
+    if (value !== "All") {
+      filtered = filtered.filter((item) => item.categoryName === value);
+    }
+
+    if (sortOrder) {
+      if (sortOrder === "asc") {
+        filtered = filtered.sort((a, b) => a.price - b.price);
+      } else if (sortOrder === "desc") {
+        filtered = filtered.sort((a, b) => b.price - a.price);
+      }
+    }
+    setFilteredItems(filtered);
   };
 
   const handleSortChange = (order: string) => {
     setSortOrder(order);
-    let sortedItems = [...menuItems];
+    
+    let filtered = [...menuItems];
+
+    if (selectedFilter !== "") {
+      filtered = filtered.filter((item) => item.categoryName === selectedFilter);
+    }
 
     if (order === "asc") {
-      sortedItems = sortedItems.sort((a, b) => a.price - b.price);
+      filtered = filtered.sort((a, b) => a.price - b.price);
     } else if (order === "desc") {
-      sortedItems = sortedItems.sort((a, b) => b.price - a.price);
+      filtered = filtered.sort((a, b) => b.price - a.price);
     }
-    setFilteredItems(sortedItems);
+
+    setFilteredItems(filtered);
   };
 
   const handleSearch = (query: string) => {
@@ -43,7 +63,7 @@ const MenuPage = ({ menuItems }: MenuProps) => {
   };
 
   const itemsToDisplay = filteredItems.length ? filteredItems : menuItems;
-
+  // console.log(menuItems);
   return (
     <div className="bg-black min-h-screen py-12 pt-40">
     <h1 className="text-center text-white text-4xl font-bold mb-8">Choose Our Menu</h1>
@@ -52,7 +72,6 @@ const MenuPage = ({ menuItems }: MenuProps) => {
             <FilterBar onFilterChange={handleFilterChange} onSortChange={handleSortChange} />
         </div>
         <div className="flex-grow max-w-xs relative">
-            {/* 将放大镜和弹出框组合在一起 */}
             <div className="flex justify-center items-center">
               <SearchBar onSearch={handleSearch} />
             </div>
@@ -81,7 +100,7 @@ export const getStaticProps: GetStaticProps = async () => {
       description,
       price,
       "image": image.asset->url,
-      category
+      "categoryName": category->name
     }
   `;
 
