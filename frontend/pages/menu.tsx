@@ -71,7 +71,7 @@ const MenuPage = ({ menuItems }: MenuProps) => {
         <div className="flex space-x-4">
             <FilterBar onFilterChange={handleFilterChange} onSortChange={handleSortChange} />
         </div>
-        <div className="flex-grow max-w-xs relative">
+        <div className="flex max-w-xs relative">
             <div className="flex justify-center items-center">
               <SearchBar onSearch={handleSearch} />
             </div>
