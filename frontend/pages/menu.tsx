@@ -4,7 +4,6 @@ import { sanityClient } from "../lib/sanityClient";
 import { MenuItem } from "../types"; // Define your types if needed
 import MenuCard from '../components/menupage/MenuCard';
 import FilterBar from '../components/menupage/FilterBar';
-import SearchBar  from '../components/menupage/SearchBar';
 import { useState } from "react";
 
 interface MenuProps {
@@ -88,22 +87,18 @@ const MenuPage = ({ menuItems }: MenuProps) => {
     <div className="bg-black min-h-screen py-12 pt-40">
     <h1 className="text-center text-white text-4xl font-bold mb-8">Choose Our Menu</h1>
     <div className="flex justify-center items-center gap-6 mb-6 w-full px-10">
-        <div className="flex space-x-4">
-        <FilterBar 
-          selectedCategories={selectedCategories} 
-          selectedFilter={selectedFilter}
-          onFilterChange={handleFilterChange} 
-          onSortChange={handleSortChange} 
-          onRemoveCategory={handleRemoveCategory}
-        />
+        <div className="flex space-x-4 ">
+          <FilterBar 
+            selectedCategories={selectedCategories} 
+            selectedFilter={selectedFilter}
+            onFilterChange={handleFilterChange} 
+            onSortChange={handleSortChange} 
+            onRemoveCategory={handleRemoveCategory}
+            onSearch={handleSearch}
+          />
         </div>
-        <div className="flex max-w-xs relative">
-            <div className="flex justify-center items-center">
-              <SearchBar onSearch={handleSearch} />
-            </div>
-        </div>
-        
     </div>
+        
     {filteredItems.length === 0 ? (
         <div className="text-center text-white">
           No matching menu items found.
