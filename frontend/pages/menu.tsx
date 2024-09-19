@@ -5,7 +5,9 @@ import { MenuItem } from "../types"; // Define your types if needed
 import MenuCard from '../components/menupage/MenuCard';
 import { useState, useEffect} from 'react';
 import { ShoppingCartItem } from "../types"; 
-
+import { RiShoppingBagLine } from "react-icons/ri";
+import Link from "next/link";
+import { ShoppingCart } from "@/components/homepage/route";
 interface MenuProps {
   menuItems: MenuItem[];
 }
@@ -33,7 +35,12 @@ const MenuPage = ({ menuItems}: MenuProps) => {
 
   return (
     <div className="bg-black min-h-screen py-12 pt-40">
-    <h1 className="text-center text-white text-4xl font-bold mb-8">Choose Our Menu</h1>
+    <div className="container mx-auto flex items-center justify-center relative">
+      <h1 className="text-center text-white text-4xl font-bold mb-8 grow">Choose Our Menu</h1>
+      <Link href={ShoppingCart.Path} className="text-white absolute right-0 md:mr-12 mr-2 mb-8 hover:text-yellow-400">
+        <RiShoppingBagLine className="w-7 h-7" />
+      </Link>
+    </div>
     <div className="container mx-auto grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-5 justify-items-center px-5">
       {menuItems.map((item) => (
           <MenuCard key={item._id} menuItems={item} addToCart={addToCart}/> 

@@ -13,7 +13,6 @@ const ShoppingCart = ({ shoppingCartItems }: ShoppingCartProps) => {
   const [cartItems, setCartItems] = useState<ShoppingCartItem[]>([]);
   useEffect(() => {    
     const cartData = localStorage.getItem('cart');
-    console.log('cartData',cartData);
     if (cartData) {
       setCartItems(JSON.parse(cartData));
     }

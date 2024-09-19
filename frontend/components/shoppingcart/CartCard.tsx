@@ -15,7 +15,7 @@ const CartCard = ({ shoppingCartItem, removeItem, updateQuantity }: CartCardProp
             variant="outline"
             className='text-white flex flex-col md:items-center justify-center justify-between bg-gray-600 p-3 rounded-lg mb-5 gap-y-3 justify-items-start items-start'
           >
-          <div className='flex flex-col md:flex-row items-center gap-5 w-1/3'>
+          <div className='flex flex-col md:flex-row items-center gap-5 md:w-1/3'>
             <Image
               objectFit="cover"
               maxW={{ base: '100%', sm: '100px' }}
