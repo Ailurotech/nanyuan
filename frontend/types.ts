@@ -5,7 +5,7 @@ export interface MenuItem {
   description: string;
   price: number;
   image: string;
-  categoryName: string;
+  categoryName: string[];
 }
 export interface HeroContent {
   title: string;

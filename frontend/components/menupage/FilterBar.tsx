@@ -1,6 +1,6 @@
-import { Select, Box } from "@chakra-ui/react";
+import { Select, Box, Tag, TagLabel, TagCloseButton } from "@chakra-ui/react";
 
-const FilterBar = ({ onFilterChange, onSortChange }: { onFilterChange: (value: string) => void, onSortChange: (sortOrder: string) => void }) => {
+const FilterBar = ({ selectedCategories = [], selectedFilter, onFilterChange, onSortChange, onRemoveCategory  }: { selectedCategories: string[], selectedFilter: string, onFilterChange: (value: string) => void, onSortChange: (sortOrder: string) => void, onRemoveCategory: (value: string) => void }) => {
   const handleSortChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     onSortChange(event.target.value);
   };
@@ -11,7 +11,8 @@ const FilterBar = ({ onFilterChange, onSortChange }: { onFilterChange: (value: s
 
   return (
     <Box display="flex" gap={4} alignItems="center">
-      <Select placeholder="All" onChange={handleFilterChange} icon={<></>}>
+      <Select onChange={handleFilterChange} icon={<></>} bg="black" textColor="white" value={selectedFilter}>
+      <option value="All">All</option>
         <option value="Signature Dishes">Signature Dishes</option>
         <option value="Entree">Entree</option>
         <option value="Soup">Soup</option>
@@ -25,10 +26,29 @@ const FilterBar = ({ onFilterChange, onSortChange }: { onFilterChange: (value: s
         <option value="Banquet">Banquet</option>
       </Select>
 
-      <Select placeholder="Sort by" onChange={handleSortChange} icon={<></>}>
+      <Box display="flex" flexWrap="wrap" gap={2}>
+        {selectedCategories.length > 0 && selectedCategories.map((category) => (
+          <Tag key={category} size="lg"
+               borderRadius="full"
+               variant="solid"
+               bg="yellow.400"
+               textColor="green.700"
+               px={1}
+               py={1}
+               fontWeight="bold"
+               display="flex"
+               alignItems="center">
+            <TagLabel>{category}</TagLabel>
+            <TagCloseButton onClick={() => onRemoveCategory(category)} />
+          </Tag>
+        ))}
+      </Box>
+      
+      <Select placeholder="Sort by" onChange={handleSortChange} icon={<></>} bg="black" textColor="white">
         <option value="asc">Price: Low to High</option>
         <option value="desc">Price: High to Low</option>
       </Select>
+      
     </Box>
   );
 };
