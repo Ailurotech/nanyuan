@@ -91,7 +91,7 @@ const MenuPage = ({ menuItems }: MenuProps) => {
         <div className="flex space-x-4">
         <FilterBar 
           selectedCategories={selectedCategories} 
-          selectedFilter={selectedFilter} // 传递给FilterBar
+          selectedFilter={selectedFilter}
           onFilterChange={handleFilterChange} 
           onSortChange={handleSortChange} 
           onRemoveCategory={handleRemoveCategory}
