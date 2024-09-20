@@ -1,9 +1,9 @@
-import HomePage from "../components/homepage/HomePage";
-import { GetStaticProps } from "next";
-import { sanityClient } from "@/lib/sanityClient";
-import { GalleryContent, HeroContent } from "@/types";
-import { Content } from "@/components/homepage/component/Content";
-import { GalleryWidget } from "@/components/homepage/component/GalleryWidget";
+import HomePage from '../components/homepage/HomePage';
+import { GetStaticProps } from 'next';
+import { sanityClient } from '@/lib/sanityClient';
+import { GalleryContent, HeroContent } from '@/types';
+import { Content } from '@/components/homepage/component/Content';
+import { GalleryWidget } from '@/components/homepage/component/GalleryWidget';
 
 interface IndexProps {
   heroContent: HeroContent;
@@ -52,7 +52,6 @@ export const getStaticProps: GetStaticProps = async () => {
     }
   `;
 
-<<<<<<< HEAD
   try {
     const data = await sanityClient.fetch(query);
     return {
@@ -73,7 +72,7 @@ export const getStaticProps: GetStaticProps = async () => {
       },
     };
   } catch (e) {
-    console.error("Error fetching data:", e);
+    console.error('Error fetching data:', e);
     return {
       props: {
         heroContent: null,
@@ -81,13 +80,4 @@ export const getStaticProps: GetStaticProps = async () => {
       },
     };
   }
-=======
-  const homePageContent = await sanityClient.fetch(query);
-
-  return {
-    props: {
-      homePageContent,
-    },
-  };
->>>>>>> main
 };
