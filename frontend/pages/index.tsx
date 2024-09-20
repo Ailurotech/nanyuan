@@ -52,6 +52,7 @@ export const getStaticProps: GetStaticProps = async () => {
     }
   `;
 
+<<<<<<< HEAD
   try {
     const data = await sanityClient.fetch(query);
     return {
@@ -80,4 +81,13 @@ export const getStaticProps: GetStaticProps = async () => {
       },
     };
   }
+=======
+  const homePageContent = await sanityClient.fetch(query);
+
+  return {
+    props: {
+      homePageContent,
+    },
+  };
+>>>>>>> main
 };
