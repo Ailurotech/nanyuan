@@ -83,22 +83,34 @@ export default defineType({
       group: 'openinghours',
     },
     {
-      name: 'customerReview',
-      title: 'CustomerReview',
-      type: 'string',
-      group: 'openinghours',
-    },
-    {
-      name: 'customerName',
-      title: 'CustomerName',
-      type: 'string',
-      group: 'openinghours',
-    },
-    {
-      name: 'customerIcon',
-      title: 'CustomerIcon',
+      name: 'testimonials',
+      title: 'Testimonials',
       type: 'array',
-      of: [{type: 'image'}],
+      of: [
+        {
+          type: 'object',
+          fields: [
+            {
+              name: 'name',
+              title: 'Customer Name',
+              type: 'string',
+            },
+            {
+              name: 'review',
+              title: 'Review',
+              type: 'text',
+            },
+            {
+              name: 'image',
+              title: 'Customer Image',
+              type: 'image',
+              options: {
+                hotspot: true,
+              },
+            },
+          ],
+        },
+      ],
       group: 'openinghours',
     },
   ],

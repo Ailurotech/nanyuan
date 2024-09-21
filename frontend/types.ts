@@ -42,6 +42,16 @@ export interface SinglePhoto {
 
 export interface OpeningHoursContent {
   OpeninghourPhotos: SinglePhoto[];
+  testimonials: Testimonial[];
 }
 
+export interface Testimonial {
+  name: string;
+  review: string;
+  image: {
+    asset: {
+      url: string;
+    };
+  };
+}
 

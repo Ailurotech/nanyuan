@@ -41,21 +41,30 @@ export const getStaticProps: GetStaticProps = async () => {
       },
       cheftext,
       chefname,
-      galleryPhotos[]{
+      galleryPhotos[] {
         asset -> {
-        url
+          url
         }
       },
       menuName,
       menuLink,
-      menuDescription[]{
-        children[]{
+      menuDescription[] {
+        children[] {
           text
         }
       },
-      OpeninghourPhotos[]{
+      OpeninghourPhotos[] {
         asset -> {
-        url
+          url
+        }
+      },
+      testimonials[] {
+        name,
+        review,
+        image {
+          asset -> {
+            url
+          }
         }
       }
     }
@@ -63,6 +72,8 @@ export const getStaticProps: GetStaticProps = async () => {
 
   try {
     const data = await sanityClient.fetch(query);
+    
+    // Assuming data[0] is the HomePage content
     return {
       props: {
         heroContent: {
@@ -80,7 +91,8 @@ export const getStaticProps: GetStaticProps = async () => {
         },
         openingHourcontent: {
           OpeninghourPhotos: data[0].OpeninghourPhotos,
-          },
+          testimonials: data[0].testimonials,
+        },
       },
     };
   } catch (e) {
