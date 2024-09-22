@@ -16,19 +16,3 @@
 .shadow-custom-right {
   box-shadow: 15px 10px 4px rgba(0, 0, 0, 0.25);
 }
-
-.rounded-lg {
-  border-radius: 4rem;
-}
-
-.slick-dots {
-  bottom: -30px; /* 控制 dots 的垂直位置 */
-}
-
-.slick-dots li button:before {
-  color: white; /* 未选中的圆点颜色 */
-}
-
-.slick-dots li.slick-active button:before {
-  color: yellow; /* 选中的圆点颜色 */
-}
