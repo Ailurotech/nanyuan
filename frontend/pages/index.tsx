@@ -96,7 +96,7 @@ export const getStaticProps: GetStaticProps = async () => {
       },
     };
   } catch (e) {
-    console.error("Error fetching data:", e);
+    console.error('Error fetching data:', e);
     return {
       props: {
         heroContent: null,
