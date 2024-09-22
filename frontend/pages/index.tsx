@@ -5,7 +5,6 @@ import { sanityClient } from "@/lib/sanityClient";
 import { GalleryContent, HeroContent, OpeningHoursContent } from "@/types";
 import { Content } from "@/components/homepage/component/Content";
 import { GalleryWidget } from "@/components/homepage/component/GalleryWidget";
-import OpeningHoursList from "@/components/homepage/component/OpeningHoursList";
 
 interface IndexProps {
   heroContent: HeroContent;
@@ -61,6 +60,7 @@ export const getStaticProps: GetStaticProps = async () => {
       testimonials[] {
         name,
         review,
+        region,
         image {
           asset -> {
             url
@@ -73,7 +73,7 @@ export const getStaticProps: GetStaticProps = async () => {
   try {
     const data = await sanityClient.fetch(query);
     
-    // Assuming data[0] is the HomePage content
+    
     return {
       props: {
         heroContent: {

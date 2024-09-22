@@ -24,7 +24,7 @@ const OpeningHoursList: React.FC<OpeningHoursListProps> = ({ openingHours }) => 
           );
         })
       ) : (
-        <p className="text-[1.9rem] sm:text-[1.5rem] xl:text-[2rem]">Loading...</p>
+        <p className="h-[45vh] text-[1.9rem] sm:text-[1.5rem] xl:text-[2rem]">Loading...</p>
       )}
     </>
   );

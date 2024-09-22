@@ -48,6 +48,7 @@ export interface OpeningHoursContent {
 export interface Testimonial {
   name: string;
   review: string;
+  region: string;
   image: {
     asset: {
       url: string;
