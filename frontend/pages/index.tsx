@@ -10,17 +10,17 @@ import axios from "axios";
 interface IndexProps {
   heroContent: HeroContent;
   galleryContent: GalleryContent;
-  openingHourcontent: OpeningHoursContent;
+  openingHourContent: OpeningHoursContent;
 }
 
-export default function Index({ heroContent, galleryContent, openingHourcontent }: IndexProps) {
+export default function Index({ heroContent, galleryContent, openingHourContent }: IndexProps) {
   return (
     <>
       <HomePage homePageContent={heroContent} />
       <Content>
         <GalleryWidget galleryContent={galleryContent} />
       </Content>
-      <TestmonialAndOpeningHours openingHourcontent={openingHourcontent} />
+      <TestmonialAndOpeningHours openingHourContent={openingHourContent} />
     </>
   );
 }
@@ -70,7 +70,7 @@ export const getStaticProps: GetStaticProps = async () => {
       }
     }
   `;
-  const apiKey = "you-api-key"; 
+  const apiKey = "apiKey"; 
   const placeId = "ChIJeeMv3fjPsGoRqQoVj86mqvM"; 
   const mapsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=opening_hours&key=${apiKey}`;
 
@@ -96,7 +96,7 @@ export const getStaticProps: GetStaticProps = async () => {
           menuLink: data[0].menuLink,
           menuDescription: data[0].menuDescription,
         },
-        openingHourcontent: {
+        openingHourContent: {
           OpeninghourPhotos: data[0].OpeninghourPhotos,
           testimonials: data[0].testimonials,
           openingHours, 
@@ -109,7 +109,7 @@ export const getStaticProps: GetStaticProps = async () => {
       props: {
         heroContent: null,
         galleryContent: null,
-        openingHourcontent: null,
+        openingHourContent: null,
       },
     };
   }
