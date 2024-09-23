@@ -5,7 +5,7 @@ type ImageWrapperProps = {
   photos: OpeningHoursContent["OpeninghourPhotos"];
 };
 
-const ImageWrapper = ({ photos }: ImageWrapperProps) => {
+function ImageWrapper({ photos }: ImageWrapperProps) {
   return (
     <>
       {photos?.map((photo, index) => (
@@ -19,7 +19,7 @@ const ImageWrapper = ({ photos }: ImageWrapperProps) => {
         </div>
       ))}
     </>
-    );
-};
+  );
+}
 
 export default ImageWrapper;

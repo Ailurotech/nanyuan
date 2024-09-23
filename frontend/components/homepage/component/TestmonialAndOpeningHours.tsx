@@ -1,5 +1,3 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
 import OpeningHoursList from "./TestimoialAndOpeningHoursComponent/OpeningHoursList";
 import { OpeningHoursContent } from "@/types";
 import ImageWrapper from "./TestimoialAndOpeningHoursComponent/ImageWrapper";
@@ -13,20 +11,7 @@ type OpeningHourProps = {
 };
 
 export default function TestmonialAndOpeningHours({ openingHourcontent }: OpeningHourProps) {
-  const [openingHours, setOpeningHours] = useState<string[]>([]);
-
-  useEffect(() => {
-    const fetchOpeningHours = async () => {
-      try {
-        const response = await axios.get("/api/opening-hours");
-        setOpeningHours(response.data.openingHours || []);
-      } catch (err) {
-        console.error("Error fetching opening hours:", err);
-      }
-    };
-    fetchOpeningHours();
-  }, []);
-
+  const openingHours = openingHourcontent?.openingHours || [];
   const testimonials = openingHourcontent?.testimonials || [];
 
   return (

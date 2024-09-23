@@ -43,6 +43,7 @@ export interface SinglePhoto {
 export interface OpeningHoursContent {
   OpeninghourPhotos: SinglePhoto[];
   testimonials: Testimonial[];
+  openingHours: string[];
 }
 
 export interface Testimonial {

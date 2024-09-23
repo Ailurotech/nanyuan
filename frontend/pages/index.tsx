@@ -5,6 +5,7 @@ import { sanityClient } from "@/lib/sanityClient";
 import { GalleryContent, HeroContent, OpeningHoursContent } from "@/types";
 import { Content } from "@/components/homepage/component/Content";
 import { GalleryWidget } from "@/components/homepage/component/GalleryWidget";
+import axios from "axios";
 
 interface IndexProps {
   heroContent: HeroContent;
@@ -12,7 +13,7 @@ interface IndexProps {
   openingHourcontent: OpeningHoursContent;
 }
 
-export default function Index({ heroContent, galleryContent,openingHourcontent }: IndexProps) {
+export default function Index({ heroContent, galleryContent, openingHourcontent }: IndexProps) {
   return (
     <>
       <HomePage homePageContent={heroContent} />
@@ -25,7 +26,7 @@ export default function Index({ heroContent, galleryContent,openingHourcontent }
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-  const query = `
+  const sanityQuery = `
     *[_type == "HomePage"]{
       Homepagetitle,
       backgroundimg{
@@ -69,11 +70,17 @@ export const getStaticProps: GetStaticProps = async () => {
       }
     }
   `;
+  const apiKey = "you-api-key"; 
+  const placeId = "ChIJeeMv3fjPsGoRqQoVj86mqvM"; 
+  const mapsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=opening_hours&key=${apiKey}`;
 
   try {
-    const data = await sanityClient.fetch(query);
+    const data = await sanityClient.fetch(sanityQuery);
     
-    
+    const googleResponse = await axios.get(mapsUrl);
+    const openingHours = googleResponse.data.result?.opening_hours?.weekday_text || [''];
+
+
     return {
       props: {
         heroContent: {
@@ -92,6 +99,7 @@ export const getStaticProps: GetStaticProps = async () => {
         openingHourcontent: {
           OpeninghourPhotos: data[0].OpeninghourPhotos,
           testimonials: data[0].testimonials,
+          openingHours, 
         },
       },
     };

@@ -1,16 +1,7 @@
 import Slider from "react-slick";
 import Image from "next/image";
+import { Testimonial } from "@/types";
 
-type Testimonial = {
-  name: string;
-  review: string;
-  region: string;
-  image: {
-    asset: {
-      url: string;
-    };
-  };
-};
 
 type TestimonialSliderProps = {
   testimonials: Testimonial[];
