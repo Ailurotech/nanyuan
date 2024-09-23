@@ -29,13 +29,13 @@ export default function TestmonialAndOpeningHours({ openingHourContent }: openin
 
       <div className="shadow-[15px_10px_4px_rgba(0,0,0,0.25)] rounded-[4rem] h-auto w-[100%] sm:w-[95%] mx-auto bg-black mt-[9%] flex flex-col md:flex-row">
         <div className="w-full h-auto md:w-[45%] md:h-auto flex flex-col justify-center gap-y-4 pt-[10%] md:p-[10%] text-center md:text-left">
-          <h1 className="text-[1.8rem] sm:text-[2.2rem] xl:text-[3rem]">What our customer said</h1>
+          <h1 className="text-[1.9rem] sm:text-[2.2rem] xl:text-[3rem]">What our customer said</h1>
           <div className="w-full max-w-xs">
             <Image src={logo} alt="testimonial" width={250} height={250} className="hidden md:block" />
           </div>
         </div>
 
-        <div className="w-full h-full md:w-[55%]">
+        <div className="md:w-[55%]">
           <TestimonialSlider testimonials={openingHourContent?.testimonials} />
         </div>
       </div>
