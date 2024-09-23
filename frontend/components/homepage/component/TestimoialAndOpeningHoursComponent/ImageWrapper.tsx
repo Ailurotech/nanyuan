@@ -13,8 +13,8 @@ function ImageWrapper({ photos }: ImageWrapperProps) {
           <Image
             src={photo?.asset?.url || ''}
             alt={`Opening Hours Image ${index + 1}`}
-            layout="fill"
-            objectFit="cover"
+            style={{ objectFit: 'cover' }}
+            fill
           />
         </div>
       ))}
