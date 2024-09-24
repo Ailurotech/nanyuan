@@ -23,7 +23,7 @@ export default function TestmonialAndOpeningHours({ openingHourContent }: openin
           </div>
         </div>
         <div className="h-[30vh] md:h-auto w-full grid grid-cols-2 grid-rows-2 gap-5">
-          <ImageWrapper photos={openingHourContent?.OpeninghourPhotos || []} />
+          <ImageWrapper photos={openingHourContent?.OpeninghourPhotos} />
         </div>
       </div>
 
@@ -35,7 +35,7 @@ export default function TestmonialAndOpeningHours({ openingHourContent }: openin
           </div>
         </div>
 
-        <div className="md:w-[55%]">
+        <div className="w-full md:w-[55%]">
           <TestimonialSlider testimonials={openingHourContent?.testimonials} />
         </div>
       </div>

@@ -44,7 +44,7 @@ const HomePage = ({ homePageContent }: HomePageProps) => {
             alt="Dish"
             width={500}
             height={500}
-            className={`rounded-full ${styles.maskedImage} w-full h-full`}
+            className={`rounded-full [mask-image:radial-gradient(circle,rgba(0,0,0,1)_20%,rgba(0,0,0,0)_70%)] w-full h-full`}
           />
         </div>
         <div className=" md:w-auto ml-[0%] md:ml-[2%] flex flex-col justify-center text-center md:text-left ">
