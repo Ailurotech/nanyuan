@@ -1,13 +1,15 @@
 import Link from "next/link";
 import Image from "next/image";
-import styles from "@/styles/homepage.module.css";
 import { HeroContent } from "@/types";
 import { NavigationRoute } from "@/components/homepage/route";
 import Arrow from "@/components/common/arrow";
+import { Alegreya_Sans } from 'next/font/google'
 
 interface HomePageProps {
   homePageContent: HeroContent;
+  
 }
+const alegreyaSans = Alegreya_Sans({subsets: ['latin'], weight: ['400']})
 
 const HomePage = ({ homePageContent }: HomePageProps) => {
   if (!homePageContent) {
@@ -21,7 +23,7 @@ const HomePage = ({ homePageContent }: HomePageProps) => {
   }
   return (
     <div
-      className={`w-full bg-cover bg-center pt-40 backdrop-brightness-[0.1] ${styles["font-alegreya-sans"]}`}
+      className={`w-full bg-cover bg-center pt-40 backdrop-brightness-[0.1] ${alegreyaSans.className}`}
       style={{
         backgroundImage: `url(${homePageContent.backgroundimg.asset.url})`,
       }}
