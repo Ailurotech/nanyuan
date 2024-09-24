@@ -1,13 +1,15 @@
 import Link from "next/link";
 import Image from "next/image";
-import styles from "@/styles/homepage.module.css";
 import { HeroContent } from "@/types";
 import { NavigationRoute } from "@/components/homepage/route";
 import Arrow from "@/components/common/arrow";
+import { Alegreya_Sans } from 'next/font/google'
 
 interface HomePageProps {
   homePageContent: HeroContent;
+  
 }
+const alegreyaSans = Alegreya_Sans({subsets: ['latin'], weight: ['400']})
 
 const HomePage = ({ homePageContent }: HomePageProps) => {
   if (!homePageContent) {
@@ -21,7 +23,7 @@ const HomePage = ({ homePageContent }: HomePageProps) => {
   }
   return (
     <div
-      className={`w-full bg-cover bg-center pt-40 backdrop-brightness-[0.1] ${styles["font-alegreya-sans"]}`}
+      className={`w-full bg-cover bg-center pt-40 backdrop-brightness-[0.1] ${alegreyaSans.className}`}
       style={{
         backgroundImage: `url(${homePageContent.backgroundimg.asset.url})`,
       }}
@@ -44,7 +46,7 @@ const HomePage = ({ homePageContent }: HomePageProps) => {
             alt="Dish"
             width={500}
             height={500}
-            className={`rounded-full ${styles.maskedImage} w-full h-full`}
+            className={`rounded-full [mask-image:radial-gradient(circle,rgba(0,0,0,1)_20%,rgba(0,0,0,0)_70%)] w-full h-full`}
           />
         </div>
         <div className=" md:w-auto ml-[0%] md:ml-[2%] flex flex-col justify-center text-center md:text-left ">

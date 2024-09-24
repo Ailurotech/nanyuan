@@ -40,6 +40,23 @@ export interface SinglePhoto {
   };
 }
 
+export interface OpeningHoursContent {
+  OpeninghourPhotos: SinglePhoto[];
+  testimonials: Testimonial[];
+  openingHours: string[];
+}
+
+export interface Testimonial {
+  name: string;
+  review: string;
+  region: string;
+  image: {
+    asset: {
+      url: string;
+    };
+  };
+}
+
 export interface ShoppingCartItem {
   _id: string;
   name: string;
