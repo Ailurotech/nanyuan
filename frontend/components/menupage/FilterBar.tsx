@@ -12,8 +12,8 @@ const FilterBar = ({ selectedCategories = [], selectedFilter, onFilterChange, on
 
   return (
     <>
-    <Box display="flex" flexDirection={{ base: "column", md: "row" }} justifyContent="center" gap={4} width="50%" >
-      <Box flex="1" minWidth="200px">
+    <Box display="flex" flexDirection={{ base: "column", md: "row" }} justifyContent="center"  gap={4} >
+      <Box flex="1" minWidth="200px"  maxWidth="200px">
         <Select 
         onChange={handleFilterChange} 
         icon={<></>} 
@@ -34,7 +34,7 @@ const FilterBar = ({ selectedCategories = [], selectedFilter, onFilterChange, on
         padding="0.5rem 1rem"
         >
           <option value="All">All</option>
-          <option value="SignatureDishes">Signature Dishes</option>
+          <option value="Signature Dishes">Signature Dishes</option>
           <option value="Entree">Entree</option>
           <option value="Soup">Soup</option>
           <option value="Chicken">Chicken</option>
@@ -49,14 +49,14 @@ const FilterBar = ({ selectedCategories = [], selectedFilter, onFilterChange, on
         
         <Box>
         {selectedCategories.length > 0 && (
-          <Box maxW="175px" mt={4} ml={{ base: 3, md: 8 }}>
+          <Box maxW="175px" mt={4} ml={{ base: 3, md: 5 }}>
             <MultiSelectBar selectedCategories={selectedCategories} onRemoveCategory={onRemoveCategory}/>
           </Box>
           )}
         </Box>
       </Box>
       
-      <Box flex="1" minWidth="200px" >
+      <Box flex="1" minWidth="200px"  maxWidth="200px">
         <Select
           fontSize="lg"
           fontWeight="bold"
@@ -81,7 +81,7 @@ const FilterBar = ({ selectedCategories = [], selectedFilter, onFilterChange, on
         </Select>
       </Box>
     
-      <Box flex="1" minWidth="200px" padding="0.5rem 1rem 0.5rem 0rem">
+      <Box flex="1" minWidth="200px" maxWidth="200px" padding="0.5rem 1rem 0.5rem 0rem">
         <Box display="flex" justifyContent="center" alignItems="center">
           <SearchBar onSearch={onSearch} />
         </Box>
