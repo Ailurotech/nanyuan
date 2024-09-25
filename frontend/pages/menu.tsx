@@ -86,8 +86,8 @@ const MenuPage = ({ menuItems }: MenuProps) => {
   return (
     <div className="bg-black min-h-screen py-12 pt-40">
     <h1 className="text-center text-white text-4xl font-bold mb-8">Choose Our Menu</h1>
-    <div className="flex justify-center items-center gap-6 mb-6 w-full px-10">
-        <div className="flex space-x-4 ">
+    <div className="flex justify-start md:justify-center items-center gap-6 mb-6 w-full px-10">
+        <div className="flex md:flex-row md:space-x-4 space-y-4 md:space-y-0 justify-center items-center w-full">
           <FilterBar 
             selectedCategories={selectedCategories} 
             selectedFilter={selectedFilter}
@@ -111,7 +111,7 @@ const MenuPage = ({ menuItems }: MenuProps) => {
         </div>
       )}
     <div className="flex justify-center mt-10">
-      <button className="bg-yellow-400 text-white py-2 px-6 rounded-lg text-lg" onClick={handleSeeAll}>
+      <button className="bg-yellow-400 text-black py-2 px-6 rounded-lg text-lg" onClick={handleSeeAll}>
         See All
       </button>
     </div>

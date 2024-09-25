@@ -12,11 +12,29 @@ const FilterBar = ({ selectedCategories = [], selectedFilter, onFilterChange, on
 
   return (
     <>
-    <Box display="flex" gap={4} alignItems="center">
-      <Box>
-        <Select onChange={handleFilterChange} icon={<></>} bg="black" textColor="white" value={selectedFilter}>
+    <Box display="flex" flexDirection={{ base: "column", md: "row" }} justifyContent="center" gap={4} width="50%" >
+      <Box flex="1" minWidth="200px">
+        <Select 
+        onChange={handleFilterChange} 
+        icon={<></>} 
+        bg="black"
+        textColor="white"
+        textAlign="center"
+        fontSize="lg"
+        fontWeight="bold"
+        color="white"
+        value={selectedFilter}
+        _focus={{ outline: "none" }}
+        sx={{
+          position: 'relative',
+          option: {
+            fontWeight: "bold",
+          },
+        }}
+        padding="0.5rem 1rem"
+        >
           <option value="All">All</option>
-          <option value="Signature Dishes">Signature Dishes</option>
+          <option value="SignatureDishes">Signature Dishes</option>
           <option value="Entree">Entree</option>
           <option value="Soup">Soup</option>
           <option value="Chicken">Chicken</option>
@@ -28,24 +46,48 @@ const FilterBar = ({ selectedCategories = [], selectedFilter, onFilterChange, on
           <option value="Noodles & Rice">Noodles & Rice</option>
           <option value="Banquet">Banquet</option>
         </Select>
-        <div className="max-w-[172px] mt-4">
-          <MultiSelectBar selectedCategories={selectedCategories} onRemoveCategory={onRemoveCategory} />
-        </div>
-      </Box>      
-    </Box>
-    <Box>
-        <Select placeholder="Sort by" onChange={handleSortChange} icon={<></>} bg="black" textColor="white">
-        <option value="asc">Price: Low to High</option>
-        <option value="desc">Price: High to Low</option>
+        
+        <Box>
+        {selectedCategories.length > 0 && (
+          <Box maxW="175px" mt={4} ml={{ base: 3, md: 8 }}>
+            <MultiSelectBar selectedCategories={selectedCategories} onRemoveCategory={onRemoveCategory}/>
+          </Box>
+          )}
+        </Box>
+      </Box>
+      
+      <Box flex="1" minWidth="200px" >
+        <Select
+          fontSize="lg"
+          fontWeight="bold"
+          color="white"
+          placeholder="Sort"
+          onChange={handleSortChange}
+          icon={<></>}
+          bg="black"
+          textColor="white"
+          textAlign="center"
+          _focus={{ outline: "none" }}
+          sx={{
+            position: 'relative',
+            option: {
+              fontWeight: "bold",
+            },
+          }}
+          padding="0.5rem 0.5rem"
+        >
+          <option value="asc">Price: Low to High</option>
+          <option value="desc">Price: High to Low</option>
         </Select>
-    </Box>
+      </Box>
     
-    <Box>
-      <div className="flex justify-center items-center">
-      <SearchBar onSearch={onSearch} />
-    </div>
+      <Box flex="1" minWidth="200px" padding="0.5rem 1rem 0.5rem 0rem">
+        <Box display="flex" justifyContent="center" alignItems="center">
+          <SearchBar onSearch={onSearch} />
+        </Box>
+      </Box>
     </Box>
-    </>
+  </>
   );
 };
 

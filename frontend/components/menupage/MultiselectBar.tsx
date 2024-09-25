@@ -17,14 +17,14 @@ const MultiSelectBar = ({ selectedCategories, onRemoveCategory }: MultiSelectBar
             variant="solid"
             bg="yellow.400"
             textColor="green.700"
-            px={1}
+            px={3}
             py={1}
             fontWeight="bold"
             display="flex"
             alignItems="center"
           >
             <TagLabel>{category}</TagLabel>
-            <TagCloseButton onClick={() => onRemoveCategory(category)} />
+            <TagCloseButton color="black" onClick={() => onRemoveCategory(category)} />
           </Tag>
         ))}
     </Box>

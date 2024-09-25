@@ -1,10 +1,8 @@
-import { Input, Box, IconButton } from "@chakra-ui/react";
-import { SearchIcon } from "@chakra-ui/icons";
+import { Input, Box } from "@chakra-ui/react";
 import { useState } from "react";
 
 const SearchBar = ({ onSearch }: { onSearch: (query: string) => void }) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [showSearch, setShowSearch] = useState(false);
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
@@ -12,31 +10,25 @@ const SearchBar = ({ onSearch }: { onSearch: (query: string) => void }) => {
     onSearch(value);
   };
 
-  const toggleSearchBar = () => {
-    setShowSearch(!showSearch);
-  };
-
   return (
     <Box display="flex" alignItems="center">
-    <IconButton
-      aria-label="Search menu"
-      icon={<SearchIcon />}
-      onClick={toggleSearchBar}
-      mr={2}
-      colorScheme="teal"
-      color="white"
-    />
-    {showSearch && (
       <Input
         value={searchTerm}
         onChange={handleSearchChange}
-        placeholder="Search dish by name"
+        placeholder="Search"
         size="lg"
-        bg="white"
-        color="black"
+        bg="black"
+        fontSize="lg" 
+        fontWeight="bold" 
+        textColor="white"
+        textAlign="center"
         autoFocus
+        width="100%"
+        _focus={{ outline: "none" }}
+        sx={{
+          "::placeholder": { color: "white" },
+        }}
       />
-    )}
   </Box>
   );
 };
