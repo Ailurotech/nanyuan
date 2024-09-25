@@ -74,3 +74,12 @@ export const SocialRoute = {
   FaceBook,
   Instagram,
 };
+
+
+export const ShoppingCart = {
+  Path: "/shoppingcart",
+  Name: "ShoppingCart",
+  Link: ({ children }: { children: React.ReactNode }) => (
+    <Link href={Location.Path}>{children}</Link>
+  ),
+};

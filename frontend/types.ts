@@ -40,3 +40,35 @@ export interface SinglePhoto {
     url: string;
   };
 }
+
+export interface OpeningHoursContent {
+  OpeninghourPhotos: SinglePhoto[];
+  testimonials: Testimonial[];
+  openingHours: string[];
+}
+
+export interface Testimonial {
+  name: string;
+  review: string;
+  region: string;
+  image: {
+    asset: {
+      url: string;
+    };
+  };
+}
+
+export interface ShoppingCartItem {
+  _id: string;
+  name: string;
+  description: string;
+  price: number;
+  image: string;
+  quantity: number;
+}
+
+export interface CartCardProps {
+  shoppingCartItem: ShoppingCartItem;
+  removeItem: () => void;
+  updateQuantity: (newQuantity: number, id: string) => void;
+}

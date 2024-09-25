@@ -6,7 +6,7 @@ import { Acme } from "next/font/google";
 import clsx from "clsx";
 import { RoutRoute, SocialRoute } from "../route";
 import { NavigationMenu } from "./NavigationMenu";
-import { NavigationDrawer } from "./NavigationDrawer";
+import { NavigationDrawer } from "./navigationDrawer";
 
 const acme = Acme({ weight: "400", subsets: ["latin"] });
 
