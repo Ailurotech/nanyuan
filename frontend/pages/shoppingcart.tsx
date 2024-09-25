@@ -41,16 +41,16 @@ const ShoppingCart = ({ shoppingCartItems }: ShoppingCartProps) => {
   };
 
   return (
-    <div className="bg-black w-full py-48">
+    <div className="bg-black w-full min-h-screen py-48">
       <h1 className="text-center text-white text-4xl font-bold mb-8">Shopping Cart</h1>
-      <div className="w-3/4 mx-auto p-12 bg-zinc-800 rounded-lg shadow-2xl">
-      <Link href={NavigationRoute.Menu.Path}>
-        <Button className="bg-yellow-400 p-3 gap-2">
-          <FaArrowLeftLong />
-          <span className="font-bold">Continue Ordering</span>
-        </Button>
-      </Link>
-      <div className="py-6 border-t-2 border-white mt-6 ">
+      <div className="md:w-3/4 mx-2 md:mx-auto md:p-12 p-5 bg-zinc-800 rounded-lg shadow-2xl">
+        <Link className="" href={NavigationRoute.Menu.Path}>
+          <Button className="bg-yellow-400 p-3 gap-2">
+            <FaArrowLeftLong />
+            <span className="font-bold">Continue Ordering</span>
+          </Button>
+        </Link>
+        <div className="md:py-6 border-t-2 border-white md:mt-6 mt-5">
           <div className="text-white">You have {cartItems.length} items in your shopping cart</div>
           <div className='my-10'>
             {cartItems.map((item) => (

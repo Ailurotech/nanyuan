@@ -30,21 +30,23 @@ const CartCard = ({
         direction={{ base: 'column', sm: 'row' }}
         overflow="hidden"
         variant="outline"
-        className="text-white flex flex-col md:items-center justify-center justify-between bg-gray-600 p-3 rounded-lg mb-5 gap-y-3 justify-items-start items-start"
+        className="text-white flex flex-col md:items-center md:justify-center md:justify-between bg-gray-600 p-3 rounded-lg mb-5 gap-y-3 justify-items-start items-start h-[60vh] md:h-[15vh]"
       >
-        <div className="flex flex-col md:flex-row items-center gap-5 md:w-1/3">
-          <Image
-            objectFit="cover"
-            maxW={{ base: '100%', sm: '100px' }}
-            src={shoppingCartItem.image}
-            alt={shoppingCartItem.name}
-            className="rounded-lg"
-          />
-          <div className="w-11/12">
+        <div className="flex flex-col md:flex-row md:items-center w-full md:w-3/5 h-3/5 gap-2">
+          <div className='h-2/3 w-full md:w-1/5 md:h-full'>
+            <Image
+                objectFit="cover"
+                maxW={{ base: '100%', sm: '100px' }}
+                src={shoppingCartItem.image}
+                alt={shoppingCartItem.name}
+                className="rounded-lg w-full h-full"
+              />
+          </div>
+          <div className="md:w-full ">
             <Text className="text-white">
               <strong>{shoppingCartItem.name}</strong>
               <br />
-              {shoppingCartItem.description}
+              <Text noOfLines={[1, 2, 3]} >{shoppingCartItem.description}</Text>
             </Text>
           </div>
         </div>
