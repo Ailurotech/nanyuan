@@ -7,7 +7,7 @@ function OpeningHoursList({ openingHours }: { openingHours: string[] }) {
         const [day, time] = hour.split(/:(.+)/);
 
         return time ? (
-          <div key={index} className="flex justify-between text-[1.5rem] sm:text-[1.2em] xl:text-[1.8rem]">
+          <div key={index} className="flex justify-between text-[1.5rem] sm:text-[1.2em] xl:text-[1.8rem] font-sans">
             <span className="font-bold">{day}:</span>
             <span className="text-right">
               {time.split(",").map((t, i) => (

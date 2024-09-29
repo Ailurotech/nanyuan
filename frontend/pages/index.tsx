@@ -70,7 +70,7 @@ export const getStaticProps: GetStaticProps = async () => {
       }
     }
   `;
-  const apiKey = "apiKey"; 
+  const apiKey = process.env.NEXT_PUBLIC_API_KEY; 
   const placeId = "ChIJeeMv3fjPsGoRqQoVj86mqvM"; 
   const mapsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=opening_hours&key=${apiKey}`;
 

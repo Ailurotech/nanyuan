@@ -1,19 +1,7 @@
 import { useForm } from 'react-hook-form';
-import {
-  Select,
-  Box,
-  FormControl,
-  FormLabel,
-  Button,
-  NumberInputStepper,
-  NumberInput,
-  NumberInputField,
-  NumberIncrementStepper,
-  NumberDecrementStepper,
-  HStack,
-  Input,
-} from '@chakra-ui/react';
+import { Select, Box, FormControl, FormLabel, Button, NumberInputStepper, NumberInput, NumberInputField, NumberIncrementStepper, NumberDecrementStepper, HStack, Input } from '@chakra-ui/react';
 import { useState, useEffect, useRef } from 'react';
+import axios from 'axios';
 
 export default function BookATablePage() {
   const {
@@ -44,13 +32,33 @@ export default function BookATablePage() {
   const [canResend, setCanResend] = useState(true);
   const otpTimerStart = useRef<number | null>(null);
 
-  const onSubmit = (data: any) => {
+  const onSubmit = async (data: any) => {
     if (!isOtpVerified) {
       alert('OTP is not verified yet. Please verify your phone number.');
       return;
     }
-    console.log('Form Data:', data);
+
+    try {
+      // Use axios to send the data to the backend
+      const response = await axios.post(process.env.NEXT_PUBLIC_SENDMAIL_URL, data, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.status === 200 || response.status === 201) {
+        alert('Reservation successful!');
+        window.location.href = '/';
+      } else {
+        console.error('Error submitting form:', response.data);
+        alert('Failed to submit reservation. Please try again.');
+      }
+    } catch (error) {
+      console.error('Network error:', error);
+      alert('Network error occurred. Please try again later.');
+    }
   };
+  
 
   const verifyOtp = () => {
     if (otp === '123456') {
@@ -130,7 +138,7 @@ export default function BookATablePage() {
   const time = watch('time');
   const guests = watch('guests');
 
-  const isWeekend = (date) => {
+  const isWeekend = (date:any) => {
     const dayOfWeek = new Date(date).getDay();
     return dayOfWeek === 5 || dayOfWeek === 6 || dayOfWeek === 0;
   };
@@ -139,9 +147,11 @@ export default function BookATablePage() {
 
   const isFormComplete = name && phone && selectedDate && time && guests && isOtpVerified;
 
+  
+
   return (
-    <div className="w-full h-screen bg-[rgba(25,25,25,1)] pt-[8%] flex justify-center">
-      <div className="w-[550px] h-[75vh] bg-[#e5e7eb] rounded-[20px] px-7 py-7 flex flex-col">
+    <div className="w-full h-[120vh] sm:h-screen bg-[rgba(25,25,25,1)] pt-[20vh] pb-[5%] px-[5%] flex justify-center">
+      <div className="w-[550px] h-[90vh] sm:h-[75vh] bg-[#e5e7eb] rounded-[20px] px-7 py-7 flex flex-col">
         <div className="w-full">
           <h1 className="font-bold text-2xl">Book a Table</h1>
           <p className="mt-1 font-extralight">
@@ -166,7 +176,7 @@ export default function BookATablePage() {
             <FormLabel className="font-bold">Phone number</FormLabel>
             <HStack align="flex-start" spacing={2} mt={2} className="w-full">
               <input
-                className="flex-grow h-[35px] rounded-[5px] w-[70%] pl-2"
+                className="flex-grow h-[35px] rounded-[5px] w-[80%] sm:w-[70%] pl-2"
                 type="text"
                 {...register('phone', {
                   required: 'Phone number is required',
@@ -185,7 +195,7 @@ export default function BookATablePage() {
                 _hover={{ bg: isOtpVerified ? 'green.400' : canResend ? '#FACC15' : 'gray.400' }}
                 onClick={sendOtp}
                 isDisabled={isOtpVerified || !canResend || !!errors.phone}
-                className="h-[35px] w-[auto] rounded-[5px] text-[0.9rem] min-w-[80px] px-2"
+                className="h-[35px] w-[60px] sm:w-[auto] rounded-[5px] text-[0.9rem] sm:min-w-[80px] px-2"
               >
                 {isOtpVerified ? 'Verified' : canResend ? 'Send OTP' : `Resend (${timer}s)`}
               </Button>
@@ -309,7 +319,7 @@ export default function BookATablePage() {
             <FormControl>
               <FormLabel>Enter OTP</FormLabel>
               <Input
-                placeholder="Enter here"
+                placeholder="Enter Here"
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
                 className='mt-2'
