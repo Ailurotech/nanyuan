@@ -12,7 +12,6 @@ import {
   NumberDecrementStepper,
   HStack,
   Input,
-  Text,
 } from '@chakra-ui/react';
 import { useState, useEffect, useRef } from 'react';
 
@@ -21,7 +20,9 @@ export default function BookATablePage() {
     register,
     handleSubmit,
     watch,
-    formState: { errors },
+    trigger,
+    clearErrors, // Add clearErrors to reset the error state
+    formState: { errors, isValid },
   } = useForm({
     defaultValues: {
       name: '',
@@ -32,14 +33,15 @@ export default function BookATablePage() {
       preference: 'No Preference',
       notes: '',
     },
+    mode: 'onChange',
   });
 
+  // States for OTP and timer
   const [isOtpVerified, setIsOtpVerified] = useState(false);
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [otp, setOtp] = useState('');
   const [timer, setTimer] = useState(60);
   const [canResend, setCanResend] = useState(true);
-  const [otpVerifiedDisableResend, setOtpVerifiedDisableResend] = useState(false); // New state to disable resend after OTP verification
   const otpTimerStart = useRef<number | null>(null);
 
   const onSubmit = (data: any) => {
@@ -55,24 +57,52 @@ export default function BookATablePage() {
       alert('OTP verified successfully!');
       setIsOtpVerified(true);
       setIsOtpSent(false);
-      setOtpVerifiedDisableResend(true); // Disable resend after OTP verification
+      setCanResend(false); // Lock the resend button
     } else {
       alert('Invalid OTP, please try again.');
     }
   };
 
-  const sendOtp = () => {
-    setIsOtpSent(true);
-    setCanResend(false);
-    setTimer(60);
-    otpTimerStart.current = Date.now();
-    alert('OTP sent to phone number');
+  const sendOtp = async () => {
+    // Validate the phone field before sending OTP
+    const isPhoneValid = await trigger('phone');
+    if (isPhoneValid) {
+      setIsOtpSent(true);
+      setCanResend(false);
+      setTimer(60);
+      otpTimerStart.current = Date.now();
+      localStorage.setItem('otpTimerStart', otpTimerStart.current.toString());
+      alert('OTP sent to phone number');
+    }
   };
 
   const closeOtpPopup = () => {
     setIsOtpSent(false);
     setOtp('');
   };
+
+  // Clear errors when user types in the phone number
+  const handlePhoneChange = () => {
+    clearErrors('phone');
+  };
+
+  // Restore timer on component mount
+  useEffect(() => {
+    const startTimestamp = localStorage.getItem('otpTimerStart');
+    if (startTimestamp) {
+      const elapsed = Math.floor((Date.now() - parseInt(startTimestamp)) / 1000);
+      const remaining = 60 - elapsed;
+
+      if (remaining > 0) {
+        setTimer(remaining);
+        setCanResend(false);
+        otpTimerStart.current = parseInt(startTimestamp);
+      } else {
+        setCanResend(true);
+        localStorage.removeItem('otpTimerStart');
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (!canResend && otpTimerStart.current !== null) {
@@ -84,7 +114,8 @@ export default function BookATablePage() {
           setTimer(remainingTime);
         } else {
           setTimer(0);
-          setCanResend(true); 
+          setCanResend(true);
+          localStorage.removeItem('otpTimerStart');
           clearInterval(interval);
         }
       }, 1000);
@@ -133,9 +164,9 @@ export default function BookATablePage() {
 
           <FormControl isInvalid={!!errors.phone}>
             <FormLabel className="font-bold">Phone number</FormLabel>
-            <HStack spacing={2} mt={2}>
+            <HStack align="flex-start" spacing={2} mt={2} className="w-full">
               <input
-                className="flex-grow h-[35px] rounded-[5px] pl-2"
+                className="flex-grow h-[35px] rounded-[5px] w-[70%] pl-2"
                 type="text"
                 {...register('phone', {
                   required: 'Phone number is required',
@@ -145,17 +176,18 @@ export default function BookATablePage() {
                   },
                 })}
                 disabled={isOtpVerified}
+                onChange={handlePhoneChange} // Clear errors on input change
               />
               <Button
                 colorScheme="yellow"
-                bg={otpVerifiedDisableResend ? 'gray.400' : canResend ? '#FACC15' : 'gray.400'}
-                color={otpVerifiedDisableResend || !canResend ? 'white' : 'black'}
-                _hover={{ bg: otpVerifiedDisableResend ? 'gray.400' : canResend ? '#FACC15' : 'gray.400' }}
+                bg={isOtpVerified ? 'green.400' : canResend ? '#FACC15' : 'gray.400'}
+                color={isOtpVerified || !canResend ? 'white' : 'black'}
+                _hover={{ bg: isOtpVerified ? 'green.400' : canResend ? '#FACC15' : 'gray.400' }}
                 onClick={sendOtp}
-                isDisabled={otpVerifiedDisableResend || !canResend}
-                className='h-[35px] rounded-[5px] text-[0.9rem] min-w-[80px]'
+                isDisabled={isOtpVerified || !canResend || !!errors.phone}
+                className="h-[35px] w-[auto] rounded-[5px] text-[0.9rem] min-w-[80px] px-2"
               >
-                {otpVerifiedDisableResend ? 'Verified' : canResend ? 'Send OTP' : `Resend (${timer}s)`}
+                {isOtpVerified ? 'Verified' : canResend ? 'Send OTP' : `Resend (${timer}s)`}
               </Button>
             </HStack>
             {errors.phone && <p className="text-red-500 mt-1">{errors.phone.message}</p>}
@@ -277,17 +309,18 @@ export default function BookATablePage() {
             <FormControl>
               <FormLabel>Enter OTP</FormLabel>
               <Input
-                placeholder="Enter OTP"
+                placeholder="Enter here"
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
+                className='mt-2'
               />
             </FormControl>
             <HStack spacing={4} mt={4}>
-              <Button 
+              <Button
                 colorScheme="yellow"
                 bg={'white'}
                 color={'black'}
-                onClick={verifyOtp} 
+                onClick={verifyOtp}
               >
                 Verify
               </Button>
