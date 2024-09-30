@@ -39,14 +39,16 @@ export default function BookATablePage() {
     }
 
     try {
-      // Use axios to send the data to the backend
-      const response = await axios.post(process.env.NEXT_PUBLIC_SENDMAIL_URL, data, {
+      // Use axios to send the data to the backend as a GET request
+      const response = await axios.get("http://localhost:3000/api/sendmail", {
         headers: {
           'Content-Type': 'application/json',
         },
+        // If you want to send data, you can include it in params for a GET request
+        params: data, // replace `data` with your query params if needed
       });
-
-      if (response.status === 200 || response.status === 201) {
+    
+      if (response.status === 200) {
         alert('Reservation successful!');
         window.location.href = '/';
       } else {
@@ -57,6 +59,7 @@ export default function BookATablePage() {
       console.error('Network error:', error);
       alert('Network error occurred. Please try again later.');
     }
+    
   };
   
 

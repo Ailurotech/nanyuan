@@ -6,25 +6,24 @@ type ResponseData = {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ResponseData>,
+  res: NextApiResponse<ResponseData>
 ) {
-  if (req.method === "POST") {
+  if (req.method === "GET") {
     try {
-      // 获取请求体的数据
-      const formData = req.body;
+      // Access query parameters if any are sent
+      const queryData = req.query;
 
-      // 在这里处理你收到的数据，例如发送邮件或保存到数据库
-      console.log("Received form data:", formData);
+      console.log("Received query data:", queryData);
 
-      // 响应成功消息
-      res.status(201).json({ message: "Form data received successfully" });
+      // Respond with a success message
+      res.status(200).json({ message: "GET request received successfully" });
     } catch (error) {
       console.error("Error handling request:", error);
       res.status(500).json({ message: "Internal Server Error" });
     }
   } else {
-    // 如果请求方法不是 POST，返回 405 状态码
-    res.setHeader("Allow", ["POST"]);
+    // If the request method is not GET, return a 405 status code
+    res.setHeader("Allow", ["GET"]);
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }
