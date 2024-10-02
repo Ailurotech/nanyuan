@@ -45,7 +45,7 @@ export default function BookATablePage() {
   const [canResend, setCanResend] = useState(true);
   const otpTimerStart = useRef<number | null>(null);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: FormData) => {
     console.log(data);
     console.log('Form submitted successfully!');
 
@@ -59,7 +59,7 @@ export default function BookATablePage() {
   
 
   const verifyOtp = () => {
-    if (otp === '123456') {
+    if (otp === 'abcd') {
       alert('OTP verified successfully!');
       setIsOtpVerified(true);
       setIsOtpSent(false);
@@ -134,8 +134,8 @@ export default function BookATablePage() {
 
   
   return (
-    <div className="w-full h-auto  bg-[rgba(25,25,25,1)] pt-[17vh] pb-[5%] px-[5%] flex justify-center">
-      <div className="w-[550px] h-[90vh] sm:h-[90vh] bg-[#e5e7eb] rounded-[20px] px-7 py-7 flex flex-col">
+    <div className="w-full h-auto min-h-screen bg-[rgba(25,25,25,1)] pt-[17vh] pb-[5%] px-[5%] flex justify-center">
+      <div className="w-[550px] h-auto sm:h-[80vh] bg-[#e5e7eb] rounded-[20px] px-7 py-7 flex flex-col">
         <div className="w-full">
           <h1 className="font-bold text-2xl">Book a Table</h1>
           <p className="mt-1 font-extralight">
