@@ -1,15 +1,27 @@
 import { useForm } from 'react-hook-form';
-import { Select, Box, FormControl, FormLabel, Button, NumberInputStepper, NumberInput, NumberInputField, NumberIncrementStepper, NumberDecrementStepper, HStack, Input } from '@chakra-ui/react';
+import { Select, Box, FormControl, FormLabel, Button, NumberInputStepper, NumberInput, NumberInputField, NumberIncrementStepper, NumberDecrementStepper, HStack, Input, FormErrorMessage, Textarea } from '@chakra-ui/react';
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 
+type FormData = {
+  name: string;
+  phone: string;
+  date: string;
+  time: string;
+  guests: number;
+  preference: string;
+  notes: string;
+  email: string;
+};
+
 export default function BookATablePage() {
   const {
+    control,
     register,
     handleSubmit,
     watch,
     trigger,
-    clearErrors, // Add clearErrors to reset the error state
+
     formState: { errors, isValid },
   } = useForm({
     defaultValues: {
@@ -20,9 +32,11 @@ export default function BookATablePage() {
       guests: 2,
       preference: 'No Preference',
       notes: '',
+      email: ''
     },
     mode: 'onChange',
   });
+  
 
   // States for OTP and timer
   const [isOtpVerified, setIsOtpVerified] = useState(false);
@@ -30,37 +44,22 @@ export default function BookATablePage() {
   const [otp, setOtp] = useState('');
   const [timer, setTimer] = useState(60);
   const [canResend, setCanResend] = useState(true);
+  const [touched, setTouched] = useState(false);
+  const [valued, setValued] = useState(false);
   const otpTimerStart = useRef<number | null>(null);
 
-  const onSubmit = async (data: any) => {
-    if (!isOtpVerified) {
-      alert('OTP is not verified yet. Please verify your phone number.');
-      return;
-    }
+const onSubmit = async (data: any) => {
+  console.log(data);
+  console.log('Form submitted successfully!');
 
-    try {
-      // Use axios to send the data to the backend as a GET request
-      const response = await axios.get("http://localhost:3000/api/sendmail", {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        // If you want to send data, you can include it in params for a GET request
-        params: data, // replace `data` with your query params if needed
-      });
-    
-      if (response.status === 200) {
-        alert('Reservation successful!');
-        window.location.href = '/';
-      } else {
-        console.error('Error submitting form:', response.data);
-        alert('Failed to submit reservation. Please try again.');
-      }
-    } catch (error) {
-      console.error('Network error:', error);
-      alert('Network error occurred. Please try again later.');
-    }
-    
-  };
+  if (!isOtpVerified) {
+    alert('OTP is not verified yet. Please verify your phone number.');
+    return;
+  }
+  
+  return ;
+};
+
   
 
   const verifyOtp = () => {
@@ -92,13 +91,8 @@ export default function BookATablePage() {
     setOtp('');
   };
 
-  // Clear errors when user types in the phone number
-  const handlePhoneChange = () => {
-    clearErrors('phone');
-  };
 
-  // Restore timer on component mount
-  useEffect(() => {
+useEffect(() => {
     const startTimestamp = localStorage.getItem('otpTimerStart');
     if (startTimestamp) {
       const elapsed = Math.floor((Date.now() - parseInt(startTimestamp)) / 1000);
@@ -136,25 +130,18 @@ export default function BookATablePage() {
   }, [canResend, timer]);
 
   const selectedDate = watch('date');
-  const name = watch('name');
-  const phone = watch('phone');
-  const time = watch('time');
-  const guests = watch('guests');
-
   const isWeekend = (date:any) => {
     const dayOfWeek = new Date(date).getDay();
     return dayOfWeek === 5 || dayOfWeek === 6 || dayOfWeek === 0;
   };
-
   const isSelectedDateWeekend = selectedDate && isWeekend(selectedDate);
-
-  const isFormComplete = name && phone && selectedDate && time && guests && isOtpVerified;
+  const isFormComplete = isOtpVerified && Object.keys(errors).length === 0;
 
   
 
   return (
-    <div className="w-full h-[120vh] sm:h-screen bg-[rgba(25,25,25,1)] pt-[20vh] pb-[5%] px-[5%] flex justify-center">
-      <div className="w-[550px] h-[90vh] sm:h-[75vh] bg-[#e5e7eb] rounded-[20px] px-7 py-7 flex flex-col">
+    <div className="w-full h-[130vh] sm:h-screen bg-[rgba(25,25,25,1)] pt-[20vh] pb-[5%] px-[5%] flex justify-center">
+      <div className="w-[550px] h-[90vh] sm:h-[80vh] bg-[#e5e7eb] rounded-[20px] px-7 py-7 flex flex-col">
         <div className="w-full">
           <h1 className="font-bold text-2xl">Book a Table</h1>
           <p className="mt-1 font-extralight">
@@ -165,20 +152,21 @@ export default function BookATablePage() {
           as="form"
           onSubmit={handleSubmit(onSubmit)}
           className="h-full flex-grow pt-5 grid grid-cols-2 grid-rows-[repeat(4,1fr)_2fr] gap-x-4 gap-y-2 text-[0.9rem]"
+          noValidate
         >
-          <FormControl isInvalid={!!errors.name}>
+          <FormControl isInvalid={!!errors.name} isRequired>
             <FormLabel className="font-bold">Name</FormLabel>
-            <input
-              className="w-full h-[35px] mt-2 rounded-[5px] pl-2"
+              <Input
+              className="w-full h-[35px] mt-2 rounded-[5px] pl-2 "
               type="text"
               {...register('name', { required: 'Name is required' })}
-            />
+              />
+            <FormErrorMessage  className='text-red-500' >{errors.name?.message}</FormErrorMessage>
           </FormControl>
-
-          <FormControl isInvalid={!!errors.phone}>
+          <FormControl isInvalid={!!errors.phone} isRequired>
             <FormLabel className="font-bold">Phone number</FormLabel>
             <HStack align="flex-start" spacing={2} mt={2} className="w-full">
-              <input
+              <Input
                 className="flex-grow h-[35px] rounded-[5px] w-[80%] sm:w-[70%] pl-2"
                 type="text"
                 {...register('phone', {
@@ -188,8 +176,7 @@ export default function BookATablePage() {
                     message: 'Please enter a valid phone number',
                   },
                 })}
-                disabled={isOtpVerified}
-                onChange={handlePhoneChange} // Clear errors on input change
+                disabled={isOtpVerified} 
               />
               <Button
                 colorScheme="yellow"
@@ -198,24 +185,25 @@ export default function BookATablePage() {
                 _hover={{ bg: isOtpVerified ? 'green.400' : canResend ? '#FACC15' : 'gray.400' }}
                 onClick={sendOtp}
                 isDisabled={isOtpVerified || !canResend || !!errors.phone}
-                className="h-[35px] w-[60px] sm:w-[auto] rounded-[5px] text-[0.9rem] sm:min-w-[80px] px-2"
+                className="h-[35px] text-[0.65rem] w-[60px] sm:w-[auto] rounded-[5px] sm:text-[0.9rem] sm:min-w-[80px] px-2"
               >
                 {isOtpVerified ? 'Verified' : canResend ? 'Send OTP' : `Resend (${timer}s)`}
               </Button>
             </HStack>
-            {errors.phone && <p className="text-red-500 mt-1">{errors.phone.message}</p>}
+            <FormErrorMessage className='text-red-500'>{errors.phone?.message}</FormErrorMessage>
           </FormControl>
 
-          <FormControl isInvalid={!!errors.date}>
+          <FormControl isInvalid={!!errors.date} isRequired>
             <FormLabel className="font-bold">Date</FormLabel>
-            <input
+            <Input
               className="w-full h-[35px] mt-2 rounded-[5px] px-2"
               type="date"
               {...register('date', { required: 'Date is required' })}
             />
+            <FormErrorMessage className='text-red-500'>{errors.date?.message}</FormErrorMessage>
           </FormControl>
 
-          <FormControl isInvalid={!!errors.time}>
+          <FormControl isInvalid={!!errors.time} isRequired>
             <FormLabel className="font-bold">Time</FormLabel>
             <Select
               placeholder="Select time"
@@ -245,8 +233,25 @@ export default function BookATablePage() {
               <option>19:30</option>
               <option>20:00</option>
             </Select>
+            <FormErrorMessage className='text-red-500'>{errors.time?.message}</FormErrorMessage>
           </FormControl>
-
+          
+          <FormControl isInvalid={!!errors.email} isRequired className="col-span-2" >
+            <FormLabel className="font-bold">Email</FormLabel>
+              <Input
+                
+                 className="w-full h-[35px] mt-2 rounded-[5px] pl-2 "
+                  type="email"
+                  {...register('email', { 
+                    required: 'Email is required',
+                    pattern: {
+                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                      message: 'Please enter a valid email address', 
+                    },
+               })}
+              />
+           <FormErrorMessage className='text-red-500'>{errors.email?.message}</FormErrorMessage>
+          </FormControl>  
           <FormControl isInvalid={!!errors.guests}>
             <FormLabel className="font-bold">Number of Guests</FormLabel>
             <NumberInput max={50} min={1}>
@@ -260,7 +265,7 @@ export default function BookATablePage() {
               </NumberInputStepper>
             </NumberInput>
           </FormControl>
-
+          
           <FormControl>
             <FormLabel className="font-bold">Seating preference</FormLabel>
             <Select
@@ -277,11 +282,10 @@ export default function BookATablePage() {
               <option>By windows</option>
             </Select>
           </FormControl>
-
           <FormControl className="col-span-2">
             <FormLabel className="font-bold">Notes</FormLabel>
-            <textarea
-              className="w-full h-[130px] max-h-[200px] min-h-[130px] mt-2 rounded-[5px] p-2"
+            <Textarea
+              className="w-full max-h-[150px] min-h-[100px] mt-1 rounded-[5px] p-2"
               {...register('notes')}
               placeholder="Additional notes or requests"
             />
@@ -303,54 +307,41 @@ export default function BookATablePage() {
             >
               Reserve Table
             </Button>
+            
           </Box>
         </Box>
 
         {/* OTP 验证弹窗 */}
         {isOtpSent && (
-          <Box
-            position="fixed"
-            top="50%"
-            left="50%"
-            transform="translate(-50%, -50%)"
-            bg="white"
-            p={6}
-            rounded="md"
-            shadow="md"
-            zIndex={1000}
-          >
-            <FormControl>
-              <FormLabel>Enter OTP</FormLabel>
-              <Input
-                placeholder="Enter Here"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                className='mt-2'
-              />
-            </FormControl>
-            <HStack spacing={4} mt={4}>
-              <Button
-                colorScheme="yellow"
-                bg={'white'}
-                color={'black'}
-                onClick={verifyOtp}
-              >
-                Verify
-              </Button>
-              <Button
-                variant="outline"
-                onClick={sendOtp}
-                isDisabled={!canResend}
-              >
-                {canResend ? 'Send Again' : `Send Again (${timer}s)`}
-              </Button>
-              <Button colorScheme="red" onClick={closeOtpPopup}>
-                Close
-              </Button>
-            </HStack>
-          </Box>
-        )}
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+              <div className="bg-white rounded-lg p-5 shadow-lg w-96">
+                <h2 className="text-xl font-bold mb-2">Verify OTP</h2>
+                <p className="mb-4">An OTP has been sent to your phone. Please enter it below:</p>
+                <Input
+                  className="mt-2 rounded-md border border-gray-300 pl-2"
+                  type="text"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                />
+                <HStack spacing={4} mt={4} justifyContent="flex-end">
+                  <Button colorScheme="teal" onClick={verifyOtp}>
+                    Verify
+                  </Button>
+                  <Button colorScheme="red" onClick={closeOtpPopup}>
+                    Cancel
+                  </Button>
+                  <Button
+                    colorScheme="yellow"
+                    onClick={sendOtp} // Resend OTP functionality
+                    isDisabled={!canResend} // Disable if the timer is not up
+                  >
+                    {canResend ? 'Resend OTP' : `Resend (${timer}s)`}
+                  </Button>
+                </HStack>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
