@@ -11,12 +11,15 @@ import {
 import type { AppProps } from "next/app";
 
 export default function App({ Component, pageProps }: AppProps) {
-  const { Button, Drawer } = chakraTheme.components;
+  const { Radio, Button, Drawer, Input, Textarea } = chakraTheme.components;
 
   const theme = extendBaseTheme({
     components: {
       Button: buttonTheme,
       Drawer,
+      Radio,
+      Input,
+      Textarea,
     },
   });
 

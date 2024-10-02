@@ -1,3 +1,5 @@
-export default function TakeawayPage() {
-  return <div>Takeaway</div>;
+import { TakeawayPage } from "@/components/take-away-page/TakeawayPage";
+
+export default function Page() {
+  return <TakeawayPage />;
 }
