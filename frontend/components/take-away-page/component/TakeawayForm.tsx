@@ -6,7 +6,7 @@ import { InputsContainer } from './InputsContainer';
 import { useEffect, useState } from 'react';
 import { MenuItem } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+import * as zod from 'zod';
 
 export function TakeawayForm() {
   interface FormData {
@@ -19,14 +19,14 @@ export function TakeawayForm() {
   }
   type OrderList = MenuItem & { quantity: number };
 
-  const requiredField = z.string().min(1, { message: 'Required Field' });
-  const FormDataSchema = z.object({
+  const requiredField = zod.string().min(1, { message: 'Required Field' });
+  const FormDataSchema = zod.object({
     name: requiredField,
     phoneNumber: requiredField,
     pickUpDate: requiredField,
     pickUpTime: requiredField,
     email: requiredField.email(),
-    notes: z.string().optional(),
+    notes: zod.string().optional(),
   });
 
   const { control, handleSubmit } = useForm<FormData>({
