@@ -130,14 +130,12 @@ export default function BookATablePage() {
     return dayOfWeek === 5 || dayOfWeek === 6 || dayOfWeek === 0;
   };
   const isSelectedDateWeekend = selectedDate && isWeekend(selectedDate);
-  const isFormComplete = isOtpVerified 
-  //&& Object.keys(errors).length === 0;
+  const isFormComplete = isOtpVerified && Object.keys(errors).length === 0;
 
   
-
   return (
-    <div className="w-full h-[130vh] sm:h-screen bg-[rgba(25,25,25,1)] pt-[20vh] pb-[5%] px-[5%] flex justify-center">
-      <div className="w-[550px] h-[90vh] sm:h-[80vh] bg-[#e5e7eb] rounded-[20px] px-7 py-7 flex flex-col">
+    <div className="w-full h-auto  bg-[rgba(25,25,25,1)] pt-[17vh] pb-[5%] px-[5%] flex justify-center">
+      <div className="w-[550px] h-[90vh] sm:h-[90vh] bg-[#e5e7eb] rounded-[20px] px-7 py-7 flex flex-col">
         <div className="w-full">
           <h1 className="font-bold text-2xl">Book a Table</h1>
           <p className="mt-1 font-extralight">
@@ -161,7 +159,7 @@ export default function BookATablePage() {
           </FormControl>
           <FormControl isInvalid={!!errors.phone} isRequired>
             <FormLabel className="font-bold">Phone number</FormLabel>
-            <HStack align="flex-start" spacing={2} mt={2} className="w-full">
+            <HStack align="flex-start" className="w-full mt-2 gap-x-2">
               <Input
                 className={clsx(errors.phone && "ring-2 ring-red-500", "w-full h-[35px] rounded-[5px] pl-2")}
                 type="text"
@@ -286,27 +284,21 @@ export default function BookATablePage() {
             />
           </FormControl>
 
-          <Box className="col-span-2 mt-4">
-            <Button
-              type="submit"
-              width="full"
-              bg={isFormComplete ? '#FACC15' : 'gray.400'}
-              color={isFormComplete ? 'black' : 'white'}
-              rounded="10px"
-              py={2}
-              mt={5}
-              fontWeight="bold"
-              isDisabled={!isFormComplete}
-              _hover={{ bg: isFormComplete ? '#FACC15' : 'gray.400' }}
-              _disabled={{ bg: 'gray.400', color: 'white' }}
+          <Button
+            className={clsx(
+              'col-span-2 w-full py-2 font-bold rounded-[10px]',
+              isFormComplete ? 'bg-[#FACC15] text-black hover:bg-[#FACC15]' : 'bg-gray-400 text-white',
+             {'hover:bg-gray-400': !isFormComplete }
+            )}
+            type="submit"
+            isDisabled={!isFormComplete}
             >
-              Reserve Table
-            </Button>
-            
-          </Box>
+             Reserve Table
+          </Button>
         </Box>
+        
 
-        {/* OTP 验证弹窗 */}
+        {/* OTP pop up */}
         {isOtpSent && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
               <div className="bg-white rounded-lg p-5 shadow-lg w-96">
@@ -318,15 +310,14 @@ export default function BookATablePage() {
                   value={otp}
                   onChange={(e) => setOtp(e.target.value)}
                 />
-                <HStack spacing={4} mt={4} justifyContent="flex-end">
-                  <Button colorScheme="teal" onClick={verifyOtp}>
+                <HStack className="flex-start space-x-2 w-full mt-5">
+                  <Button  onClick={verifyOtp}>
                     Verify
                   </Button>
-                  <Button colorScheme="red" onClick={closeOtpPopup}>
+                  <Button onClick={closeOtpPopup}>
                     Cancel
                   </Button>
                   <Button
-                    colorScheme="yellow"
                     onClick={sendOtp} 
                     isDisabled={!canResend} 
                   >
