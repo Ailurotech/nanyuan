@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form';
 import { Select, Box, FormControl, FormLabel, Button, NumberInputStepper, NumberInput, NumberInputField, NumberIncrementStepper, NumberDecrementStepper, HStack, Input, FormErrorMessage, Textarea } from '@chakra-ui/react';
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+import clsx from 'clsx';
 
 type FormData = {
   name: string;
@@ -16,12 +17,10 @@ type FormData = {
 
 export default function BookATablePage() {
   const {
-    control,
     register,
     handleSubmit,
     watch,
     trigger,
-
     formState: { errors, isValid },
   } = useForm({
     defaultValues: {
@@ -38,27 +37,24 @@ export default function BookATablePage() {
   });
   
 
-  // States for OTP and timer
+
   const [isOtpVerified, setIsOtpVerified] = useState(false);
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [otp, setOtp] = useState('');
   const [timer, setTimer] = useState(60);
   const [canResend, setCanResend] = useState(true);
-  const [touched, setTouched] = useState(false);
-  const [valued, setValued] = useState(false);
   const otpTimerStart = useRef<number | null>(null);
 
-const onSubmit = async (data: any) => {
-  console.log(data);
-  console.log('Form submitted successfully!');
+  const onSubmit = async (data: any) => {
+    console.log(data);
+    console.log('Form submitted successfully!');
 
-  if (!isOtpVerified) {
-    alert('OTP is not verified yet. Please verify your phone number.');
-    return;
-  }
-  
-  return ;
-};
+    if (!isOtpVerified) {
+      alert('OTP is not verified yet. Please verify your phone number.');
+     return;
+    }
+    return ;
+  };
 
   
 
@@ -74,7 +70,6 @@ const onSubmit = async (data: any) => {
   };
 
   const sendOtp = async () => {
-    // Validate the phone field before sending OTP
     const isPhoneValid = await trigger('phone');
     if (isPhoneValid) {
       setIsOtpSent(true);
@@ -92,7 +87,7 @@ const onSubmit = async (data: any) => {
   };
 
 
-useEffect(() => {
+  useEffect(() => {
     const startTimestamp = localStorage.getItem('otpTimerStart');
     if (startTimestamp) {
       const elapsed = Math.floor((Date.now() - parseInt(startTimestamp)) / 1000);
@@ -135,7 +130,8 @@ useEffect(() => {
     return dayOfWeek === 5 || dayOfWeek === 6 || dayOfWeek === 0;
   };
   const isSelectedDateWeekend = selectedDate && isWeekend(selectedDate);
-  const isFormComplete = isOtpVerified && Object.keys(errors).length === 0;
+  const isFormComplete = isOtpVerified 
+  //&& Object.keys(errors).length === 0;
 
   
 
@@ -157,7 +153,7 @@ useEffect(() => {
           <FormControl isInvalid={!!errors.name} isRequired>
             <FormLabel className="font-bold">Name</FormLabel>
               <Input
-              className="w-full h-[35px] mt-2 rounded-[5px] pl-2 "
+              className={clsx( errors.name &&  "ring-2 ring-red-500","w-full h-[35px] mt-2 rounded-[5px] pl-2")}
               type="text"
               {...register('name', { required: 'Name is required' })}
               />
@@ -167,7 +163,7 @@ useEffect(() => {
             <FormLabel className="font-bold">Phone number</FormLabel>
             <HStack align="flex-start" spacing={2} mt={2} className="w-full">
               <Input
-                className="flex-grow h-[35px] rounded-[5px] w-[80%] sm:w-[70%] pl-2"
+                className={clsx(errors.phone && "ring-2 ring-red-500", "w-full h-[35px] rounded-[5px] pl-2")}
                 type="text"
                 {...register('phone', {
                   required: 'Phone number is required',
@@ -192,11 +188,10 @@ useEffect(() => {
             </HStack>
             <FormErrorMessage className='text-red-500'>{errors.phone?.message}</FormErrorMessage>
           </FormControl>
-
           <FormControl isInvalid={!!errors.date} isRequired>
             <FormLabel className="font-bold">Date</FormLabel>
             <Input
-              className="w-full h-[35px] mt-2 rounded-[5px] px-2"
+              className={clsx(errors.date && "ring-2 ring-red-500", "w-full h-[35px] mt-2 rounded-[5px] pl-2")}
               type="date"
               {...register('date', { required: 'Date is required' })}
             />
@@ -207,7 +202,7 @@ useEffect(() => {
             <FormLabel className="font-bold">Time</FormLabel>
             <Select
               placeholder="Select time"
-              className="w-full h-[35px] mt-2 rounded-[5px] pl-2"
+              className={clsx(errors.time && "ring-2 ring-red-500", "w-full h-[35px] mt-2 rounded-[5px] pl-2")}
               {...register('time', { required: 'Time is required' })}
               isDisabled={!selectedDate}
               sx={{
@@ -239,24 +234,23 @@ useEffect(() => {
           <FormControl isInvalid={!!errors.email} isRequired className="col-span-2" >
             <FormLabel className="font-bold">Email</FormLabel>
               <Input
-                
-                 className="w-full h-[35px] mt-2 rounded-[5px] pl-2 "
-                  type="email"
-                  {...register('email', { 
-                    required: 'Email is required',
-                    pattern: {
-                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                      message: 'Please enter a valid email address', 
-                    },
+                className={clsx(errors.email && "ring-2 ring-red-500", "w-full h-[35px] mt-2 rounded-[5px] pl-2 ")}
+                type="email"
+                {...register('email', { 
+                  required: 'Email is required',
+                  pattern: {
+                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                    message: 'Please enter a valid email address', 
+                  },
                })}
               />
            <FormErrorMessage className='text-red-500'>{errors.email?.message}</FormErrorMessage>
           </FormControl>  
-          <FormControl isInvalid={!!errors.guests}>
+          <FormControl isInvalid={!!errors.guests} isRequired>
             <FormLabel className="font-bold">Number of Guests</FormLabel>
             <NumberInput max={50} min={1}>
               <NumberInputField
-                className="w-full h-[35px] mt-2 rounded-[5px] px-2"
+                className={clsx(errors.guests && "ring-2 ring-red-500", "w-full h-[35px] mt-2 rounded-[5px] px-2")}
                 {...register('guests', { required: 'Number of guests is required' })}
               />
               <NumberInputStepper>
@@ -264,6 +258,7 @@ useEffect(() => {
                 <NumberDecrementStepper />
               </NumberInputStepper>
             </NumberInput>
+            <FormErrorMessage className='text-red-500'>{errors.guests?.message}</FormErrorMessage>
           </FormControl>
           
           <FormControl>
@@ -332,8 +327,8 @@ useEffect(() => {
                   </Button>
                   <Button
                     colorScheme="yellow"
-                    onClick={sendOtp} // Resend OTP functionality
-                    isDisabled={!canResend} // Disable if the timer is not up
+                    onClick={sendOtp} 
+                    isDisabled={!canResend} 
                   >
                     {canResend ? 'Resend OTP' : `Resend (${timer}s)`}
                   </Button>
