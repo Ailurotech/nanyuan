@@ -1,17 +1,12 @@
-import { FormControl, Input, Text } from '@chakra-ui/react';
-import clsx from 'clsx';
-import {
-  Control,
-  FieldPath,
-  FieldValues,
-  useController,
-} from 'react-hook-form';
+import { FormControl, Input, InputGroup, InputLeftAddon, Text } from '@chakra-ui/react';
+import { Control, FieldPath, FieldValues, useController } from 'react-hook-form';
 
 interface ControlledInputProps<TFieldValues extends FieldValues = FieldValues> {
   label: string;
   name: FieldPath<TFieldValues>;
   control: Control<TFieldValues>;
   type?: string;
+  disabled?: boolean;
 }
 
 export function ControlledInput<TFieldValues extends FieldValues>({
@@ -19,6 +14,7 @@ export function ControlledInput<TFieldValues extends FieldValues>({
   name,
   control,
   type,
+  disabled = false,
 }: ControlledInputProps<TFieldValues>) {
   const {
     field,
@@ -30,20 +26,21 @@ export function ControlledInput<TFieldValues extends FieldValues>({
       <Text fontSize="small" fontWeight="600">
         {label}
       </Text>
-      <Input
-        type={type}
-        size="sm"
-        borderRadius="5px"
-        {...field}
-        backgroundColor="white"
-      />
-      {error?.message && (
-        <span
-          className={clsx(
-            'text-red-900 bg-red-400 absolute bottom-[40px] right-0 rounded-md px-2 py-1 text-[10px]',
-            'after:bg-red-400 after:absolute after:-bottom-1 after:right-2 after:h-2 after:w-2 after:rotate-45',
+      <FormControl>
+        <InputGroup size="sm" borderRadius="5px">
+          {name === 'phone' && (
+            <InputLeftAddon>+61</InputLeftAddon>
           )}
-        >
+          <Input borderRadius="5px"
+            type={type}
+            {...field}
+            backgroundColor="white"
+            isDisabled={disabled}
+          />
+        </InputGroup>
+      </FormControl>
+      {error?.message && (
+        <span className="text-red-900 bg-red-400 absolute bottom-[40px] right-0 rounded-md px-2 py-1 text-[10px]">
           {error.message}
         </span>
       )}

@@ -38,6 +38,7 @@ export function ControlledTestArea<TFieldValues extends FieldValues>({
         padding={2}
         fontSize="small"
         backgroundColor="white"
+        className="max-h-[200px] overflow-y-auto"
         {...field}
       />
     </div>

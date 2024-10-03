@@ -1,3 +1,7 @@
+import { BooktablePage } from "@/components/book-table-page/BooktablePage";
+
 export default function bookATablePage() {
-  return <div>Book a Table</div>;
+  return <BooktablePage  />
 }
+
+
