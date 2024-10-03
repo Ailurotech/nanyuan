@@ -5,9 +5,9 @@ import { Button, Box } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { InputsContainer } from '@/components/Take-away-page/component/InputsContainer';
 import { useEffect, useState } from 'react';
-import { MenuItem } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as zod from 'zod';
+
 
 type FormData = {
   name: string;
@@ -17,6 +17,7 @@ type FormData = {
   preference: string;
   notes: string;
   email: string;
+  date: string;
 };
 
 export function BooktablePage() {
@@ -25,6 +26,7 @@ export function BooktablePage() {
   const FormDataSchema = zod.object({
     name: requiredField,
     phone: phoneSchema,
+    date: requiredField,
     time: requiredField,
     guests: requiredField,
     email: requiredField.email(),
@@ -35,6 +37,7 @@ export function BooktablePage() {
     handleSubmit,
     formState: { errors },
     trigger, 
+    watch,
   } = useForm<FormData>({
     defaultValues: {
       name: '',
@@ -43,34 +46,46 @@ export function BooktablePage() {
       guests: '2',
       preference: '',
       notes: '',
+      date: '',
       email: '',
     },
-    resolver: zodResolver(FormDataSchema),
+    resolver: zodResolver(FormDataSchema), 
   });
 
+  const selectedDate = watch('date');
+  
+  const [isOtpSent, setIsOtpSent] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [verifyOtp, setVerifyOtp] = useState(false);
+
   const onSubmit = (data: FormData) => {
-    const parsedData = { ...data };
-    console.log(parsedData);
+    if(verifyOtp){
+        const parsedData = { ...data };
+        console.log(parsedData);
+    }   
   };
 
   const Sendotp = async () => {
     const result = await trigger('phone'); 
     if (result) {
-      
+      setIsOtpSent(true);
+      setIsModalOpen(true); 
     } 
   };
 
   
-  
+ 
+
   return (
     <section className="bg-[#191919] min-h-screen pt-[200px] flex flex-col items-center">
       <div className="bg-[#e5e7ea] p-4 flex flex-col gap-8 rounded-lg max-w-[500px]">
         <div className="flex flex-col space-y-1">
-          <h1 className="text-xl font-bold">Pickup Order Form</h1>
-          <h3 className="text-xs">Please fill in your details for pickup</h3>
+          <h1 className="text-xl font-bold">Book a Table</h1>
+          <h3 className="text-xs">Please fill in your details to reserve a table</h3>
         </div>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-         <InputsContainer>
+          <InputsContainer>
             <ControlledInput
               label="Name"
               control={control}
@@ -96,13 +111,21 @@ export function BooktablePage() {
               </Button>
             </span>
           </InputsContainer>
-          <ControlledInput
-            label="Time"
-            control={control}
-            name="time"
-            type="datetime-local"
-            disabled={false}
+          <InputsContainer>
+            <ControlledInput
+              label="Date"
+              control={control}
+              name="date"
+              type="date"
             />
+            <ControlledInput
+              label="Time"
+              control={control}
+              name="time"
+              type="time"
+              disabled={!selectedDate}
+            />
+          </InputsContainer>
           <ControlledInput
             label="Email"
             control={control}
@@ -151,3 +174,24 @@ export function BooktablePage() {
     </section>
   );
 }
+
+
+<div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div className="bg-white rounded-lg p-5 shadow-lg w-96">
+  <h2 className="text-xl font-bold mb-2">Verify OTP</h2>
+  <p className="mb-4">An OTP has been sent to your phone. Please enter it below:</p>
+  <Input
+    className="mt-2 rounded-md border border-gray-300 pl-2"
+    type="text"
+    
+  />
+  <HStack className="flex-start space-x-2 w-full mt-5">
+    <Button onClick={() => onVerify(otp)}>
+      Verify
+    </Button>
+    <Button onClick={onClose}>
+      Cancel
+    </Button>
+  </HStack>
+</div>
+</div>
