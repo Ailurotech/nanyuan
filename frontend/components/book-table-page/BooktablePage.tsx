@@ -8,7 +8,13 @@ import { useEffect, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as zod from 'zod';
 import VerifyOtpModal from '@/components/book-table-page/VerifyOtpModal';
-import useTimer from './useTimer'; // 引入 useTimer 钩子
+import useTimer from './useTimer'; 
+import { Restaurant } from '@/types';
+import { isTimeWithinRange } from './timeUtils';
+
+interface BooktablePageProps {
+  restaurant: Restaurant;
+}
 
 type FormData = {
   name: string;
@@ -21,7 +27,8 @@ type FormData = {
   date: string;
 };
 
-export function BooktablePage() {
+export function BooktablePage({ restaurant }: BooktablePageProps) {
+
   const requiredField = zod.string().min(1, { message: 'Required Field' });
   const phoneSchema = zod.string().regex(/^\d{9}$/, { message: 'Phone number invalid' });
   const FormDataSchema = zod.object({
@@ -59,17 +66,40 @@ export function BooktablePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [verifyOtp, setVerifyOtp] = useState(false);
   const { timeLeft, isRunning, startTimer } = useTimer(60); 
+  
+  
 
   const onSubmit = (data: FormData) => {
-    if (data.phone === '410815918') {
+    if (restaurant.blacklist.includes(data.phone)) {
       alert('Your phone is in the blacklist');
       return; 
+    }
+    const selectedDate = new Date(data.date);
+    const selectedTime = data.time; 
+    
+    const dayOfWeek = selectedDate.getDay();
+    
+    const weekdayTimeRange = restaurant.Weekdaytime; 
+    const weekendTimeRange = restaurant.Weekandtime; 
+  
+    
+    const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 4; 
+    const isTimeValid = isWeekday
+      ? isTimeWithinRange(selectedTime, weekdayTimeRange.start, weekdayTimeRange.end)
+      : (isTimeWithinRange(selectedTime, weekdayTimeRange.start, weekdayTimeRange.end) ||
+         isTimeWithinRange(selectedTime, weekendTimeRange.start, weekendTimeRange.end));
+  
+    if (!isTimeValid) {
+      alert('Selected time is outside of restaurant operating hours');
+      return;
     }
   
     if (verifyOtp) {
       const parsedData = { ...data };
       console.log(parsedData);
       alert('Table booked successfully!');
+    }else{
+      alert('Please verify your phone number');
     }
   };
   
