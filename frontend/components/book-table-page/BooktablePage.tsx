@@ -1,13 +1,14 @@
 import { ControlledInput } from '@/components/common/ControlledInput';
 import { ControlledTestArea } from '@/components/common/ControlledTestArea';
 import { ControlledSelect } from '@/components/common/ControlledSelect';
-import { Button, Box } from '@chakra-ui/react';
+import { Button } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { InputsContainer } from '@/components/Take-away-page/component/InputsContainer';
 import { useEffect, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as zod from 'zod';
 import VerifyOtpModal from '@/components/book-table-page/VerifyOtpModal';
+import useTimer from './useTimer'; // 引入 useTimer 钩子
 
 type FormData = {
   name: string;
@@ -54,28 +55,13 @@ export function BooktablePage() {
 
   const selectedDate = watch('date');
 
-  
-  const [otp, setOtp] = useState('');
+  const [otp, setOtp] = useState(''); 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [verifyOtp, setVerifyOtp] = useState(false);
-  const [timer, setTimer] = useState<number | null>(null); 
-
-  useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
-    if (timer && timer > 0) {
-      interval = setInterval(() => {
-        setTimer((prev) => (prev ? prev - 1 : 0));
-      }, 1000);
-    } else if (timer === 0 && interval) {
-      clearInterval(interval);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [timer]);
+  const { timeLeft, isRunning, startTimer } = useTimer(60); 
 
   const onSubmit = (data: FormData) => {
-    if (data.phone === '+61410815918') {
+    if (data.phone === '410815918') {
       alert('Your phone is in the blacklist');
       return; 
     }
@@ -83,20 +69,26 @@ export function BooktablePage() {
     if (verifyOtp) {
       const parsedData = { ...data };
       console.log(parsedData);
+      alert('Table booked successfully!');
     }
   };
   
-
   const Sendotp = async () => {
-    if (timer !== null && timer > 0) {
-      alert(`Please wait for ${timer} seconds`);
+
+    if (verifyOtp) {
+      alert('You have already verified your phone number');
       return; 
     }
+    if (isRunning) {
+      alert('Please wait for the timer to expire');
+      return;
+    }
+    
     const result = await trigger('phone');
     if (result) {
       setIsModalOpen(true);
-      setOtp('1234');
-      setTimer(60); 
+      setOtp('1234'); 
+      startTimer(); 
     }
   };
 
@@ -121,20 +113,20 @@ export function BooktablePage() {
           <InputsContainer>
             <ControlledInput label="Name" control={control} name="name" />
             <span className="flex col-span-1 gap-2 items-end">
-              <ControlledInput label="Phone Number" control={control} name="phone" />
+              <ControlledInput label="Phone Number" control={control} name="phone" disabled={verifyOtp} />
               <Button
-                colorScheme={timer !== null && timer > 0 ? "gray" : "green"}
+                colorScheme={isRunning ? "gray" : "green"}
                 variant="solid"
-                backgroundColor={verifyOtp ? "#90EE90" : (timer !== null && timer > 0 ? "gray.300" : "#facc16")} 
-                color={verifyOtp ? "white" : (timer !== null && timer > 0 ? "white" : "black")} 
+                backgroundColor={verifyOtp ? "#90EE90" : (isRunning ? "gray.300" : "#facc16")} 
+                color={verifyOtp ? "white" : (isRunning ? "white" : "black")} 
                 padding="0.36rem 1rem"
+                disabled={verifyOtp||isRunning}
                 borderRadius={5}
                 fontSize="small"
                 fontWeight="600"
                 onClick={Sendotp}
-                disabled={timer !== null && timer > 0 || verifyOtp} 
               >
-                {verifyOtp ? 'Verified' : (timer !== null && timer > 0 ? `${timer}s` : 'Verify')}
+                {verifyOtp ? 'Verified' : (isRunning ? `${timeLeft}s` : 'Verify')}
               </Button>
             </span>
           </InputsContainer>
@@ -163,7 +155,7 @@ export function BooktablePage() {
             />
           </InputsContainer>
           <ControlledTestArea
-            label="Special Requested or Notes"
+            label="Special Requests or Notes"
             control={control}
             name="notes"
             placeholder="Enter your special request or notes for your order here..."
@@ -185,7 +177,7 @@ export function BooktablePage() {
         </form>
         {isModalOpen && (
           <VerifyOtpModal
-            onVerify={handleVerifyOtp} 
+            onVerify={handleVerifyOtp}
             onClose={() => setIsModalOpen(false)} 
           />
         )}
