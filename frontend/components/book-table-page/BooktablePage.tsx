@@ -7,7 +7,7 @@ import { InputsContainer } from '@/components/Take-away-page/component/InputsCon
 import { useEffect, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as zod from 'zod';
-
+import VerifyOtpModal from '@/components/book-table-page/VerifyOtpModal';
 
 type FormData = {
   name: string;
@@ -22,7 +22,7 @@ type FormData = {
 
 export function BooktablePage() {
   const requiredField = zod.string().min(1, { message: 'Required Field' });
-  const phoneSchema = zod.string().regex(/^\d{9}$/,  { message: 'Phone number invalid' });
+  const phoneSchema = zod.string().regex(/^\d{9}$/, { message: 'Phone number invalid' });
   const FormDataSchema = zod.object({
     name: requiredField,
     phone: phoneSchema,
@@ -36,7 +36,7 @@ export function BooktablePage() {
     control,
     handleSubmit,
     formState: { errors },
-    trigger, 
+    trigger,
     watch,
   } = useForm<FormData>({
     defaultValues: {
@@ -49,33 +49,60 @@ export function BooktablePage() {
       date: '',
       email: '',
     },
-    resolver: zodResolver(FormDataSchema), 
+    resolver: zodResolver(FormDataSchema),
   });
 
   const selectedDate = watch('date');
+
   
-  const [isOtpSent, setIsOtpSent] = useState(false);
   const [otp, setOtp] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [verifyOtp, setVerifyOtp] = useState(false);
+  const [timer, setTimer] = useState<number | null>(null); 
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    if (timer && timer > 0) {
+      interval = setInterval(() => {
+        setTimer((prev) => (prev ? prev - 1 : 0));
+      }, 1000);
+    } else if (timer === 0 && interval) {
+      clearInterval(interval);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [timer]);
 
   const onSubmit = (data: FormData) => {
-    if(verifyOtp){
-        const parsedData = { ...data };
-        console.log(parsedData);
-    }   
+    if (verifyOtp) {
+      const parsedData = { ...data };
+      console.log(parsedData);
+    }
   };
 
   const Sendotp = async () => {
-    const result = await trigger('phone'); 
+    if (timer !== null && timer > 0) {
+      alert(`Please wait for ${timer} seconds`);
+      return; 
+    }
+    const result = await trigger('phone');
     if (result) {
-      setIsOtpSent(true);
-      setIsModalOpen(true); 
-    } 
+      setIsModalOpen(true);
+      setOtp('1234');
+      setTimer(60); 
+    }
   };
 
-  
- 
+  const handleVerifyOtp = (enteredOtp: string) => {
+    if (enteredOtp === otp) {
+      setVerifyOtp(true);
+      setIsModalOpen(false);
+      alert('Successfully verified');
+    } else {
+      alert('OTP is incorrect');
+    }
+  };
 
   return (
     <section className="bg-[#191919] min-h-screen pt-[200px] flex flex-col items-center">
@@ -86,38 +113,27 @@ export function BooktablePage() {
         </div>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
           <InputsContainer>
-            <ControlledInput
-              label="Name"
-              control={control}
-              name="name"
-            />
+            <ControlledInput label="Name" control={control} name="name" />
             <span className="flex col-span-1 gap-2 items-end">
-              <ControlledInput
-                label="Phone Number"
-                control={control}
-                name="phone"
-              />
+              <ControlledInput label="Phone Number" control={control} name="phone" />
               <Button
-                colorScheme="orange"
+                colorScheme={timer !== null && timer > 0 ? "gray" : "green"}
                 variant="solid"
-                backgroundColor="#facc16"
+                backgroundColor={verifyOtp ? "#90EE90" : (timer !== null && timer > 0 ? "gray.300" : "#facc16")} 
+                color={verifyOtp ? "white" : (timer !== null && timer > 0 ? "white" : "black")} 
                 padding="0.36rem 1rem"
                 borderRadius={5}
                 fontSize="small"
                 fontWeight="600"
-                onClick={Sendotp} 
+                onClick={Sendotp}
+                disabled={timer !== null && timer > 0 || verifyOtp} 
               >
-                Verify
+                {verifyOtp ? 'Verified' : (timer !== null && timer > 0 ? `${timer}s` : 'Verify')}
               </Button>
             </span>
           </InputsContainer>
           <InputsContainer>
-            <ControlledInput
-              label="Date"
-              control={control}
-              name="date"
-              type="date"
-            />
+            <ControlledInput label="Date" control={control} name="date" type="date" />
             <ControlledInput
               label="Time"
               control={control}
@@ -126,18 +142,9 @@ export function BooktablePage() {
               disabled={!selectedDate}
             />
           </InputsContainer>
-          <ControlledInput
-            label="Email"
-            control={control}
-            name="email"
-          />
+          <ControlledInput label="Email" control={control} name="email" />
           <InputsContainer>
-            <ControlledInput
-              label="Guests"
-              control={control}
-              name="guests"
-              type="number"
-            />
+            <ControlledInput label="Guests" control={control} name="guests" type="number" />
             <ControlledSelect
               label="Preference"
               control={control}
@@ -170,28 +177,13 @@ export function BooktablePage() {
             Book a table
           </Button>
         </form>
+        {isModalOpen && (
+          <VerifyOtpModal
+            onVerify={handleVerifyOtp} 
+            onClose={() => setIsModalOpen(false)} 
+          />
+        )}
       </div>
     </section>
   );
 }
-
-
-<div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-    <div className="bg-white rounded-lg p-5 shadow-lg w-96">
-  <h2 className="text-xl font-bold mb-2">Verify OTP</h2>
-  <p className="mb-4">An OTP has been sent to your phone. Please enter it below:</p>
-  <Input
-    className="mt-2 rounded-md border border-gray-300 pl-2"
-    type="text"
-    
-  />
-  <HStack className="flex-start space-x-2 w-full mt-5">
-    <Button onClick={() => onVerify(otp)}>
-      Verify
-    </Button>
-    <Button onClick={onClose}>
-      Cancel
-    </Button>
-  </HStack>
-</div>
-</div>
