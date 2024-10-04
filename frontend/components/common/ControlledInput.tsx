@@ -31,11 +31,13 @@ export function ControlledInput<TFieldValues extends FieldValues>({
           {name === 'phone' && (
             <InputLeftAddon>+61</InputLeftAddon>
           )}
-          <Input borderRadius="5px"
+          <Input
+            borderRadius="5px"
             type={type}
             {...field}
             backgroundColor="white"
             isDisabled={disabled}
+
           />
         </InputGroup>
       </FormControl>
