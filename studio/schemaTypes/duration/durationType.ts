@@ -18,5 +18,5 @@ export const durationType = defineType({
       type: 'timeValue', 
     }),
   ],
-  options: { columns: 2 }, // 将字段并排显示
+  options: { columns: 2 }, 
 });

@@ -1,17 +1,17 @@
 import { BooktablePage } from "@/components/book-table-page/BooktablePage";
 import { Restaurant } from "@/types";
 import { GetStaticProps } from "next";
-import { sanityClient } from "@/lib/sanityClient"; // 你的 Sanity 客户端实例
+import { sanityClient } from "@/lib/sanityClient"; 
 
 interface BookTableProps {
-  restaurant: Restaurant; // 定义传递给组件的 props 类型
+  restaurant: Restaurant; 
 }
 
 export default function bookATablePage({ restaurant }: BookTableProps) {
-  return <BooktablePage restaurant={restaurant} />; // 传递 restaurant 数据给组件
+  return <BooktablePage restaurant={restaurant} />; 
 }
 
-// 使用 getStaticProps 获取 restaurant 数据
+
 export const getStaticProps: GetStaticProps = async () => {
   const query = `
     *[_type == "restaurant"]{

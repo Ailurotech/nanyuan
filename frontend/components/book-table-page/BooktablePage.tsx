@@ -30,15 +30,47 @@ type FormData = {
 export function BooktablePage({ restaurant }: BooktablePageProps) {
 
   const requiredField = zod.string().min(1, { message: 'Required Field' });
-  const phoneSchema = zod.string().regex(/^\d{9}$/, { message: 'Phone number invalid' });
-  const FormDataSchema = zod.object({
-    name: requiredField,
-    phone: phoneSchema,
-    date: requiredField,
-    time: requiredField,
-    guests: requiredField,
-    email: requiredField.email(),
-  });
+const phoneSchema = zod.string().regex(/^\d{9}$/, { message: 'Phone number invalid' });
+
+// Create the schema and use the validation logic
+const FormDataSchema = zod.object({
+  name: requiredField,
+  phone: phoneSchema,
+  date: requiredField,
+  time: requiredField,
+  guests: requiredField,
+  email: requiredField.email(),
+}).superRefine((data, context) => {
+  const selectedDate = new Date(data.date); 
+  const dayOfWeek = selectedDate.getDay();
+  const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 4; 
+  const weekdayTimeRange = restaurant.Weekdaytime;
+  const weekendTimeRange = restaurant.Weekandtime;
+
+  const isTimeValid = isWeekday
+    ? isTimeWithinRange(data.time, weekdayTimeRange.start, weekdayTimeRange.end)
+    : (
+        isTimeWithinRange(data.time, weekdayTimeRange.start, weekdayTimeRange.end) ||
+        isTimeWithinRange(data.time, weekendTimeRange.start, weekendTimeRange.end)
+      );
+
+  if (!isTimeValid) {
+    context.addIssue({
+      code: zod.ZodIssueCode.custom,
+      message: 'Time is outside of restaurant operating hours',
+      path: ['time'], 
+    });
+  }
+
+  if (restaurant.blacklist.includes(data.phone)) {
+    context.addIssue({
+      code: zod.ZodIssueCode.custom,
+      message: 'Your phone number is in the blacklist',
+      path: ['phone'],
+    });
+  }
+});
+
 
   const {
     control,
@@ -70,30 +102,6 @@ export function BooktablePage({ restaurant }: BooktablePageProps) {
   
 
   const onSubmit = (data: FormData) => {
-    if (restaurant.blacklist.includes(data.phone)) {
-      alert('Your phone is in the blacklist');
-      return; 
-    }
-    const selectedDate = new Date(data.date);
-    const selectedTime = data.time; 
-    
-    const dayOfWeek = selectedDate.getDay();
-    
-    const weekdayTimeRange = restaurant.Weekdaytime; 
-    const weekendTimeRange = restaurant.Weekandtime; 
-  
-    
-    const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 4; 
-    const isTimeValid = isWeekday
-      ? isTimeWithinRange(selectedTime, weekdayTimeRange.start, weekdayTimeRange.end)
-      : (isTimeWithinRange(selectedTime, weekdayTimeRange.start, weekdayTimeRange.end) ||
-         isTimeWithinRange(selectedTime, weekendTimeRange.start, weekendTimeRange.end));
-  
-    if (!isTimeValid) {
-      alert('Selected time is outside of restaurant operating hours');
-      return;
-    }
-  
     if (verifyOtp) {
       const parsedData = { ...data };
       console.log(parsedData);
@@ -104,16 +112,6 @@ export function BooktablePage({ restaurant }: BooktablePageProps) {
   };
   
   const Sendotp = async () => {
-
-    if (verifyOtp) {
-      alert('You have already verified your phone number');
-      return; 
-    }
-    if (isRunning) {
-      alert('Please wait for the timer to expire');
-      return;
-    }
-    
     const result = await trigger('phone');
     if (result) {
       setIsModalOpen(true);
@@ -150,11 +148,11 @@ export function BooktablePage({ restaurant }: BooktablePageProps) {
                 backgroundColor={verifyOtp ? "#90EE90" : (isRunning ? "gray.300" : "#facc16")} 
                 color={verifyOtp ? "white" : (isRunning ? "white" : "black")} 
                 padding="0.36rem 1rem"
-                disabled={verifyOtp||isRunning}
+                disabled={verifyOtp || isRunning}
                 borderRadius={5}
                 fontSize="small"
                 fontWeight="600"
-                onClick={Sendotp}
+                onClick={verifyOtp || isRunning ? undefined : Sendotp} 
               >
                 {verifyOtp ? 'Verified' : (isRunning ? `${timeLeft}s` : 'Verify')}
               </Button>

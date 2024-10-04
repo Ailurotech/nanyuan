@@ -22,7 +22,7 @@ export function ControlledSelect<TFieldValues extends FieldValues>({
   label,
   name,
   control,
-  options, // Receive options as prop
+  options, 
 }: ControlledSelectProps<TFieldValues>) {
   const {
     field,

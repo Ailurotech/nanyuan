@@ -9,7 +9,6 @@ export const timeValueType = defineType({
   },
 })
 
-// A function that generates an array of times from 00:00 to 23:30
 export function ALLOWED_TIMES() {
   const times = []
   for (let h = 0; h < 24; h++) {
