@@ -75,11 +75,17 @@ export function BooktablePage() {
   }, [timer]);
 
   const onSubmit = (data: FormData) => {
+    if (data.phone === '+61410815918') {
+      alert('Your phone is in the blacklist');
+      return; 
+    }
+  
     if (verifyOtp) {
       const parsedData = { ...data };
       console.log(parsedData);
     }
   };
+  
 
   const Sendotp = async () => {
     if (timer !== null && timer > 0) {
