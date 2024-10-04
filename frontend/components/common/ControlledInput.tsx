@@ -37,7 +37,7 @@ export function ControlledInput<TFieldValues extends FieldValues>({
             {...field}
             backgroundColor="white"
             isDisabled={disabled}
-
+            pl={name === 'phone' ? '1' : undefined}
           />
         </InputGroup>
       </FormControl>

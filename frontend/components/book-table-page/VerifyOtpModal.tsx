@@ -6,7 +6,7 @@ interface VerifyOtpModalProps {
   onClose: () => void;             
 }
 
-const VerifyOtpModal: React.FC<VerifyOtpModalProps> = ({ onVerify, onClose }) => {
+const VerifyOtpModal = ({ onVerify, onClose }: VerifyOtpModalProps) => {
   const [userotp, setUserOtp] = useState('');
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -22,7 +22,7 @@ const VerifyOtpModal: React.FC<VerifyOtpModalProps> = ({ onVerify, onClose }) =>
           className="mt-2 rounded-md border border-gray-300 pl-2"
           type="text"
           value={userotp}  
-          onChange={handleChange}  // 
+          onChange={handleChange}  
         />
         <HStack className="flex-start space-x-2 w-full mt-5">
           <Button 
