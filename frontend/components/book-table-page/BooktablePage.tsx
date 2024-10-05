@@ -12,7 +12,6 @@ import useTimer from './useTimer';
 import { Restaurant } from '@/types';
 import { isValidTime } from './timeUtils';
 import clsx from 'clsx';
-import { DateTime } from 'luxon';
 
 interface BooktablePageProps {
   restaurant: Restaurant;
