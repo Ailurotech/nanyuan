@@ -10,8 +10,9 @@ import * as zod from 'zod';
 import VerifyOtpModal from '@/components/book-table-page/VerifyOtpModal';
 import useTimer from './useTimer'; 
 import { Restaurant } from '@/types';
-import { isTimeWithinRange } from './timeUtils';
+import { isValidTime } from './timeUtils';
 import clsx from 'clsx';
+import { DateTime } from 'luxon';
 
 interface BooktablePageProps {
   restaurant: Restaurant;
@@ -28,50 +29,42 @@ type FormData = {
   date: string;
 };
 
+
+
 export function BooktablePage({ restaurant }: BooktablePageProps) {
+  
 
-const requiredField = zod.string().min(1, { message: 'Required Field' });
-const phoneSchema = zod.string()
-  .min(1, { message: 'Required Field' }) 
-  .regex(/^\d{9}$/, { message: 'Phone number invalid' }); 
-
-const FormDataSchema = zod.object({
-  name: requiredField,
-  phone: phoneSchema,
-  date: requiredField,
-  time: requiredField,
-  guests: requiredField,
-  email: requiredField.email(),
-}).superRefine((data, context) => {
-  const selectedDate = new Date(data.date); 
-  const dayOfWeek = selectedDate.getDay();
-  const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 4; 
-  const weekdayTimeRange = restaurant.Weekdaytime;
-  const weekendTimeRange = restaurant.Weekandtime;
-
-  const isTimeValid = isWeekday
-    ? isTimeWithinRange(data.time, weekdayTimeRange.start, weekdayTimeRange.end)
-    : (
-        isTimeWithinRange(data.time, weekdayTimeRange.start, weekdayTimeRange.end) ||
-        isTimeWithinRange(data.time, weekendTimeRange.start, weekendTimeRange.end)
-      );
-
-  if (!isTimeValid) {
-    context.addIssue({
-      code: zod.ZodIssueCode.custom,
-      message: 'Time is outside of restaurant operating hours',
-      path: ['time'], 
-    });
-  }
-
-  if (restaurant.blacklist.includes(data.phone)) {
-    context.addIssue({
-      code: zod.ZodIssueCode.custom,
-      message: 'Internal error, please try again later',
-      path: ['phone'],
-    });
-  }
-});
+  const requiredField = zod.string().min(1, { message: 'Required Field' });
+  const phoneSchema = zod.string()
+    .min(1, { message: 'Required Field' }) 
+    .regex(/^\d{9}$/, { message: 'Phone number invalid' });
+  
+  const FormDataSchema = zod.object({
+    name: requiredField,
+    phone: phoneSchema,
+    date: requiredField,
+    time: requiredField,
+    guests: requiredField,
+    email: requiredField.email(),
+  }).superRefine((data, context) => {
+    const isTimeValid = isValidTime(data.date, data.time, restaurant.Weekdaytime, restaurant.Weekandtime); 
+  
+    if (!isTimeValid) {
+      context.addIssue({
+        code: zod.ZodIssueCode.custom,
+        message: 'Time is outside of restaurant operating hours',
+        path: ['time'], 
+      });
+    }
+  
+    if (restaurant.blacklist.includes(data.phone)) {
+      context.addIssue({
+        code: zod.ZodIssueCode.custom,
+        message: 'Internal error, please try again later',
+        path: ['phone'],
+      });
+    }
+  });
 
 
   const {

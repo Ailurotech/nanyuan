@@ -1,12 +1,32 @@
-// timeUtils.ts
-export const isTimeWithinRange = (time: string, start: string, end: string) => {
-    const [timeHours, timeMinutes] = time.split(':').map(Number);
-    const [startHours, startMinutes] = start.split(':').map(Number);
-    const [endHours, endMinutes] = end.split(':').map(Number);
+import { DateTime } from 'luxon';
 
-    const selectedTimeInMinutes = timeHours * 60 + timeMinutes;
-    const startTimeInMinutes = startHours * 60 + startMinutes;
-    const endTimeInMinutes = endHours * 60 + endMinutes;
+export const isTimeWithinRange = (time: string, start: string, end: string): boolean => {
+    const timeToCheck = DateTime.fromFormat(time, 'HH:mm');
+    const startTime = DateTime.fromFormat(start, 'HH:mm');
+    const endTime = DateTime.fromFormat(end, 'HH:mm');
 
-    return selectedTimeInMinutes >= startTimeInMinutes && selectedTimeInMinutes <= endTimeInMinutes;
+    return timeToCheck >= startTime && timeToCheck <= endTime;
+};
+
+export const getDayOfWeek = (date: string): number => {
+    const selectedDate = DateTime.fromISO(date);
+    return selectedDate.weekday; 
+};
+
+export const isValidTime = (
+    date: string,
+    time: string,
+    weekdayTimeRange: { start: string; end: string },
+    weekendTimeRange: { start: string; end: string }
+): boolean => {
+    const dayOfWeek = getDayOfWeek(date);
+    const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
+
+    if (isWeekday) {
+        return isTimeWithinRange(time, weekdayTimeRange.start, weekdayTimeRange.end);
+    }
+    return (
+        isTimeWithinRange(time, weekdayTimeRange.start, weekdayTimeRange.end) ||
+        isTimeWithinRange(time, weekendTimeRange.start, weekendTimeRange.end)
+    );
 };
