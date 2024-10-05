@@ -12,6 +12,8 @@ import useTimer from './useTimer';
 import { Restaurant } from '@/types';
 import { isValidTime } from './timeUtils';
 import clsx from 'clsx';
+import { sanityClient } from '@/lib/sanityClient';
+
 
 interface BooktablePageProps {
   restaurant: Restaurant;
@@ -28,11 +30,8 @@ type FormData = {
   date: string;
 };
 
-
-
 export function BooktablePage({ restaurant }: BooktablePageProps) {
   
-
   const requiredField = zod.string().min(1, { message: 'Required Field' });
   const phoneSchema = zod.string()
     .min(1, { message: 'Required Field' }) 
@@ -45,6 +44,8 @@ export function BooktablePage({ restaurant }: BooktablePageProps) {
     time: requiredField,
     guests: requiredField,
     email: requiredField.email(),
+    preference: zod.string(),
+    notes: zod.string(),
   }).superRefine((data, context) => {
     const isTimeValid = isValidTime(data.date, data.time, restaurant.Weekdaytime, restaurant.Weekandtime); 
   
@@ -77,7 +78,7 @@ export function BooktablePage({ restaurant }: BooktablePageProps) {
       phone: '',
       time: '',
       guests: '2',
-      preference: '',
+      preference: 'No-preference',
       notes: '',
       date: '',
       email: '',
@@ -92,15 +93,20 @@ export function BooktablePage({ restaurant }: BooktablePageProps) {
   const [verifyOtp, setVerifyOtp] = useState(false);
   const { timeLeft, isRunning, startTimer } = useTimer(60); 
   
-  
-
-  const onSubmit = (data: FormData) => {
+  const onSubmit = async (data: FormData) => {
     if (verifyOtp) {
-      const parsedData = { ...data };
-      console.log(parsedData);
-      alert('Table booked successfully!');
-    }else{
-      alert('Please verify your phone number');
+        try {
+            await sanityClient.create({
+                _type: 'reservation',
+                ...data, 
+            });
+            alert('Table booked successfully!');
+        } catch (error) {
+            console.error('Error creating reservation:', error);
+            alert('Failed to book a table. Please try again later.');
+        }
+    } else {
+        alert('Please verify your phone number');
     }
   };
   
@@ -178,9 +184,9 @@ export function BooktablePage({ restaurant }: BooktablePageProps) {
               control={control}
               name="preference"
               options={[
-                { value: '1', label: 'No preference' },
-                { value: '2', label: 'Near the inside' },
-                { value: '3', label: 'Near the window' },
+                { value: 'No-preference', label: 'No preference' },
+                { value: 'Near-inside', label: 'Near the inside' },
+                { value: 'Near-window', label: 'Near the window' },
               ]}
             />
           </InputsContainer>

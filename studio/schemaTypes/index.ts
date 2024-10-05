@@ -7,6 +7,8 @@ import homepage from './homepage';
 import { durationType } from './duration/durationType'; 
 import { timeValueType } from './duration/timeValueType'; 
 import { restaurant } from './restaurant'; 
+import reservation from './reservation';
+
 
 export const schemaTypes = [
   menu,
@@ -15,6 +17,7 @@ export const schemaTypes = [
   booking,
   homepage,
   restaurant, 
+  reservation,
   durationType, 
   timeValueType,
 ];
