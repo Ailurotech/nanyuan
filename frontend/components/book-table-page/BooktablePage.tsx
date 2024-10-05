@@ -11,6 +11,7 @@ import VerifyOtpModal from '@/components/book-table-page/VerifyOtpModal';
 import useTimer from './useTimer'; 
 import { Restaurant } from '@/types';
 import { isTimeWithinRange } from './timeUtils';
+import clsx from 'clsx';
 
 interface BooktablePageProps {
   restaurant: Restaurant;
@@ -142,20 +143,29 @@ const FormDataSchema = zod.object({
             <ControlledInput label="Name" control={control} name="name" />
             <span className="flex col-span-1 gap-2 items-end">
               <ControlledInput label="Phone Number" control={control} name="phone" disabled={verifyOtp} />
-              <Button
-                colorScheme={isRunning ? "gray" : "green"}
-                variant="solid"
-                backgroundColor={verifyOtp ? "#90EE90" : (isRunning ? "gray.300" : "#facc16")} 
-                color={verifyOtp ? "white" : (isRunning ? "white" : "black")} 
-                padding="0.36rem 1rem"
-                disabled={verifyOtp || isRunning}
-                borderRadius={5}
-                fontSize="small"
-                fontWeight="600"
-                onClick={!(verifyOtp || isRunning) ? Sendotp : undefined}
-              >
-                {verifyOtp ? 'Verified' : (isRunning ? `${timeLeft}s` : 'Verify')}
-              </Button>
+                <Button
+                  className={clsx({
+                    'bg-gray-300 text-white': isRunning,              
+                    'bg-green-500 text-white': verifyOtp,              
+                    'bg-yellow-400 text-black': !isRunning && !verifyOtp 
+                  })}
+                  variant="solid"
+                  padding="0.36rem 1rem"
+                  disabled={verifyOtp || isRunning}
+                  borderRadius={5}
+                  fontSize="small"
+                  fontWeight="600"
+                  onClick={(() => {
+                    if (verifyOtp || isRunning) return undefined;
+                                                return Sendotp;
+                  })()}
+                >
+                  {(() => {
+                    if (verifyOtp) return 'Verified';
+                    if (isRunning) return `${timeLeft}s`;
+                                   return 'Verify';
+                  })()}
+                </Button>
             </span>
           </InputsContainer>
           <InputsContainer>
