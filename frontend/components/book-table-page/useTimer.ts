@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 
 const useTimer = (initialTime: number) => {
-  const [timeLeft, setTimeLeft] = useState<number>(initialTime);
-  const [isRunning, setIsRunning] = useState<boolean>(false);
+  const [timeLeft, setTimeLeft] = useState(initialTime);
+  const [isRunning, setIsRunning] = useState(false);
 
   useEffect(() => {
     

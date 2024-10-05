@@ -1,5 +1,6 @@
 import { FormControl, Input, InputGroup, InputLeftAddon, Text } from '@chakra-ui/react';
 import { Control, FieldPath, FieldValues, useController } from 'react-hook-form';
+import clsx from 'clsx';
 
 interface ControlledInputProps<TFieldValues extends FieldValues = FieldValues> {
   label: string;
@@ -42,8 +43,13 @@ export function ControlledInput<TFieldValues extends FieldValues>({
         </InputGroup>
       </FormControl>
       {error?.message && (
-        <span className="text-red-900 bg-red-400 absolute bottom-[40px] right-0 rounded-md px-2 py-1 text-[10px]">
-          {error.message}
+         <span
+         className={clsx(
+          'text-red-900 bg-red-400 absolute bottom-[40px] right-0 rounded-md px-2 py-1 text-[10px]',
+          'after:bg-red-400 after:absolute after:-bottom-1 after:right-2 after:h-2 after:w-2 after:rotate-45',
+        )}
+        >
+        {error.message}
         </span>
       )}
     </div>

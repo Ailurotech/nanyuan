@@ -4,7 +4,7 @@ import { ControlledSelect } from '@/components/common/ControlledSelect';
 import { Button } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { InputsContainer } from '@/components/Take-away-page/component/InputsContainer';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as zod from 'zod';
 import VerifyOtpModal from '@/components/book-table-page/VerifyOtpModal';
@@ -29,8 +29,10 @@ type FormData = {
 
 export function BooktablePage({ restaurant }: BooktablePageProps) {
 
-  const requiredField = zod.string().min(1, { message: 'Required Field' });
-const phoneSchema = zod.string().regex(/^\d{9}$/, { message: 'Phone number invalid' });
+const requiredField = zod.string().min(1, { message: 'Required Field' });
+const phoneSchema = zod.string()
+  .min(1, { message: 'Required Field' }) 
+  .regex(/^\d{9}$/, { message: 'Phone number invalid' }); 
 
 const FormDataSchema = zod.object({
   name: requiredField,
@@ -64,7 +66,7 @@ const FormDataSchema = zod.object({
   if (restaurant.blacklist.includes(data.phone)) {
     context.addIssue({
       code: zod.ZodIssueCode.custom,
-      message: 'Your phone number is in the blacklist',
+      message: 'Internal error, please try again later',
       path: ['phone'],
     });
   }
@@ -74,7 +76,6 @@ const FormDataSchema = zod.object({
   const {
     control,
     handleSubmit,
-    formState: { errors },
     trigger,
     watch,
   } = useForm<FormData>({
@@ -151,7 +152,7 @@ const FormDataSchema = zod.object({
                 borderRadius={5}
                 fontSize="small"
                 fontWeight="600"
-                onClick={verifyOtp || isRunning ? undefined : Sendotp} 
+                onClick={!(verifyOtp || isRunning) ? Sendotp : undefined}
               >
                 {verifyOtp ? 'Verified' : (isRunning ? `${timeLeft}s` : 'Verify')}
               </Button>
