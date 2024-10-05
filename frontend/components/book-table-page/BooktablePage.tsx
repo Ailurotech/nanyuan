@@ -32,7 +32,6 @@ export function BooktablePage({ restaurant }: BooktablePageProps) {
   const requiredField = zod.string().min(1, { message: 'Required Field' });
 const phoneSchema = zod.string().regex(/^\d{9}$/, { message: 'Phone number invalid' });
 
-// Create the schema and use the validation logic
 const FormDataSchema = zod.object({
   name: requiredField,
   phone: phoneSchema,
