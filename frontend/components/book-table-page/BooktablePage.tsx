@@ -100,7 +100,6 @@ export function BooktablePage({ restaurant }: BooktablePageProps) {
                 _type: 'reservation',
                 ...data, 
             });
-            alert('Table booked successfully!');
         } catch (error) {
             console.error('Error creating reservation:', error);
             alert('Failed to book a table. Please try again later.');
@@ -153,16 +152,9 @@ export function BooktablePage({ restaurant }: BooktablePageProps) {
                   borderRadius={5}
                   fontSize="small"
                   fontWeight="600"
-                  onClick={(() => {
-                    if (verifyOtp || isRunning) return undefined;
-                                                return Sendotp;
-                  })()}
+                  onClick={verifyOtp || isRunning ? undefined : Sendotp}
                 >
-                  {(() => {
-                    if (verifyOtp) return 'Verified';
-                    if (isRunning) return `${timeLeft}s`;
-                                   return 'Verify';
-                  })()}
+                  {verifyOtp ? 'Verified' : isRunning ? `${timeLeft}s` : 'Verify'}
                 </Button>
             </span>
           </InputsContainer>

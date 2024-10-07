@@ -1,63 +1,37 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 const useTimer = (initialTime: number) => {
   const [timeLeft, setTimeLeft] = useState(initialTime);
-  const [isRunning, setIsRunning] = useState(false);
+  const [endTime, setEndTime] = useState<number | null>(null);
 
   useEffect(() => {
-    
-    const storedTime = sessionStorage.getItem('timeLeft');
-    const storedIsRunning = sessionStorage.getItem('isRunning');
+    if (endTime) {
+      const interval = setInterval(() => {
+        const remaining = Math.max(0, endTime - Date.now());
+        setTimeLeft(Math.ceil(remaining / 1000));
 
-    if (storedTime) {
-      setTimeLeft(Number(storedTime));
+        if (remaining <= 0) {
+          clearInterval(interval);
+          setEndTime(null);
+        }
+      }, 100);
+
+      return () => clearInterval(interval);
     }
+  }, [endTime]);
 
-    if (storedIsRunning === 'true') {
-      setIsRunning(true);
-    }
-  }, []);
+  const startTimer = useCallback(() => {
+    setEndTime(Date.now() + initialTime * 1000);
+  }, [initialTime]);
 
-  useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
-
-    if (isRunning && timeLeft > 0) {
-      interval = setInterval(() => {
-        setTimeLeft((prev) => {
-          const newTimeLeft = Math.max(prev - 1, 0);
-          sessionStorage.setItem('timeLeft', String(newTimeLeft));
-          return newTimeLeft;
-        });
-      }, 1000);
-    } else if (timeLeft === 0) {
-      setIsRunning(false);
-    }
-
-    sessionStorage.setItem('isRunning', String(isRunning));
-
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isRunning, timeLeft]);
-
-  const startTimer = () => {
+  const stopTimer = useCallback(() => {
+    setEndTime(null);
     setTimeLeft(initialTime);
-    setIsRunning(true);
-  };
+  }, [initialTime]);
 
-  const resetTimer = () => {
-    setTimeLeft(initialTime);
-    setIsRunning(false);
-    sessionStorage.removeItem('timeLeft');
-    sessionStorage.removeItem('isRunning');
-  };
+  const isRunning = endTime !== null;
 
-  return {
-    timeLeft,
-    isRunning,
-    startTimer,
-    resetTimer,
-  };
+  return { timeLeft, isRunning, startTimer, stopTimer };
 };
 
 export default useTimer;
