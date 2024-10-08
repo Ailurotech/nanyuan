@@ -71,3 +71,15 @@ export interface CartCardProps {
   removeItem: () => void;
   updateQuantity: (newQuantity: number, id: string) => void;
 }
+
+export interface Restaurant {
+  title: string;
+  Weekdaytime: Duration;
+  Weekandtime: Duration;
+  blacklist: string[];
+}
+
+export interface Duration {
+  start: string; 
+  end: string;   
+}
