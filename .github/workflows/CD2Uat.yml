@@ -1,0 +1,44 @@
+name: CD pipeline Uat
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - devops-next-static-export
+permissions:
+  contents: read
+  id-token: write
+jobs:
+  rerun-CI-workflow:
+    uses: ./.github/workflows/CI.yml
+  deploy-to-S3:
+    needs: rerun-CI-workflow
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+      - name: download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: frontend/out
+      - name: configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          audience: sts.amazonaws.com
+          aws-region: ap-southeast-2
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+      - name: sts get caller identity
+        run: aws sts get-caller-identity
+      - name: deploy to S3
+        run: aws s3 sync frontend/out s3://${{ secrets.AWS_S3_UAT_BUCKET }}
+      - name: install sanity cli
+        run: npm install --global sanity@latest
+      - name: deploy sanity
+        env: 
+          SANITY_API_TOKEN: ${{ secrets.SANITY_API_TOKEN }}
+          SANITY_PROJECT_ID: ${{ secrets.SANITY_PROJECT_ID }}
+          SANITY_DATASET: "test"
+          SANITY_STUDIO_HOST: ${{ secrets.SANITY_STUDIO_HOST }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          SANITY_AUTH_TOKEN: ${{ secrets.SANITY_AUTH_TOKEN }}
+        run: sanity deploy

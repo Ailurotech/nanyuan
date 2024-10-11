@@ -1,0 +1,40 @@
+name: CI pipeline
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - devops-next-static-export
+  workflow_call:
+  pull_request:
+    branches:
+      - main
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+        - name: Checkout
+          uses: actions/checkout@v4
+
+        - name: Setup Node.js
+          uses: actions/setup-node@v4
+          with:
+            node-version: 20
+            cache: 'yarn'
+        - name: get node version
+          id: node
+          run: |
+            echo ":set-output name=node_version::$(node -v)"
+        - name: cache node_modules
+          uses: actions/cache@v4
+          with:
+            path: node_modules
+            key: ${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}-${{ steps.node.outputs.node_version }}
+        - name: install dependencies
+          run: yarn
+        - name: build code
+          run: yarn build
+        - name: upload artifact
+          uses: actions/upload-artifact@v4
+          with:
+            name: build
+            path: frontend/out
