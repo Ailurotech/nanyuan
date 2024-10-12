@@ -4,17 +4,14 @@ import { ControlledSelect } from '@/components/common/ControlledSelect';
 import { Button } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { InputsContainer } from '@/components/Take-away-page/component/InputsContainer';
-import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as zod from 'zod';
-import VerifyOtpModal from '@/components/book-table-page/VerifyOtpModal';
-import useTimer from './useTimer';
+import VerifyOtpModal from '@/components/common/VerifyOtpModal';
 import { Restaurant } from '@/types';
 import { isValidTime } from './timeUtils';
 import clsx from 'clsx';
 import { sanityClient } from '@/lib/sanityClient';
-import axios from 'axios';
-import { getSMS } from '../AWS-functions/get-sms';
+import { useSMS } from '../hooks/useSMS';
 
 interface BooktablePageProps {
   restaurant: Restaurant;
@@ -32,6 +29,15 @@ type FormData = {
 };
 
 export function BooktablePage({ restaurant }: BooktablePageProps) {
+  const {
+    SendOtp,
+    handleVerifyOtp,
+    setIsModalOpen,
+    verifyOtp,
+    isModalOpen,
+    timeLeft,
+    isRunning,
+  } = useSMS();
   const requiredField = zod.string().min(1, { message: 'Required Field' });
   const phoneSchema = zod
     .string()
@@ -91,11 +97,6 @@ export function BooktablePage({ restaurant }: BooktablePageProps) {
 
   const selectedDate = watch('date');
 
-  const [otp, setOtp] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [verifyOtp, setVerifyOtp] = useState(false);
-  const { timeLeft, isRunning, startTimer } = useTimer(60);
-
   const onSubmit = async (data: FormData) => {
     if (verifyOtp) {
       try {
@@ -112,24 +113,11 @@ export function BooktablePage({ restaurant }: BooktablePageProps) {
     }
   };
 
-  const Sendotp = async () => {
+  const phoneClickHandler = async () => {
     const result = await trigger('phone');
+    const phone = getValues('phone');
     if (result) {
-      const phone = getValues('phone');
-      const otp = await getSMS({ phone });
-      setOtp(otp);
-      setIsModalOpen(true);
-      startTimer();
-    }
-  };
-
-  const handleVerifyOtp = (enteredOtp: string) => {
-    if (enteredOtp === otp) {
-      setVerifyOtp(true);
-      setIsModalOpen(false);
-      alert('Successfully verified');
-    } else {
-      alert('OTP is incorrect');
+      SendOtp(phone);
     }
   };
 
@@ -164,7 +152,7 @@ export function BooktablePage({ restaurant }: BooktablePageProps) {
                 borderRadius={5}
                 fontSize="small"
                 fontWeight="600"
-                onClick={verifyOtp || isRunning ? undefined : Sendotp}
+                onClick={verifyOtp || isRunning ? undefined : phoneClickHandler}
               >
                 {verifyOtp ? 'Verified' : isRunning ? `${timeLeft}s` : 'Verify'}
               </Button>

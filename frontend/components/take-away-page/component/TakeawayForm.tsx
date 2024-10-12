@@ -7,11 +7,14 @@ import { useEffect, useState } from 'react';
 import { MenuItem } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as zod from 'zod';
+import { useSMS } from '@/components/hooks/useSMS';
+import clsx from 'clsx';
+import VerifyOtpModal from '@/components/common/VerifyOtpModal';
 
 export function TakeawayForm() {
   interface FormData {
     name: string;
-    phoneNumber: string;
+    phone: string;
     pickUpDate: string;
     pickUpTime: string;
     email: string;
@@ -19,35 +22,18 @@ export function TakeawayForm() {
   }
   type OrderList = MenuItem & { quantity: number };
 
-  const requiredField = zod.string().min(1, { message: 'Required Field' });
-  const FormDataSchema = zod.object({
-    name: requiredField,
-    phoneNumber: requiredField,
-    pickUpDate: requiredField,
-    pickUpTime: requiredField,
-    email: requiredField.email(),
-    notes: zod.string().optional(),
-  });
-
-  const { control, handleSubmit } = useForm<FormData>({
-    defaultValues: {
-      name: '',
-      phoneNumber: '',
-      pickUpDate: '',
-      pickUpTime: '',
-      email: '',
-      notes: '',
-    },
-    resolver: zodResolver(FormDataSchema),
-  });
-
+  const {
+    SendOtp,
+    handleVerifyOtp,
+    verifyOtp,
+    setIsModalOpen,
+    isModalOpen,
+    timeLeft,
+    isRunning,
+  } = useSMS();
   const [orderList, setOrderList] = useState<OrderList[]>([]);
   const [totalPrice, setTotalPrice] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
-  const onSubmit = (data: FormData) => {
-    const parsedData = { ...data, totalPrice };
-    console.log(parsedData);
-  };
 
   useEffect(() => {
     const cart = localStorage.getItem('cart');
@@ -68,80 +54,133 @@ export function TakeawayForm() {
     }
   }, []);
 
+  const requiredField = zod.string().min(1, { message: 'Required Field' });
+  const FormDataSchema = zod.object({
+    name: requiredField,
+    phone: requiredField,
+    pickUpDate: requiredField,
+    pickUpTime: requiredField,
+    email: requiredField.email(),
+    notes: zod.string().optional(),
+  });
+
+  const { control, handleSubmit, trigger, getValues } = useForm<FormData>({
+    defaultValues: {
+      name: '',
+      phone: '',
+      pickUpDate: '',
+      pickUpTime: '',
+      email: '',
+      notes: '',
+    },
+    resolver: zodResolver(FormDataSchema),
+  });
+
+  const onSubmit = (data: FormData) => {
+    if (verifyOtp) {
+      const parsedData = { ...data, totalPrice, phone: `+61${data.phone}` };
+      console.log(parsedData);
+    } else {
+      alert('Please verify your phone number');
+    }
+  };
+
+  const phoneClickHandler = async () => {
+    const result = await trigger('phone');
+    const phone = getValues('phone');
+    if (result) {
+      SendOtp(phone);
+    }
+  };
+
   return (
     !loading && (
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-        <InputsContainer>
-          <ControlledInput label="Name" control={control} name="name" />
-          <span className="flex col-span-1 gap-2 items-end">
+      <section>
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+          <InputsContainer>
+            <ControlledInput label="Name" control={control} name="name" />
+            <span className="flex col-span-1 gap-2 items-end">
+              <ControlledInput
+                label="Phone Number"
+                control={control}
+                name="phone"
+                disabled={verifyOtp}
+              />
+              <Button
+                className={clsx({
+                  'bg-gray-300 text-white': isRunning,
+                  'bg-green-500 text-white': verifyOtp,
+                  'bg-yellow-400 text-black': !isRunning && !verifyOtp,
+                })}
+                variant="solid"
+                padding="0.36rem 1rem"
+                disabled={verifyOtp || isRunning}
+                borderRadius={5}
+                fontSize="small"
+                fontWeight="600"
+                onClick={verifyOtp || isRunning ? undefined : phoneClickHandler}
+              >
+                {verifyOtp ? 'Verified' : isRunning ? `${timeLeft}s` : 'Verify'}
+              </Button>
+            </span>
+          </InputsContainer>
+          <InputsContainer>
             <ControlledInput
-              label="Phone Number"
+              label="Pickup Date"
               control={control}
-              name="phoneNumber"
+              name="pickUpDate"
+              type="Date"
             />
-            <Button
-              colorScheme="orange"
-              variant="solid"
-              backgroundColor="#facc16"
-              padding="0.36rem 1rem"
-              borderRadius={5}
-              fontSize="small"
-              fontWeight="600"
-            >
-              Verify
-            </Button>
-          </span>
-        </InputsContainer>
-        <InputsContainer>
-          <ControlledInput
-            label="Pickup Date"
+            <ControlledInput
+              label="Pickup Time"
+              control={control}
+              name="pickUpTime"
+              type="Time"
+            />
+          </InputsContainer>
+          <ControlledInput label="Email" control={control} name="email" />
+          <div className="flex flex-col gap-2">
+            <h4 className="text-sm">Ordered Dishes</h4>
+            <ul className="text-base space-y-1 list-disc px-4">
+              {orderList.length === 0 && (
+                <li className="font-bold">No Order Yet!</li>
+              )}
+              {orderList.map((order, index) => (
+                <li
+                  key={index}
+                >{`${order.name} - $${order.price} X${order.quantity}`}</li>
+              ))}
+            </ul>
+            <h4 className="font-bold">{`Total Price: $${totalPrice}`}</h4>
+          </div>
+          <ControlledTestArea
+            label="Special Requested or Notes"
             control={control}
-            name="pickUpDate"
-            type="Date"
+            name="notes"
+            placeholder="Enter your special request or notes for your order here..."
+            rows={5}
           />
-          <ControlledInput
-            label="Pickup Time"
-            control={control}
-            name="pickUpTime"
-            type="Time"
+          <Button
+            marginTop="2rem"
+            colorScheme="orange"
+            variant="solid"
+            type="submit"
+            backgroundColor="#facc16"
+            padding="0.6rem"
+            borderRadius={5}
+            fontSize="small"
+            fontWeight="600"
+          >
+            Submit Order
+          </Button>
+        </form>
+        {isModalOpen && (
+          <VerifyOtpModal
+            onVerify={handleVerifyOtp}
+            onClose={() => setIsModalOpen(false)}
           />
-        </InputsContainer>
-        <ControlledInput label="Email" control={control} name="email" />
-        <div className="flex flex-col gap-2">
-          <h4 className="text-sm">Ordered Dishes</h4>
-          <ul className="text-base space-y-1 list-disc px-4">
-            {orderList.length === 0 && (
-              <li className="font-bold">No Order Yet!</li>
-            )}
-            {orderList.map((order, index) => (
-              <li
-                key={index}
-              >{`${order.name} - $${order.price} X${order.quantity}`}</li>
-            ))}
-          </ul>
-          <h4 className="font-bold">{`Total Price: $${totalPrice}`}</h4>
-        </div>
-        <ControlledTestArea
-          label="Special Requested or Notes"
-          control={control}
-          name="notes"
-          placeholder="Enter your special request or notes for your order here..."
-          rows={5}
-        />
-        <Button
-          marginTop="2rem"
-          colorScheme="orange"
-          variant="solid"
-          type="submit"
-          backgroundColor="#facc16"
-          padding="0.6rem"
-          borderRadius={5}
-          fontSize="small"
-          fontWeight="600"
-        >
-          Submit Order
-        </Button>
-      </form>
+        )}
+      </section>
     )
   );
 }
