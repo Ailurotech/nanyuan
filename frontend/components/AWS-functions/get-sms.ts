@@ -1,8 +1,11 @@
 import axios from 'axios';
 
 export async function getSMS({ phone }: { phone: string }) {
-  const url =
-    'https://2t0ot5k3s5.execute-api.ap-southeast-2.amazonaws.com/dev/api/Send-SMS';
+  const url = process.env.NEXT_PUBLIC_AWS_SEND_SMS_URL;
+  if (!url) {
+    console.error('AWS_SEND_SMS_URL is not defined');
+    return;
+  }
   const data = { phone: `+61${phone}` };
   try {
     const res = await axios.post(url, data, {

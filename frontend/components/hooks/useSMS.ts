@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import useTimer from '../common/useTimer';
+import useTimer from './useTimer';
 import { getSMS } from '../AWS-functions/get-sms';
 
 export function useSMS() {
