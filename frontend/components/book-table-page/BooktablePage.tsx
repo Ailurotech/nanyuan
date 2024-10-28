@@ -3,8 +3,9 @@ import { ControlledTestArea } from '@/components/common/ControlledTestArea';
 import { ControlledSelect } from '@/components/common/ControlledSelect';
 import { Button } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
-import { InputsContainer } from '@/components/Take-away-page/component/InputsContainer';
+import { InputsContainer } from '@/components/take-away-page/component/InputsContainer';
 import { useState } from 'react';
+import { useRouter } from 'next/router';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as zod from 'zod';
 import VerifyOtpModal from '@/components/book-table-page/VerifyOtpModal';
@@ -66,7 +67,7 @@ export function BooktablePage({ restaurant }: BooktablePageProps) {
     }
   });
 
-
+  const router = useRouter();
   const {
     control,
     handleSubmit,
@@ -95,19 +96,34 @@ export function BooktablePage({ restaurant }: BooktablePageProps) {
   
   const onSubmit = async (data: FormData) => {
     if (verifyOtp) {
-        try {
-            await sanityClient.create({
-                _type: 'reservation',
-                ...data, 
-            });
-        } catch (error) {
-            console.error('Error creating reservation:', error);
-            alert('Failed to book a table. Please try again later.');
-        }
+      try {
+        // 暂时注释掉 Sanity 创建操作，便于测试跳转功能
+        /*
+        await sanityClient.create({
+          _type: 'reservation',
+          ...data, 
+        });
+        */
+  
+        // 跳转到成功页面，并传递 name, date 和 time
+        router.push({
+          pathname: '/successful',
+          query: {
+            type: 'booktable',
+            name: data.name,
+            date: data.date,
+            time: data.time,
+          },
+        });
+      } catch (error) {
+        console.error('Error creating reservation:', error);
+        alert('Failed to book a table. Please try again later.');
+      }
     } else {
-        alert('Please verify your phone number');
+      alert('Please verify your phone number');
     }
   };
+  
   
   const Sendotp = async () => {
     const result = await trigger('phone');

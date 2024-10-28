@@ -83,3 +83,11 @@ export const ShoppingCart = {
     <Link href={Location.Path}>{children}</Link>
   ),
 };
+
+const SuccessPage = {
+  Path: "/successful",
+  Name: "Success",
+  Link: ({ children }: { children: React.ReactNode }) => (
+    <Link href={SuccessPage.Path}>{children}</Link>
+  ),
+};

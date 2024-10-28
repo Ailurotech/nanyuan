@@ -23,12 +23,12 @@ const HomePage = ({ homePageContent }: HomePageProps) => {
   }
   return (
     <div
-      className={`w-full bg-cover bg-center pt-40 backdrop-brightness-[0.1] ${alegreyaSans.className}`}
+      className={`w-full bg-cover bg-center pt-40 backdrop-brightness-[0.1] pb-[5%] ${alegreyaSans.className}`}
       style={{
         backgroundImage: `url(${homePageContent.backgroundimg.asset.url})`,
       }}
     >
-      <div className="h-[80vh] mt-[7vh] sm:mt-[20vh] lg:mt-[25vh] w-[60%] mx-auto text-center flex flex-col items-center">
+      <div className="h-[60vh] mt-[7vh] mb-[13vh] sm:mt-[20vh] sm:mb-[0vh] lg:mt-[25vh] w-[60%] mx-auto text-center flex flex-col items-center">
         <h1 className="text-white text-center text-[50px] font-normal leading-[43.2px]">
           {homePageContent.Homepagetitle}
         </h1>
@@ -39,7 +39,7 @@ const HomePage = ({ homePageContent }: HomePageProps) => {
           </button>
         </Link>
       </div>
-      <div className="w-[73%] h-screen flex flex-col md:flex-row items-center mx-auto">
+      <div className="w-[73%] pb-[10%] flex flex-col md:flex-row items-center mx-auto">
         <div className="min-w-[350px] w-full md:w-[40%]  xl:w-[35%] h-auto object-cover flex-shrink-0">
           <Image
             src={homePageContent.dishimg.asset.url}
