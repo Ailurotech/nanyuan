@@ -5,6 +5,7 @@ import { sanityClient } from "@/lib/sanityClient";
 import { GalleryContent, HeroContent, OpeningHoursContent } from "@/types";
 import { Content } from "@/components/homepage/component/Content";
 import { GalleryWidget } from "@/components/homepage/component/GalleryWidget";
+import Footer from "@/components/homepage/footer/Footer";
 import axios from "axios";
 
 interface IndexProps {
@@ -21,6 +22,7 @@ export default function Index({ heroContent, galleryContent, openingHourContent 
         <GalleryWidget galleryContent={galleryContent} />
       </Content>
       <TestmonialAndOpeningHours openingHourContent={openingHourContent} />
+      <Footer />
     </>
   );
 }
