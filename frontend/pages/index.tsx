@@ -7,14 +7,16 @@ import { Content } from "@/components/homepage/component/Content";
 import { GalleryWidget } from "@/components/homepage/component/GalleryWidget";
 import Footer from "@/components/homepage/footer/Footer";
 import axios from "axios";
-
+import { FooterContent } from "@/types";
 interface IndexProps {
   heroContent: HeroContent;
   galleryContent: GalleryContent;
   openingHourContent: OpeningHoursContent;
+  footerContent: FooterContent;
 }
 
-export default function Index({ heroContent, galleryContent, openingHourContent }: IndexProps) {
+export default function Index({ heroContent, galleryContent, openingHourContent, footerContent}: IndexProps) {
+ 
   return (
     <>
       <HomePage homePageContent={heroContent} />
@@ -22,7 +24,7 @@ export default function Index({ heroContent, galleryContent, openingHourContent 
         <GalleryWidget galleryContent={galleryContent} />
       </Content>
       <TestmonialAndOpeningHours openingHourContent={openingHourContent} />
-      <Footer />
+      <Footer footerContent={footerContent} />
     </>
   );
 }
@@ -69,6 +71,13 @@ export const getStaticProps: GetStaticProps = async () => {
             url
           }
         }
+      },
+      "footer": {
+        address,
+        phone,
+        email,
+        copyright,
+        mapEmbedUrl
       }
     }
   `;
@@ -78,10 +87,9 @@ export const getStaticProps: GetStaticProps = async () => {
 
   try {
     const data = await sanityClient.fetch(sanityQuery);
-    
-    const googleResponse = await axios.get(mapsUrl);
-    const openingHours = googleResponse.data.result?.opening_hours?.weekday_text || [''];
 
+    const googleResponse = await axios.get(mapsUrl);
+    const openingHours = googleResponse.data.result?.opening_hours?.weekday_text || [""];
 
     return {
       props: {
@@ -101,17 +109,19 @@ export const getStaticProps: GetStaticProps = async () => {
         openingHourContent: {
           OpeninghourPhotos: data[0].OpeninghourPhotos,
           testimonials: data[0].testimonials,
-          openingHours, 
+          openingHours,
         },
+        footerContent: data[0].footer, 
       },
     };
   } catch (e) {
-    console.error('Error fetching data:', e);
+    console.error("Error fetching data:", e);
     return {
       props: {
         heroContent: null,
         galleryContent: null,
         openingHourContent: null,
+        footerContent: null, 
       },
     };
   }

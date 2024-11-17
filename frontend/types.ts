@@ -83,3 +83,11 @@ export interface Duration {
   start: string; 
   end: string;   
 }
+
+export interface FooterContent {
+  mapEmbedUrl: string;
+  address: string;
+  phone: string;
+  email: string;
+  copyright: string;
+}

@@ -1,14 +1,15 @@
-import {defineType} from 'sanity'
+import { defineType } from 'sanity';
 
 export default defineType({
   name: 'HomePage',
   title: 'HomePage',
   type: 'document',
   groups: [
-    {name: 'hero', title: 'Hero'},
-    {name: 'content', title: 'Content'},
-    {name: 'openinghours', title: 'Openinghours'},
-    {name: 'instagram', title: 'Instagram' },
+    { name: 'hero', title: 'Hero' },
+    { name: 'content', title: 'Content' },
+    { name: 'openinghours', title: 'Opening Hours' },
+    { name: 'instagram', title: 'Instagram' },
+    { name: 'footer', title: 'Footer' }, 
   ],
   fields: [
     {
@@ -54,7 +55,7 @@ export default defineType({
       name: 'galleryPhotos',
       title: 'Gallery Photos',
       type: 'array',
-      of: [{type: 'image'}],
+      of: [{ type: 'image' }],
       group: 'content',
     },
     {
@@ -67,7 +68,7 @@ export default defineType({
       name: 'menuDescription',
       title: 'Menu Description',
       type: 'array',
-      of: [{type: 'block'}],
+      of: [{ type: 'block' }],
       group: 'content',
     },
     {
@@ -78,9 +79,9 @@ export default defineType({
     },
     {
       name: 'OpeninghourPhotos',
-      title: 'OpeninghourPhotos',
+      title: 'Openinghour Photos',
       type: 'array',
-      of: [{type: 'image'}],
+      of: [{ type: 'image' }],
       group: 'openinghours',
     },
     {
@@ -138,5 +139,35 @@ export default defineType({
         },
       ],
     },
+    {
+      name:'address',
+      title:'Address',
+      type:'string',
+      group:'footer',
+    },
+    {
+      name:'phone',
+      title:'Phone',
+      type:'string',
+      group:'footer',
+    },
+    {
+      name:'email',
+      title:'Email',
+      type:'string',
+      group:'footer',
+    },
+    {
+      name:'copyright',
+      title:'Copyright',
+      type:'string',
+      group:'footer',
+    },
+    {
+      name:'mapEmbedUrl',
+      title:'Map Embed URL',
+      type:'string',
+      group:'footer',
+    },
   ],
-})
+});
