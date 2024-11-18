@@ -19,7 +19,7 @@ interface MenuProps {
 const MenuCard = ({ menuItems, addToCart }: MenuProps) => {
   const imageUrl = menuItems.image
     ? urlFor(menuItems.image).width(250).height(150).auto('format').url()
-    : null; // 优化图片 URL
+    : null; 
 
   return (
     <Card

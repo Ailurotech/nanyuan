@@ -7,7 +7,7 @@ export default async function handler(
 ) {
   const { category } = req.query;
 
-  // 查询逻辑：根据 category 参数动态筛选数据
+
   const filter = category ? `&& categories match "${category}*"` : '';
   const query = `
     *[_type == "menu" ${filter}] | order(_createdAt desc){
