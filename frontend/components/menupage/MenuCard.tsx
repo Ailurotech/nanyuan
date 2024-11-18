@@ -9,7 +9,7 @@ import {
   CardFooter,
 } from '@chakra-ui/react';
 import { MenuItem } from '../../types';
-import { urlFor } from '../../lib/sanityClient'; // 引入 Sanity 的 URL 优化函数
+import { urlFor } from '../../lib/sanityClient';
 
 interface MenuProps {
   menuItems: MenuItem;
