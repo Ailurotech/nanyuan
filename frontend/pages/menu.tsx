@@ -1,6 +1,6 @@
 import { GetStaticProps } from 'next';
 import { sanityClient } from '../lib/sanityClient';
-import { MenuItem, ShoppingCartItem } from '../types';
+import { MenuItem, ShoppingCartItem, Category } from '../types';
 import MenuCard from '../components/menupage/MenuCard';
 import { useState, useEffect } from 'react';
 import { RiShoppingBagLine } from 'react-icons/ri';
@@ -8,21 +8,19 @@ import Link from 'next/link';
 import { ShoppingCart } from '@/components/homepage/route';
 
 interface MenuProps {
-  menuItems: MenuItem[];
+  initialMenuItems: MenuItem[];
+  initialCategories: Category[];
 }
 
-const MenuPage = ({ menuItems }: MenuProps) => {
+const MenuPage = ({ initialMenuItems, initialCategories }: MenuProps) => {
+  const [menuItems, setMenuItems] = useState<MenuItem[]>(initialMenuItems);
   const [cart, setCart] = useState<ShoppingCartItem[]>([]);
   const [cartCount, setCartCount] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isAllLoaded, setIsAllLoaded] = useState(false);
 
-  // Extract categories dynamically from menuItems
-  const categories = Array.from(
-    new Set(
-      menuItems.flatMap((item) => item.categories).filter((category) => category)
-    )
-  );
-  categories.unshift('All'); // Add "All" as the default category
+  const categories = ['All', ...Array.from(new Set(initialCategories.map((cat) => cat.name)))];
 
   useEffect(() => {
     const cartData = localStorage.getItem('cart');
@@ -32,8 +30,8 @@ const MenuPage = ({ menuItems }: MenuProps) => {
       setCartCount(
         parsedCart.reduce(
           (total: number, item: ShoppingCartItem) => total + item.quantity,
-          0,
-        ),
+          0
+        )
       );
     }
   }, []);
@@ -41,7 +39,7 @@ const MenuPage = ({ menuItems }: MenuProps) => {
   const addToCart = (item: MenuItem) => {
     const updatedCart = [...cart];
     const existingItem = updatedCart.find(
-      (cartItem) => cartItem._id === item._id,
+      (cartItem) => cartItem._id === item._id
     );
     if (existingItem) {
       existingItem.quantity += 1;
@@ -53,20 +51,45 @@ const MenuPage = ({ menuItems }: MenuProps) => {
     localStorage.setItem('cart', JSON.stringify(updatedCart));
   };
 
-  const filteredMenuItems = menuItems
-  .filter((item) => item.isAvailable === true) 
-  .filter((item) =>
-    selectedCategory === 'All'
-      ? true 
-      : item.categories?.some(
-          (category) =>
-            category.toLowerCase() === selectedCategory.toLowerCase(),
-        )
-  );
+  const fetchAllMenuItems = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`/api/getMenuItems`);
+      const data = await response.json();
+      setMenuItems(data.menuItems);
+      setIsAllLoaded(true);
+    } catch (error) {
+      console.error('Failed to fetch menu items:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  const fetchMenuItemsByCategory = async (category: string) => {
+    setIsLoading(true);
+    try {
+      const queryParam = category === 'All' ? '' : `?category=${category}`;
+      const response = await fetch(`/api/getMenuItems${queryParam}`);
+      const data = await response.json();
+      setMenuItems(data.menuItems);
+      setIsAllLoaded(true);
+    } catch (error) {
+      console.error('Failed to fetch menu items:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCategoryClick = (category: string) => {
+    setSelectedCategory(category);
+    fetchMenuItemsByCategory(category);
+  };
+
+  const filteredMenuItems = menuItems.filter((item) => item.isAvailable === true);
 
   return (
     <div className="bg-black min-h-screen py-12 pt-40">
+      {/* Header */}
       <div className="container mx-auto flex items-center justify-center relative">
         <h1 className="text-center text-white text-4xl font-bold mb-8 grow">
           Choose Our Menu
@@ -86,8 +109,8 @@ const MenuPage = ({ menuItems }: MenuProps) => {
         </Link>
       </div>
 
-      {/* Category Buttons */}
-      <div className="flex flex-row gap-2 w-1/2 mx-auto text-white mb-8">
+      {/* Categories */}
+      <div className="flex flex-wrap gap-2 justify-center w-3/4 mx-auto text-white mb-8">
         {categories.map((category) => (
           <button
             key={category}
@@ -96,34 +119,40 @@ const MenuPage = ({ menuItems }: MenuProps) => {
                 ? 'bg-yellow-400 text-black'
                 : 'bg-black text-yellow-400'
             }`}
-            onClick={() => setSelectedCategory(category)}
+            onClick={() => handleCategoryClick(category)}
+            disabled={isLoading && selectedCategory === category}
           >
-            {category}
+            {isLoading && selectedCategory === category ? 'Loading...' : category}
           </button>
         ))}
       </div>
 
       {/* Menu Items */}
-      <div className="container mx-auto grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-5 justify-items-center px-5">
+      <div className="container mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10 px-5 justify-items-center">
         {filteredMenuItems.map((item) => (
           <MenuCard key={item._id} menuItems={item} addToCart={addToCart} />
         ))}
       </div>
 
-      {/* See All Button */}
-      <div className="flex justify-center mt-10">
-        <button className="bg-yellow-400 text-white py-2 px-6 rounded-lg text-lg">
-          See All
-        </button>
-      </div>
+      {/* Load More */}
+      {!isAllLoaded && (
+        <div className="flex justify-center mt-10">
+          <button
+            className="bg-yellow-400 text-black py-2 px-6 rounded-lg text-lg"
+            onClick={fetchAllMenuItems}
+            disabled={isLoading}
+          >
+            {isLoading ? 'Loading...' : 'See All'}
+          </button>
+        </div>
+      )}
     </div>
   );
 };
 
-// Fetch menu data at build time using `getStaticProps`
 export const getStaticProps: GetStaticProps = async () => {
-  const query = `
-    *[_type == "menu"]{
+  const menuQuery = `
+    *[_type == "menu"] | order(_createdAt desc)[0...2]{
       _id,
       name,
       description,
@@ -134,11 +163,23 @@ export const getStaticProps: GetStaticProps = async () => {
     }
   `;
 
-  const menuItems = await sanityClient.fetch(query);
+  const categoryQuery = `
+    *[_type == "category"] | order(_createdAt desc){
+      name
+    }
+  `;
+
+  const menuItems = await sanityClient.fetch(menuQuery);
+
+  const categories = await sanityClient.fetch(categoryQuery);
+  const uniqueCategories = Array.from(
+    new Map(categories.map((cat: Category) => [cat.name.toLowerCase(), cat])).values()
+  );
 
   return {
     props: {
-      menuItems,
+      initialMenuItems: menuItems,
+      initialCategories: uniqueCategories,
     },
   };
 };

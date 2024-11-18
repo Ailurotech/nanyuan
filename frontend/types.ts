@@ -86,3 +86,7 @@ export interface Duration {
   start: string; 
   end: string;   
 }
+
+export interface Category {
+  name: string;
+}
