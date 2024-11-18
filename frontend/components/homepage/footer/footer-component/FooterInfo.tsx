@@ -29,7 +29,7 @@ export default function FooterInfo({ footerContent }: FooterInfoProps) {
           className="flex-1 min-w-[12rem] min-h-[12rem] md:w-[auto] md:max-w-[25rem] w-full"
         ></iframe>
         <div className="flex flex-1 flex-row gap-5 w-full md:w-auto">
-          <div className="flex-1 flex flex-col items-start text-left pr-10">
+          <div className="flex-1 flex flex-col items-start text-left md:pr-10">
             <h1 className="text-3xl font-bold leading-none mb-5">Address</h1>
             <p className="text-xl text-white">{footerContent.address}</p>
           </div>
