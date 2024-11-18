@@ -16,7 +16,7 @@
     "@emotion/styled": "^11.13.0",
     "@hookform/resolvers": "^3.9.0",
     "@sanity/client": "^6.21.3",
-    "@sanity/image-url": "^1.0.2",
+    "@sanity/image-url": "^1.1.0",
     "axios": "^1.7.7",
     "clsx": "^2.1.1",
     "dotenv": "^16.4.5",
