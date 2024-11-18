@@ -1,9 +1,8 @@
 import { GetStaticProps } from 'next';
 import { sanityClient } from '../lib/sanityClient';
-import { MenuItem } from '../types'; // Define your types if needed
+import { MenuItem, ShoppingCartItem } from '../types';
 import MenuCard from '../components/menupage/MenuCard';
 import { useState, useEffect } from 'react';
-import { ShoppingCartItem } from '../types';
 import { RiShoppingBagLine } from 'react-icons/ri';
 import Link from 'next/link';
 import { ShoppingCart } from '@/components/homepage/route';
@@ -15,6 +14,15 @@ interface MenuProps {
 const MenuPage = ({ menuItems }: MenuProps) => {
   const [cart, setCart] = useState<ShoppingCartItem[]>([]);
   const [cartCount, setCartCount] = useState(0);
+  const [selectedCategory, setSelectedCategory] = useState('All');
+
+  // Extract categories dynamically from menuItems
+  const categories = Array.from(
+    new Set(
+      menuItems.flatMap((item) => item.categories).filter((category) => category)
+    )
+  );
+  categories.unshift('All'); // Add "All" as the default category
 
   useEffect(() => {
     const cartData = localStorage.getItem('cart');
@@ -45,6 +53,18 @@ const MenuPage = ({ menuItems }: MenuProps) => {
     localStorage.setItem('cart', JSON.stringify(updatedCart));
   };
 
+  const filteredMenuItems = menuItems
+  .filter((item) => item.isAvailable === true) 
+  .filter((item) =>
+    selectedCategory === 'All'
+      ? true 
+      : item.categories?.some(
+          (category) =>
+            category.toLowerCase() === selectedCategory.toLowerCase(),
+        )
+  );
+
+
   return (
     <div className="bg-black min-h-screen py-12 pt-40">
       <div className="container mx-auto flex items-center justify-center relative">
@@ -65,11 +85,32 @@ const MenuPage = ({ menuItems }: MenuProps) => {
           </div>
         </Link>
       </div>
+
+      {/* Category Buttons */}
+      <div className="flex flex-row gap-2 w-1/2 mx-auto text-white mb-8">
+        {categories.map((category) => (
+          <button
+            key={category}
+            className={`border border-yellow-400 py-2 px-4 rounded-lg ${
+              selectedCategory === category
+                ? 'bg-yellow-400 text-black'
+                : 'bg-black text-yellow-400'
+            }`}
+            onClick={() => setSelectedCategory(category)}
+          >
+            {category}
+          </button>
+        ))}
+      </div>
+
+      {/* Menu Items */}
       <div className="container mx-auto grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-5 justify-items-center px-5">
-        {menuItems.map((item) => (
+        {filteredMenuItems.map((item) => (
           <MenuCard key={item._id} menuItems={item} addToCart={addToCart} />
         ))}
       </div>
+
+      {/* See All Button */}
       <div className="flex justify-center mt-10">
         <button className="bg-yellow-400 text-white py-2 px-6 rounded-lg text-lg">
           See All
@@ -87,6 +128,8 @@ export const getStaticProps: GetStaticProps = async () => {
       name,
       description,
       price,
+      categories,
+      isAvailable, 
       "image": image.asset->url
     }
   `;

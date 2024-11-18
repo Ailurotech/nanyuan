@@ -5,7 +5,10 @@ export interface MenuItem {
   description: string;
   price: number;
   image: string;
+  categories: string[]; 
+  isAvailable: boolean; 
 }
+
 export interface HeroContent {
   title: string;
   backgroundimg: {

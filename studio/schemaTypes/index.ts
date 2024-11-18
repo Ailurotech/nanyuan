@@ -1,6 +1,5 @@
 import { createSchema } from 'sanity';
 import menu from './menu';
-import category from './category';
 import order from './order';
 import booking from './booking';
 import homepage from './homepage';  
@@ -12,7 +11,6 @@ import reservation from './reservation';
 
 export const schemaTypes = [
   menu,
-  category,
   order,
   booking,
   homepage,
