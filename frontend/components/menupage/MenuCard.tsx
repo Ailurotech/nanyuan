@@ -9,7 +9,7 @@ import {
   CardFooter,
 } from '@chakra-ui/react';
 import { MenuItem } from '../../types';
-import { urlFor } from '../../lib/sanityClient';
+import { urlFor } from '../../lib/sanityClient'; // 引入 Sanity 的 URL 优化函数
 
 interface MenuProps {
   menuItems: MenuItem;
@@ -19,7 +19,7 @@ interface MenuProps {
 const MenuCard = ({ menuItems, addToCart }: MenuProps) => {
   const imageUrl = menuItems.image
     ? urlFor(menuItems.image).width(250).height(150).auto('format').url()
-    : null;
+    : null; // 优化图片 URL
 
   return (
     <Card
@@ -31,7 +31,7 @@ const MenuCard = ({ menuItems, addToCart }: MenuProps) => {
       <CardBody className="relative" justifyContent="center">
         {imageUrl ? (
           <Image
-            src={imageUrl}
+            src={imageUrl} // 使用优化后的 URL
             alt={menuItems.name}
             boxSize="150px"
             objectFit="cover"
@@ -41,21 +41,32 @@ const MenuCard = ({ menuItems, addToCart }: MenuProps) => {
             textColor="white"
             mx="auto"
             borderRadius="lg"
-            loading="lazy" 
+            loading="lazy" // 添加懒加载属性
           />
         ) : (
           <div className="bg-gray-500 w-[250px] h-[150px] mx-auto rounded-lg flex items-center justify-center text-white">
             No Image
           </div>
         )}
-        <Stack mt="6" spacing="3" textAlign="center">
+        <Stack
+          mt="6"
+          spacing="3"
+          width="268px"
+          height="100px"
+          className="text-center"
+        >
           <Heading size="md" className="text-white">
-            {menuItems.name}
+            <strong>{menuItems.name}</strong>
           </Heading>
           <Text className="text-white">{menuItems.description}</Text>
         </Stack>
       </CardBody>
-      <CardFooter display="flex" justifyContent="space-between" alignItems="center" mt={10}>
+      <CardFooter
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        mt={10}
+      >
         <Text color="yellow.400" fontSize="xl" fontWeight="bold">
           ${menuItems.price}
         </Text>
@@ -66,6 +77,10 @@ const MenuCard = ({ menuItems, addToCart }: MenuProps) => {
           w="40px"
           h="40px"
           borderRadius="50%"
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          _hover={{ bg: 'black', color: 'white' }}
           onClick={() => addToCart(menuItems)}
         >
           +

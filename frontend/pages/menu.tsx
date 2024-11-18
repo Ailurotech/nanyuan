@@ -152,7 +152,7 @@ const MenuPage = ({ initialMenuItems, initialCategories }: MenuProps) => {
 
 export const getStaticProps: GetStaticProps = async () => {
   const menuQuery = `
-    *[_type == "menu"] | order(_createdAt desc)[0...2]{
+    *[_type == "menu"] | order(_createdAt desc)[0...50]{
       _id,
       name,
       description,
