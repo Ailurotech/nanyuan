@@ -1,4 +1,4 @@
-import {defineType} from 'sanity';
+import {defineType} from 'sanity'
 
 export default defineType({
   name: 'HomePage',
@@ -68,7 +68,7 @@ export default defineType({
       name: 'menuDescription',
       title: 'Menu Description',
       type: 'array',
-      of: [{ type: 'block'}],
+      of: [{type: 'block'}],
       group: 'content',
     },
     {
