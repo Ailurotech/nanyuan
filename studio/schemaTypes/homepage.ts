@@ -1,4 +1,4 @@
-import { defineType } from 'sanity';
+import {defineType} from 'sanity';
 
 export default defineType({
   name: 'HomePage',
@@ -55,7 +55,7 @@ export default defineType({
       name: 'galleryPhotos',
       title: 'Gallery Photos',
       type: 'array',
-      of: [{ type: 'image' }],
+      of: [{type: 'image'}],
       group: 'content',
     },
     {
@@ -68,7 +68,7 @@ export default defineType({
       name: 'menuDescription',
       title: 'Menu Description',
       type: 'array',
-      of: [{ type: 'block' }],
+      of: [{ type:'block'}],
       group: 'content',
     },
     {
@@ -79,9 +79,9 @@ export default defineType({
     },
     {
       name: 'OpeninghourPhotos',
-      title: 'Openinghour Photos',
+      title: 'OpeninghourPhotos',
       type: 'array',
-      of: [{ type: 'image' }],
+      of: [{type: 'image'}],
       group: 'openinghours',
     },
     {
