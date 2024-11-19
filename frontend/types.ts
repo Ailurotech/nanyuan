@@ -91,4 +91,9 @@ export interface FooterContent {
   email: string;
   copyright: string;
   insEmbedId: string;
+  topImage: {
+    asset: {
+      url: string; 
+    };
+  } 
 }

@@ -151,5 +151,11 @@ export default defineType({
       type: 'string',
       group: 'footer',
     },
+    {
+      name: 'topImage',
+      title: 'Top Image',
+      type: 'image',
+      group: 'footer',
+    },
   ],
 });

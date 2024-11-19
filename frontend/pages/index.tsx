@@ -78,7 +78,12 @@ export const getStaticProps: GetStaticProps = async () => {
         email,
         copyright,
         mapEmbedUrl,
-        insEmbedId
+        insEmbedId,
+        topImage {
+          asset -> {
+            url
+          }
+        }
       }
     }
   `;
