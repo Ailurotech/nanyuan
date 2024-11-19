@@ -68,7 +68,7 @@ export default defineType({
       name: 'menuDescription',
       title: 'Menu Description',
       type: 'array',
-      of: [{ type:'block'}],
+      of: [{ type: 'block'}],
       group: 'content',
     },
     {
