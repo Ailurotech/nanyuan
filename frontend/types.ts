@@ -90,4 +90,5 @@ export interface FooterContent {
   phone: string;
   email: string;
   copyright: string;
+  insEmbedId: string;
 }

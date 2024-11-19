@@ -77,7 +77,8 @@ export const getStaticProps: GetStaticProps = async () => {
         phone,
         email,
         copyright,
-        mapEmbedUrl
+        mapEmbedUrl,
+        insEmbedId
       }
     }
   `;

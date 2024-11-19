@@ -53,7 +53,7 @@ export default function FooterInfo({ footerContent }: FooterInfoProps) {
           </div>
         </div>
       </div>
-      <hr className="border-t border-gray-300 opacity-50 my-4 lg:w-[1024px] md:w-[768px] xl:w-[70%] mx-auto mt-1w" />
+      <hr className="border-t border-gray-300 opacity-50 my-4 lg:w-[1024px] md:w-[768px] xl:w-[70%] mx-auto mt-[5vh]" />
       <div className="flex flex-col-reverse gap-5 md:flex-row md:justify-between items-center lg:w-[1024px] md:w-[768px] w-[320px] xl:w-[70%] h-auto pb-10 mx-auto mt-2">
         <div className="text-center md:text-left mb-4 md:mb-0">
           <p className="text-sm text-white">

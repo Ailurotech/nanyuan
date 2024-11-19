@@ -10,7 +10,7 @@ interface FooterProps {
 export default function Footer({ footerContent }: FooterProps) {
   return (
     <div className="w-full h-auto bg-[#1E1E1E]">
-      <InsEmbed />
+      <InsEmbed insEmbedId={footerContent.insEmbedId} />
       <FooterInfo footerContent={footerContent} />
     </div>
   );
