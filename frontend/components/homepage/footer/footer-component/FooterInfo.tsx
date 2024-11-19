@@ -38,7 +38,7 @@ export default function FooterInfo({ footerContent }: FooterInfoProps) {
             {Object.values(NavigationRoute).map((route) => (
               <li
                 key={route.Name}
-                className="text-xl text-white leading-loose list-none no-wrap"
+                className="text-xl text-white leading-loose list-none no-wrap hover:text-yellow-500 transition-all duration-300"
               >
                 <Link href={route.Path}>{route.Name}</Link>
               </li>
@@ -68,7 +68,7 @@ export default function FooterInfo({ footerContent }: FooterInfoProps) {
             <Link key={route.Name} href={route.Path} target="_blank">
               <Icon
                 name={route.Name as Icon}
-                className="stroke-[2px] text-yellow-500 w-6 h-6"
+                className="stroke-[2px] text-yellow-500 w-6 h-6 hover:scale-110 transition-all duration-300"
               />
             </Link>
           ))}
