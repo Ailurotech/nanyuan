@@ -31,9 +31,22 @@ export default defineType({
       type: 'string',
     },
     {
+      name: 'endTime',
+      title: 'End Time',
+      type: 'string',
+      description: 'The end time of the reservation, calculated based on the start time and duration.',
+    },
+    {
       name: 'guests',
       title: 'Guests',
       type: 'string',
+    },
+    {
+      name: 'table',
+      title: 'Table',
+      type: 'reference', 
+      to: [{ type: 'table' }],
+      description: 'The type of table assigned to this reservation.',
     },
     {
       name: 'preference',
