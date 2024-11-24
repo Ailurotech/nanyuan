@@ -1,5 +1,6 @@
 import { Table } from '@/types';
 import { sanityClient } from '@/lib/sanityClient';
+import { DateTime } from 'luxon';
 
 interface CheckAvailabilityResult {
   status: 'success' | 'error';
@@ -27,16 +28,14 @@ function validateAvailableTables(tables: Table[]): CheckAvailabilityResult {
 }
 
 function validateReservationTime(reservationDate: string, reservationTime: string): CheckAvailabilityResult {
-  const now = new Date();
-  const reservationStart = new Date(`${reservationDate}T${reservationTime}`);
+  const now = DateTime.now();
+  const reservationStart = DateTime.fromISO(`${reservationDate}T${reservationTime}`);
   
   if (reservationStart <= now) {
     return { status: 'error', message: 'Cannot book for a past date or time.' };
   }
 
-  const minAllowedDateTime = new Date(now);
-  minAllowedDateTime.setHours(now.getHours() + 24);
-
+  const minAllowedDateTime = now.plus({ hours: 24 }); 
   return reservationStart < minAllowedDateTime
     ? { status: 'error', message: 'Reservations must be made at least 24 hours in advance.' }
     : { status: 'success' };
@@ -59,7 +58,7 @@ async function checkTableConflicts(
   reservationTime: string
 ): Promise<CheckAvailabilityResult> {
   try {
-    const reservationStart = new Date(`${reservationDate}T${reservationTime}`);
+    const reservationStart = DateTime.fromISO(`${reservationDate}T${reservationTime}`);
 
     const query = `
       *[_type == "reservation" && table._ref == $tableId && date == $date] {
@@ -73,13 +72,13 @@ async function checkTableConflicts(
     });
 
     const conflicts = reservations.filter((reservation) => {
-      const resStart = new Date(`${reservationDate}T${reservation.time}`);
-      const resEnd = new Date(resStart);
-      resEnd.setHours(resEnd.getHours() + 3); 
+      const resStart = DateTime.fromISO(`${reservationDate}T${reservation.time}`);
+      const resEnd = resStart.plus({ hours: 3 }); 
+      const targetEnd = reservationStart.plus({ hours: 3 });  
 
       return (
         (reservationStart >= resStart && reservationStart < resEnd) || 
-        (resStart >= reservationStart && resStart < new Date(reservationStart.getTime() + 3 * 60 * 60 * 1000)) // 已有订单开始时间在目标时间内
+        (resStart >= reservationStart && resStart < targetEnd) 
       );
     });
 
@@ -94,7 +93,6 @@ async function checkTableConflicts(
 
   return { status: 'success' };
 }
-
 
 async function checkAvailability(
   tables: Table[],
