@@ -52,5 +52,10 @@ export default defineType({
       title: 'Special Requests or Notes',
       type: 'string',
     },
+    {
+      name: 'confirmed',
+      title: 'Confirmed',
+      type: 'boolean',
+    },
   ],
 });
