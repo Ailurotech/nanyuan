@@ -101,29 +101,30 @@ async function checkAvailability(
   reservationTime: string,
   otp: boolean
 ): Promise<CheckAvailabilityResult> {
-  const otpValidation = validateOtp(otp);
-  if (otpValidation.status === 'error') return otpValidation;
+  let result: CheckAvailabilityResult = { status: 'success' }; 
+  
+  result = validateOtp(otp);
+  if (result.status === 'error') return result;
 
-  const guestValidation = validateGuestCount(guests);
-  if (guestValidation.status === 'error') return guestValidation;
+  result = validateGuestCount(guests);
+  if (result.status === 'error') return result;
 
-  const tableValidation = validateAvailableTables(tables);
-  if (tableValidation.status === 'error') return tableValidation;
+  result = validateAvailableTables(tables);
+  if (result.status === 'error') return result;
 
-  const timeValidation = validateReservationTime(reservationDate, reservationTime);
-  if (timeValidation.status === 'error') return timeValidation;
+  result = validateReservationTime(reservationDate, reservationTime);
+  if (result.status === 'error') return result;
 
-  const tableResult = findTable(tables, guests);
-  if (tableResult.status === 'error') return tableResult;
+  result = findTable(tables, guests);
+  if (result.status === 'error') return result;
 
-  const conflictValidation = await checkTableConflicts(
-    tableResult.table!,
+  result = await checkTableConflicts(
+    result.table!,
     reservationDate,
     reservationTime
   );
-  if (conflictValidation.status === 'error') return conflictValidation;
-
-  return tableResult;
+  if (result.status === 'error') return result;
+  return result;
 }
 
 export default checkAvailability;
