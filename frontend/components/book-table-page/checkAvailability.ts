@@ -56,11 +56,10 @@ function findTable(tables: Table[], guests: string): CheckAvailabilityResult {
 async function checkTableConflicts(
   tableId: string,
   reservationDate: string,
-  reservationStart: Date
+  reservationTime: string
 ): Promise<CheckAvailabilityResult> {
   try {
-    const reservationBefore = new Date(reservationStart);
-    reservationBefore.setHours(reservationStart.getHours() - 2);
+    const reservationStart = new Date(`${reservationDate}T${reservationTime}`);
 
     const query = `
       *[_type == "reservation" && table._ref == $tableId && date == $date] {
@@ -74,8 +73,14 @@ async function checkTableConflicts(
     });
 
     const conflicts = reservations.filter((reservation) => {
-      const resTime = new Date(`${reservationDate}T${reservation.time}`);
-      return resTime >= reservationBefore && resTime <= reservationStart;
+      const resStart = new Date(`${reservationDate}T${reservation.time}`);
+      const resEnd = new Date(resStart);
+      resEnd.setHours(resEnd.getHours() + 3); 
+
+      return (
+        (reservationStart >= resStart && reservationStart < resEnd) || 
+        (resStart >= reservationStart && resStart < new Date(reservationStart.getTime() + 3 * 60 * 60 * 1000)) // 已有订单开始时间在目标时间内
+      );
     });
 
     const table = await sanityClient.getDocument(tableId);
@@ -89,6 +94,7 @@ async function checkTableConflicts(
 
   return { status: 'success' };
 }
+
 
 async function checkAvailability(
   tables: Table[],
@@ -112,8 +118,11 @@ async function checkAvailability(
   const tableResult = findTable(tables, guests);
   if (tableResult.status === 'error') return tableResult;
 
-  const reservationStart = new Date(`${reservationDate}T${reservationTime}`);
-  const conflictValidation = await checkTableConflicts(tableResult.table!, reservationDate, reservationStart);
+  const conflictValidation = await checkTableConflicts(
+    tableResult.table!,
+    reservationDate,
+    reservationTime
+  );
   if (conflictValidation.status === 'error') return conflictValidation;
 
   return tableResult;
