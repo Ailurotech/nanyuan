@@ -13,8 +13,7 @@ import { Restaurant, Table } from '@/types';
 import { isValidTime } from './timeUtils';
 import clsx from 'clsx';
 import { sanityClient } from '@/lib/sanityClient';
-import findSuitableTable from './findSuitableTable';
-
+import checkAvailability from './checkAvailability';
 
 
 interface BooktablePageProps {
@@ -34,7 +33,6 @@ type FormData = {
 };
 
 export function BooktablePage({ restaurant, tables }: BooktablePageProps) {
-  
   
   const requiredField = zod.string().min(1, { message: 'Required Field' });
   const phoneSchema = zod.string()
@@ -98,14 +96,7 @@ export function BooktablePage({ restaurant, tables }: BooktablePageProps) {
   const { timeLeft, isRunning, startTimer } = useTimer(60); 
   
   const onSubmit = async (data: FormData) => {
-    let result: { status: 'success' | 'error'; table?: string; message?: string } = {status: 'success'};
-    
-    if (!verifyOtp) {
-      result = { status: 'error', message: 'Please verify your phone number first.' };
-    }
-
-    result = await findSuitableTable(tables, data.guests, data.date, data.time);
-  
+    const result = await checkAvailability(tables, data.guests, data.date, data.time, verifyOtp);
     if (result.status === 'error') {
       alert(result.message);
       return;
