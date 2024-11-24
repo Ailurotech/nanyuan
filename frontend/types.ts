@@ -77,9 +77,16 @@ export interface Restaurant {
   Weekdaytime: Duration;
   Weekandtime: Duration;
   blacklist: string[];
+  tables: Table[]; 
 }
 
 export interface Duration {
   start: string; 
   end: string;   
+}
+
+export interface Table {
+  type: string;   
+  quantity: number; 
+  _id: string;
 }

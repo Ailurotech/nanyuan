@@ -3,20 +3,23 @@ import { ControlledTestArea } from '@/components/common/ControlledTestArea';
 import { ControlledSelect } from '@/components/common/ControlledSelect';
 import { Button } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
-import { InputsContainer } from '@/components/Take-away-page/component/InputsContainer';
+import { InputsContainer } from '@/components/take-away-page/component/InputsContainer';
 import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as zod from 'zod';
 import VerifyOtpModal from '@/components/book-table-page/VerifyOtpModal';
 import useTimer from './useTimer'; 
-import { Restaurant } from '@/types';
+import { Restaurant, Table } from '@/types';
 import { isValidTime } from './timeUtils';
 import clsx from 'clsx';
 import { sanityClient } from '@/lib/sanityClient';
+import findSuitableTable from './findSuitableTable';
+
 
 
 interface BooktablePageProps {
   restaurant: Restaurant;
+  tables: Table[];
 }
 
 type FormData = {
@@ -30,7 +33,8 @@ type FormData = {
   date: string;
 };
 
-export function BooktablePage({ restaurant }: BooktablePageProps) {
+export function BooktablePage({ restaurant, tables }: BooktablePageProps) {
+  
   
   const requiredField = zod.string().min(1, { message: 'Required Field' });
   const phoneSchema = zod.string()
@@ -94,20 +98,38 @@ export function BooktablePage({ restaurant }: BooktablePageProps) {
   const { timeLeft, isRunning, startTimer } = useTimer(60); 
   
   const onSubmit = async (data: FormData) => {
-    if (verifyOtp) {
-        try {
-            await sanityClient.create({
-                _type: 'reservation',
-                ...data, 
-            });
-        } catch (error) {
-            console.error('Error creating reservation:', error);
-            alert('Failed to book a table. Please try again later.');
-        }
-    } else {
-        alert('Please verify your phone number');
+    let result: { status: 'success' | 'error'; table?: string; message?: string } = {status: 'success'};
+    
+    if (!verifyOtp) {
+      result = { status: 'error', message: 'Please verify your phone number first.' };
     }
-  };
+
+    result = await findSuitableTable(tables, data.guests, data.date, data.time);
+  
+    if (result.status === 'error') {
+      alert(result.message);
+      return;
+    }
+  
+    const reservationData = {
+      ...data,
+      table: {
+        _type: 'reference',
+        _ref: result.table, 
+      },
+    };
+  
+    try {
+      await sanityClient.create({
+        _type: 'reservation',
+        ...reservationData,
+      });
+      alert('Table booked successfully!');
+    } catch (error) {
+      console.error('Error creating reservation:', error);
+      alert('Failed to book a table. Please try again later.');
+    }
+  }; 
   
   const Sendotp = async () => {
     const result = await trigger('phone');
