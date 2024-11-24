@@ -28,15 +28,12 @@ async function findSuitableTable(
     .sort((a, b) => parseInt(a.type, 10) - parseInt(b.type, 10))[0];
 
   if (!suitableTable) {
-    return { status: 'error', message: 'No suitable table found for the given guest count' };
+    return { status: 'error', message: 'No suitable table found for the given guest count, please contact us for a larger table.' };
   }
 
-  // 检查该桌子在预定时间及前后 2 小时内的订单
   try {
     const reservationStart = new Date(`${reservationDate}T${reservationTime}`);
-    const reservationEnd = new Date(reservationStart);
     const reservationBefore = new Date(reservationStart);
-    reservationEnd.setHours(reservationStart.getHours() + 2);
     reservationBefore.setHours(reservationStart.getHours() - 2);
 
     const query = `
@@ -49,14 +46,11 @@ async function findSuitableTable(
       tableId: suitableTable._id,
       date: reservationDate,
     });
-    console.log(reservations);
-    console.log(suitableTable.quantity);
 
     const conflicts = reservations.filter((reservation) => {
       const resTime = new Date(`${reservationDate}T${reservation.time}`);
-      return resTime >= reservationBefore && resTime <= reservationEnd;
+      return resTime >= reservationBefore && resTime <= reservationStart;
     });
-
 
     if (conflicts.length >= suitableTable.quantity) {
       return {
