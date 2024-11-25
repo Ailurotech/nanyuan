@@ -117,7 +117,6 @@ async function checkAvailability(
   result = findTable(tables, guests);
   if (result.status === 'error') return result;
 
-  console.log(result.table);
 
   result = await checkTableConflicts(
     result.table!,
