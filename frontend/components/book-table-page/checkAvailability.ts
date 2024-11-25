@@ -59,31 +59,29 @@ async function checkTableConflicts(
 ): Promise<CheckAvailabilityResult> {
   try {
     const reservationStart = DateTime.fromISO(`${reservationDate}T${reservationTime}`);
+    const bufferStart = reservationStart.minus({ hours: 2 }); // 提前 2 小时
 
+  
+    const bufferStartISO = bufferStart.toISO();
+    const bufferEndISO = reservationStart.toISO();
+
+    
     const query = `
-      *[_type == "reservation" && table._ref == $tableId && date == $date] {
-        time
+      *[_type == "reservation" && table._ref == $tableId && date == $date && 
+        time >= $start && time < $end] {
+          time
       }
     `;
 
     const reservations = await sanityClient.fetch<{ time: string }[]>(query, {
       tableId,
       date: reservationDate,
-    });
-
-    const conflicts = reservations.filter((reservation) => {
-      const resStart = DateTime.fromISO(`${reservationDate}T${reservation.time}`);
-      const resEnd = resStart.plus({ hours: 3 }); 
-      const targetEnd = reservationStart.plus({ hours: 3 });  
-
-      return (
-        (reservationStart >= resStart && reservationStart < resEnd) || 
-        (resStart >= reservationStart && resStart < targetEnd) 
-      );
+      start: bufferStartISO,
+      end: bufferEndISO,
     });
 
     const table = await sanityClient.getDocument(tableId);
-    if (conflicts.length >= (table?.quantity || 0)) {
+    if (reservations.length >= (table?.quantity || 0)) {
       return { status: 'error', message: `No availability for this table at this time, please contact us.` };
     }
   } catch (error) {
@@ -91,8 +89,9 @@ async function checkTableConflicts(
     return { status: 'error', message: 'Error checking availability.' };
   }
 
-  return { status: 'success' };
+  return { status: 'success', table: tableId };
 }
+
 
 async function checkAvailability(
   tables: Table[],
@@ -118,12 +117,15 @@ async function checkAvailability(
   result = findTable(tables, guests);
   if (result.status === 'error') return result;
 
+  console.log(result.table);
+
   result = await checkTableConflicts(
     result.table!,
     reservationDate,
     reservationTime
   );
   if (result.status === 'error') return result;
+
   return result;
 }
 
