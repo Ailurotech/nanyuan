@@ -21,14 +21,9 @@ export default defineType({
       type: 'string',
     },
     {
-      name: 'date',
-      title: 'Date',
-      type: 'string',
-    },
-    {
       name: 'time',
       title: 'Time',
-      type: 'string',
+      type: 'datetime',
     },
     {
       name: 'guests',

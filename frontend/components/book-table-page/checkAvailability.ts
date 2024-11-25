@@ -59,28 +59,28 @@ async function checkTableConflicts(
 ): Promise<CheckAvailabilityResult> {
   try {
     const reservationStart = DateTime.fromISO(`${reservationDate}T${reservationTime}`);
-    const bufferStart = reservationStart.minus({ hours: 2 }); // 提前 2 小时
-
-  
-    const bufferStartISO = bufferStart.toISO();
-    const bufferEndISO = reservationStart.toISO();
-
     
+    const bufferStart = reservationStart.minus({ hours: 1 });
+    const bufferEnd = reservationStart.plus({ hours: 1 });
+
+    const bufferStartISO = bufferStart.toISO();
+    const bufferEndISO = bufferEnd.toISO();
+
     const query = `
-      *[_type == "reservation" && table._ref == $tableId && date == $date && 
-        time >= $start && time < $end] {
+      *[_type == "reservation" && table._ref == $tableId && 
+        time >= $bufferStart && time < $bufferEnd] {
           time
       }
     `;
 
-    const reservations = await sanityClient.fetch<{ time: string }[]>(query, {
+    const reservations = await sanityClient.fetch<{ datetime: string }[]>(query, {
       tableId,
-      date: reservationDate,
-      start: bufferStartISO,
-      end: bufferEndISO,
+      bufferStart: bufferStartISO,
+      bufferEnd: bufferEndISO,
     });
 
     const table = await sanityClient.getDocument(tableId);
+
     if (reservations.length >= (table?.quantity || 0)) {
       return { status: 'error', message: `No availability for this table at this time, please contact us.` };
     }
@@ -91,6 +91,7 @@ async function checkTableConflicts(
 
   return { status: 'success', table: tableId };
 }
+
 
 
 async function checkAvailability(
@@ -124,7 +125,7 @@ async function checkAvailability(
     reservationTime
   );
   if (result.status === 'error') return result;
-
+  
   return result;
 }
 

@@ -108,6 +108,7 @@ export function BooktablePage({ restaurant, tables }: BooktablePageProps) {
         _type: 'reference',
         _ref: result.table, 
       },
+      time: `${data.date}T${data.time}`,
     };
   
     try {
