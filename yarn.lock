@@ -7450,6 +7450,11 @@ base@^0.11.1:
     mixin-deep "^1.2.0"
     pascalcase "^0.1.1"
 
+behold@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/behold/-/behold-0.2.0.tgz#35e8c45bdeb3980e7e41888fd027528fd8eb72e9"
+  integrity sha512-rvL5yBMkmrhIOm+BmaIn3BLZeKAJ3j205T6KKY1y9kXZyMx9oeT3u+OohqWSSBct13LbeSMevNYCJOKWuQ2KZg==
+
 bidi-js@^1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/bidi-js/-/bidi-js-1.0.3.tgz#6f8bcf3c877c4d9220ddf49b9bb6930c88f877d2"

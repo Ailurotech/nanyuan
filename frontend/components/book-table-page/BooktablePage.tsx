@@ -96,32 +96,37 @@ export function BooktablePage({ restaurant, tables }: BooktablePageProps) {
   const { timeLeft, isRunning, startTimer } = useTimer(60); 
   
   const onSubmit = async (data: FormData) => {
+
     const result = await checkAvailability(tables, data.guests, data.date, data.time, verifyOtp);
+  
     if (result.status === 'error') {
       alert(result.message);
       return;
     }
-  
-    const reservationData = {
-      ...data,
-      table: {
-        _type: 'reference',
-        _ref: result.table, 
-      },
-      time: `${data.date}T${data.time}`,
-    };
+    const datetime = `${data.date}T${data.time}`;
   
     try {
       await sanityClient.create({
         _type: 'reservation',
-        ...reservationData,
+        name: data.name,
+        phone: data.phone,
+        email: data.email,
+        guests: data.guests,
+        preference: data.preference,
+        notes: data.notes,
+        time: datetime, 
+        table: {
+          _type: 'reference',
+          _ref: result.tableId, 
+        },
       });
       alert('Table booked successfully!');
     } catch (error) {
       console.error('Error creating reservation:', error);
       alert('Failed to book a table. Please try again later.');
     }
-  }; 
+  };
+  
   
   const Sendotp = async () => {
     const result = await trigger('phone');
