@@ -120,7 +120,7 @@ export function BooktablePage({ restaurant, tables }: BooktablePageProps) {
           _ref: result.tableId, 
         },
       });
-      alert('Table booked successfully!');
+      //redirect to the success page
     } catch (error) {
       console.error('Error creating reservation:', error);
       alert('Failed to book a table. Please try again later.');
