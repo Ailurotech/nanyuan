@@ -13,19 +13,15 @@ const validateInitialConditions = (
   guests: string,
   tables: Table[]
 ): CheckAvailabilityResult => {
-  if (!otp) return { status: 'error', message: 'OTP not verified' };
-
-  const guestCount = parseInt(guests, 10);
-  if (isNaN(guestCount) || guestCount <= 0) {
-    return { status: 'error', message: 'Invalid guest count' };
-  }
-
-  if (!tables || tables.length === 0) {
-    return { status: 'error', message: 'No tables available' };
-  }
-
-  return { status: 'success' };
+  return !otp
+    ? { status: 'error', message: 'OTP not verified' }
+    : isNaN(parseInt(guests, 10)) || parseInt(guests, 10) <= 0
+    ? { status: 'error', message: 'Invalid guest count' }
+    : (!tables || tables.length === 0)
+    ? { status: 'error', message: 'No tables available' }
+    : { status: 'success' };
 };
+
 
 const validateReservationTime = (
   reservationDate: string,
@@ -34,20 +30,13 @@ const validateReservationTime = (
   const now = DateTime.now();
   const reservationStart = DateTime.fromISO(`${reservationDate}T${reservationTime}`);
 
-  if (reservationStart <= now) {
-    return { status: 'error', message: 'Cannot book for a past date or time.' };
-  }
-
-  const minAllowedDateTime = now.plus({ hours: 24 });
-  if (reservationStart < minAllowedDateTime) {
-    return {
-      status: 'error',
-      message: 'Reservations must be made at least 24 hours in advance.',
-    };
-  }
-
-  return { status: 'success' };
+  return reservationStart <= now
+    ? { status: 'error', message: 'Cannot book for a past date or time.' }
+    : reservationStart < now.plus({ hours: 24 })
+    ? { status: 'error', message: 'Reservations must be made at least 24 hours in advance.' }
+    : { status: 'success' };
 };
+
 
 const findTable = (
   tables: Table[],
@@ -58,15 +47,11 @@ const findTable = (
     .filter((table) => parseInt(table.type, 10) >= guestCount)
     .sort((a, b) => parseInt(a.type, 10) - parseInt(b.type, 10))[0];
 
-  if (suitableTable) {
-    return { status: 'success', tableId: suitableTable._id};
-  }
-
-  return {
-    status: 'error',
-    message: 'No suitable table found for the given guest count, please contact us for a larger table.',
-  };
+  return suitableTable
+    ? { status: 'success', tableId: suitableTable._id }
+    : { status: 'error', message: 'No suitable table found for the given guest count, please contact us for a larger table.' };
 };
+
 
 const checkTableConflicts = async (
   tableId: string,
@@ -93,20 +78,15 @@ const checkTableConflicts = async (
 
     const table = await sanityClient.getDocument(tableId);
 
-
-    if (reservations.length >= (table?.quantity || 0)) {
-      return {
-        status: 'error',
-        message: 'No availability for this table at this time, please contact us.',
-      };
-    }
-
-    return { status: 'success', tableId };
+    return reservations.length >= (table?.quantity || 0)
+      ? { status: 'error', message: 'No availability for this table at this time, please contact us.' }
+      : { status: 'success', tableId };
   } catch (error) {
     console.error('Error checking reservations:', error);
     return { status: 'error', message: 'Error checking availability.' };
   }
 };
+
 
 const checkAvailability = async (
   tables: Table[],
