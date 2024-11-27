@@ -90,3 +90,17 @@ export interface Table {
   quantity: number; 
   _id: string;
 }
+
+export interface FooterContent {
+  mapEmbedUrl: string;
+  address: string;
+  phone: string;
+  email: string;
+  copyright: string;
+  insEmbedId: string;
+  topImage: {
+    asset: {
+      url: string; 
+    };
+  };
+}
