@@ -3,9 +3,8 @@ import { sanityClient } from '@/lib/sanityClient';
 import { DateTime } from 'luxon';
 
 interface CheckAvailabilityResult {
-  status: 'success' | 'error';
   tableId?: string;
-  message?: string;
+  errorMessage?: string;
 }
 
 const validateInitialConditions = (
@@ -14,14 +13,13 @@ const validateInitialConditions = (
   tables: Table[]
 ): CheckAvailabilityResult => {
   return !otp
-    ? { status: 'error', message: 'OTP not verified' }
+    ? { errorMessage: 'OTP not verified' }
     : isNaN(parseInt(guests, 10)) || parseInt(guests, 10) <= 0
-    ? { status: 'error', message: 'Invalid guest count' }
+    ? { errorMessage: 'Invalid guest count' }
     : (!tables || tables.length === 0)
-    ? { status: 'error', message: 'No tables available' }
-    : { status: 'success' };
+    ? { errorMessage: 'No tables available' }
+    : {}; 
 };
-
 
 const validateReservationTime = (
   reservationDate: string,
@@ -31,12 +29,11 @@ const validateReservationTime = (
   const reservationStart = DateTime.fromISO(`${reservationDate}T${reservationTime}`);
 
   return reservationStart <= now
-    ? { status: 'error', message: 'Cannot book for a past date or time.' }
+    ? { errorMessage: 'Cannot book for a past date or time.' }
     : reservationStart < now.plus({ hours: 24 })
-    ? { status: 'error', message: 'Reservations must be made at least 24 hours in advance.' }
-    : { status: 'success' };
+    ? { errorMessage: 'Reservations must be made at least 24 hours in advance.' }
+    : {}; 
 };
-
 
 const findTable = (
   tables: Table[],
@@ -48,10 +45,9 @@ const findTable = (
     .sort((a, b) => parseInt(a.type, 10) - parseInt(b.type, 10))[0];
 
   return suitableTable
-    ? { status: 'success', tableId: suitableTable._id }
-    : { status: 'error', message: 'No suitable table found for the given guest count, please contact us for a larger table.' };
+    ? { tableId: suitableTable._id }  
+    : { errorMessage: 'No suitable table found for the given guest count, please contact us for a larger table.' };
 };
-
 
 const checkTableConflicts = async (
   tableId: string,
@@ -79,14 +75,13 @@ const checkTableConflicts = async (
     const table = await sanityClient.getDocument(tableId);
 
     return reservations.length >= (table?.quantity || 0)
-      ? { status: 'error', message: 'No availability for this table at this time, please contact us.' }
-      : { status: 'success', tableId };
+      ? { errorMessage: 'No availability for this table at this time, please contact us.' }
+      : { tableId }; 
   } catch (error) {
     console.error('Error checking reservations:', error);
-    return { status: 'error', message: 'Error checking availability.' };
+    return { errorMessage: 'Error checking availability.' };  
   }
 };
-
 
 const checkAvailability = async (
   tables: Table[],
@@ -95,21 +90,21 @@ const checkAvailability = async (
   reservationTime: string,
   otp: boolean
 ): Promise<CheckAvailabilityResult> => {
-  let result: CheckAvailabilityResult = { status: 'success' }; 
+  let result: CheckAvailabilityResult = {};  
 
   const validations = [
     () => validateInitialConditions(otp, guests, tables),
     () => validateReservationTime(reservationDate, reservationTime),
     () => findTable(tables, guests),
-    async () => checkTableConflicts(result.tableId!, reservationDate, reservationTime), 
+    async () => checkTableConflicts(result.tableId!, reservationDate, reservationTime),
   ];
 
   for (const validation of validations) {
-    result = await validation(); 
-    if (result.status === 'error') return result;
+    result = await validation();  
+    if (result.errorMessage) return result;  
   }
-  return { status: 'success', tableId: result.tableId }; 
-};
 
+  return result; 
+};
 
 export default checkAvailability;

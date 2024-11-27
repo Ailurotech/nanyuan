@@ -99,8 +99,8 @@ export function BooktablePage({ restaurant, tables }: BooktablePageProps) {
 
     const result = await checkAvailability(tables, data.guests, data.date, data.time, verifyOtp);
   
-    if (result.status === 'error') {
-      alert(result.message);
+    if (result.errorMessage) {
+      alert(result.errorMessage);
       return;
     }
     const datetime = `${data.date}T${data.time}`;
