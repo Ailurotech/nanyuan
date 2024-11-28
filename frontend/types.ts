@@ -88,5 +88,19 @@ export interface Duration {
 }
 
 export interface Category {
-  name: string;
+  name: string; 
+}
+
+export interface FooterContent {
+  mapEmbedUrl: string; 
+  address: string; 
+  phone: string; 
+  email: string; 
+  copyright: string; 
+  insEmbedId: string; 
+  topImage: {
+    asset: {
+      url: string; 
+    };
+  };
 }

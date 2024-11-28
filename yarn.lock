@@ -2516,6 +2516,11 @@
     "@babel/helper-validator-identifier" "^7.24.7"
     to-fast-properties "^2.0.0"
 
+"@behold/react@^0.1.10":
+  version "0.1.10"
+  resolved "https://registry.yarnpkg.com/@behold/react/-/react-0.1.10.tgz#6a3e87c7a3532c15bdad03bcb6d076cb6282f025"
+  integrity sha512-0qJQ9WVPSmoGLAEQrBzYt1Wdm72mPUDeNqB4Raf5dttH5hzLEuXCKZalR7A1usSOdo8I0MuP3AcQV6+i4zKKyQ==
+
 "@chakra-ui/accordion@2.3.1":
   version "2.3.1"
   resolved "https://registry.yarnpkg.com/@chakra-ui/accordion/-/accordion-2.3.1.tgz#a326509e286a5c4e8478de9bc2b4b05017039e6b"

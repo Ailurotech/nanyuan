@@ -5,9 +5,11 @@ export default defineType({
   title: 'HomePage',
   type: 'document',
   groups: [
-    {name: 'hero', title: 'Hero'},
-    {name: 'content', title: 'Content'},
-    {name: 'openinghours', title: 'Openinghours'},
+    { name: 'hero', title: 'Hero' },
+    { name: 'content', title: 'Content' },
+    { name: 'openinghours', title: 'Opening Hours' },
+    { name: 'instagram', title: 'Instagram' },
+    { name: 'footer', title: 'Footer' },
   ],
   fields: [
     {
@@ -113,5 +115,47 @@ export default defineType({
       ],
       group: 'openinghours',
     },
+    {
+      name: 'address',
+      title: 'Address',
+      type: 'string',
+      group: 'footer',
+    },
+    {
+      name: 'phone',
+      title: 'Phone',
+      type: 'string',
+      group: 'footer',
+    },
+    {
+      name: 'email',
+      title: 'Email',
+      type: 'string',
+      group: 'footer',
+    },
+    {
+      name: 'copyright',
+      title: 'Copyright',
+      type: 'string',
+      group: 'footer',
+    },
+    {
+      name: 'mapEmbedUrl',
+      title: 'Map Embed URL',
+      type: 'string',
+      group: 'footer',
+    },
+    {
+      name: 'insEmbedId',
+      title: 'Instagram Embed ID',
+      type: 'string',
+      group: 'footer',
+    },
+    {
+      name: 'topImage',
+      title: 'Top Image',
+      type: 'image',
+      group: 'footer',
+    },
   ],
-})
+});
