@@ -1,7 +1,7 @@
 import { GetStaticProps } from 'next';
-import { sanityClient } from '../lib/sanityClient';
 import { MenuItem, ShoppingCartItem, Category } from '../types';
 import MenuCard from '../components/menupage/MenuCard';
+import { fetchMenuItemsByCate, fetchTotalCount, fetchCategories } from '@/components/menupage/menuService';
 import { useState, useEffect } from 'react';
 import { RiShoppingBagLine } from 'react-icons/ri';
 import Link from 'next/link';
@@ -10,15 +10,18 @@ import { ShoppingCart } from '@/components/homepage/route';
 interface MenuProps {
   initialMenuItems: MenuItem[];
   initialCategories: Category[];
+  totalCount: number;
+  totalPages: number;
+  pageSize: number;
 }
 
-const MenuPage = ({ initialMenuItems, initialCategories }: MenuProps) => {
+const MenuPage = ({ initialMenuItems, initialCategories, totalCount, totalPages, pageSize }: MenuProps) => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>(initialMenuItems);
   const [cart, setCart] = useState<ShoppingCartItem[]>([]);
   const [cartCount, setCartCount] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [isLoading, setIsLoading] = useState(false);
-  const [isAllLoaded, setIsAllLoaded] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const categories = ['All', ...Array.from(new Set(initialCategories.map((cat) => cat.name)))];
 
@@ -51,45 +54,45 @@ const MenuPage = ({ initialMenuItems, initialCategories }: MenuProps) => {
     localStorage.setItem('cart', JSON.stringify(updatedCart));
   };
 
-  const fetchAllMenuItems = async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetch(`/api/getMenuItems`);
-      const data = await response.json();
-      setMenuItems(data.menuItems);
-      setIsAllLoaded(true);
-    } catch (error) {
-      console.error('Failed to fetch menu items:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const fetchMenuItemsByCategory = async (category: string) => {
-    setIsLoading(true);
-    try {
-      const queryParam = category === 'All' ? '' : `?category=${category}`;
-      const response = await fetch(`/api/getMenuItems${queryParam}`);
-      const data = await response.json();
-      setMenuItems(data.menuItems);
-      setIsAllLoaded(true);
-    } catch (error) {
-      console.error('Failed to fetch menu items:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleCategoryClick = (category: string) => {
+  const handleCategoryClick = async (category: string) => {
     setSelectedCategory(category);
-    fetchMenuItemsByCategory(category);
+    setIsLoading(true);
+    try {
+      const fetchedMenuItems =
+        category === 'All'
+          ? await fetchMenuItemsByCate(category, 0, pageSize)
+          : await fetchMenuItemsByCate(category);
+  
+      setMenuItems(fetchedMenuItems);
+      setCurrentPage(category === 'All' ? 1 : currentPage); 
+    } catch (error) {
+      console.error('Error fetching menu items:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+
+  const handlePageChange = async (page: number) => {
+    if (selectedCategory !== 'All') return;
+
+    setIsLoading(true);
+    try {
+      const offset = (page - 1) * pageSize;
+      const fetchedMenuItems = await fetchMenuItemsByCate(selectedCategory, offset, pageSize);
+      setMenuItems(fetchedMenuItems);
+      setCurrentPage(page);
+    } catch (error) {
+      console.error('Error fetching paginated menu items:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const filteredMenuItems = menuItems.filter((item) => item.isAvailable === true);
 
   return (
     <div className="bg-black min-h-screen py-12 pt-40">
-      {/* Header */}
       <div className="container mx-auto flex items-center justify-center relative">
         <h1 className="text-center text-white text-4xl font-bold mb-8 grow">
           Choose Our Menu
@@ -109,7 +112,6 @@ const MenuPage = ({ initialMenuItems, initialCategories }: MenuProps) => {
         </Link>
       </div>
 
-      {/* Categories */}
       <div className="flex flex-wrap gap-2 justify-center w-3/4 mx-auto text-white mb-8">
         {categories.map((category) => (
           <button
@@ -127,23 +129,28 @@ const MenuPage = ({ initialMenuItems, initialCategories }: MenuProps) => {
         ))}
       </div>
 
-      {/* Menu Items */}
       <div className="container mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10 px-5 justify-items-center">
         {filteredMenuItems.map((item) => (
           <MenuCard key={item._id} menuItems={item} addToCart={addToCart} />
         ))}
       </div>
 
-      {/* Load More */}
-      {!isAllLoaded && (
-        <div className="flex justify-center mt-10">
-          <button
-            className="bg-yellow-400 text-black py-2 px-6 rounded-lg text-lg"
-            onClick={fetchAllMenuItems}
-            disabled={isLoading}
-          >
-            {isLoading ? 'Loading...' : 'See All'}
-          </button>
+      {selectedCategory === 'All' && (
+        <div className="flex justify-center mt-8">
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <button
+              key={page}
+              className={`mx-1 px-4 py-2 border rounded ${
+                currentPage === page
+                  ? 'bg-yellow-500 text-black font-bold'
+                  : ' text-white hover:bg-yellow-600 hover:text-black'
+              }`}
+              onClick={() => handlePageChange(page)}
+              disabled={isLoading}
+            >
+              {page}
+            </button>
+          ))}
         </div>
       )}
     </div>
@@ -151,35 +158,20 @@ const MenuPage = ({ initialMenuItems, initialCategories }: MenuProps) => {
 };
 
 export const getStaticProps: GetStaticProps = async () => {
-  const menuQuery = `
-    *[_type == "menu"] | order(_createdAt desc)[0...50]{
-      _id,
-      name,
-      description,
-      price,
-      categories,
-      isAvailable, 
-      "image": image.asset->url
-    }
-  `;
+  const pageSize = 50;
 
-  const categoryQuery = `
-    *[_type == "category"] | order(_createdAt desc){
-      name
-    }
-  `;
-
-  const menuItems = await sanityClient.fetch(menuQuery);
-
-  const categories = await sanityClient.fetch(categoryQuery);
-  const uniqueCategories = Array.from(
-    new Map(categories.map((cat: Category) => [cat.name.toLowerCase(), cat])).values()
-  );
+  const menuItems = await fetchMenuItemsByCate('All', 0, pageSize);
+  const totalCount = await fetchTotalCount('menu');
+  const categories = await fetchCategories();
+  const totalPages = Math.ceil(totalCount / pageSize);
 
   return {
     props: {
       initialMenuItems: menuItems,
-      initialCategories: uniqueCategories,
+      initialCategories: categories,
+      totalCount,
+      totalPages,
+      pageSize,
     },
   };
 };
