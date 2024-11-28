@@ -32,20 +32,7 @@ export default defineType({
       name: 'categories',
       title: 'Categories',
       type: 'array',
-      of: [{ type: 'string' }],
-      options: {
-        list: [
-          { title: 'Entree', value: 'Entree' },
-          { title: 'Soup', value: 'Soup' },
-          { title: 'Beef & Lamb', value: 'Beef&Lamb' },
-          { title: 'Chicken', value: 'Chicken' },
-          { title: 'Duck', value: 'Duck' },
-          { title: 'Seafood', value: 'Seafood' },
-          { title: 'Tofu & Claypot', value: 'Tofu&Claypot' },
-          { title: 'Noodle & Rice', value: 'Noodle&Rice' },
-          { title: 'Signature', value: 'Signature' }, 
-        ],
-      },
+      of: [{ type: 'reference', to: [{ type: 'category' }] }], 
     },
     {
       name: 'isAvailable',

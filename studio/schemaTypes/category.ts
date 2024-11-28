@@ -9,8 +9,7 @@ export default defineType({
       name: 'name',
       title: 'Name',
       type: 'string',
-      description: 'The name of the category.',
-      validation: (Rule) => Rule.required().min(2).max(50), 
+      description: 'The name of the category.', 
     },
   ],
 });

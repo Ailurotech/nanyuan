@@ -10,16 +10,19 @@ export const fetchMenuItemsByCate = async (
     const rangeQuery = offset !== undefined && limit !== undefined 
       ? `[${offset}...${offset + limit}]` 
       : '';
+    const categoryFilter = cate !== 'All'
+      ? `&& references(*[_type == "category" && name == "${cate}"]._id)`
+      : '';
 
     const query = `
-      *[_type == "menu" ${cate !== 'All' ? `&& "${cate}" in categories` : ''}] 
+      *[_type == "menu" ${categoryFilter}]
       | order(_createdAt desc) ${rangeQuery} {
         _id,
         name,
         description,
         price,
-        categories,
-        isAvailable, 
+        categories[]->{name}, 
+        isAvailable,
         "image": image.asset->url
       }
     `;
