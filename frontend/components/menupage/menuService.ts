@@ -7,9 +7,10 @@ export const fetchMenuItemsByCate = async (
   limit?: number
 ): Promise<MenuItem[]> => {
   try {
-    const rangeQuery = offset !== undefined && limit !== undefined 
+    const rangeQuery = cate === 'All' && offset !== undefined && limit !== undefined
       ? `[${offset}...${offset + limit}]` 
-      : '';
+      : ''; 
+
     const categoryFilter = cate !== 'All'
       ? `&& references(*[_type == "category" && name == "${cate}"]._id)`
       : '';
@@ -32,6 +33,7 @@ export const fetchMenuItemsByCate = async (
     throw error;
   }
 };
+
 
 export const fetchTotalCount = async (docType: string): Promise<number> => {
   const query = `count(*[_type == "${docType}"])`;
