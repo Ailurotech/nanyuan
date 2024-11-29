@@ -1,7 +1,7 @@
 import { GetStaticProps } from 'next';
 import { MenuItem, ShoppingCartItem, Category } from '../types';
 import MenuCard from '../components/menupage/MenuCard';
-import { fetchMenuItemsByCate, fetchTotalCount, fetchCategories } from '@/components/menupage/menuService';
+import { fetchMenuItems, fetchTotalCount, fetchCategories, fetchPageSize } from '@/components/menupage/menuService';
 import { useState, useEffect } from 'react';
 import { RiShoppingBagLine } from 'react-icons/ri';
 import Link from 'next/link';
@@ -60,8 +60,8 @@ const MenuPage = ({ initialMenuItems, initialCategories, totalCount, totalPages,
     try {
       const fetchedMenuItems =
         category === 'All'
-          ? await fetchMenuItemsByCate(category, 0, pageSize)
-          : await fetchMenuItemsByCate(category);
+          ? await fetchMenuItems(category, 0, pageSize)
+          : await fetchMenuItems(category);
 
       setMenuItems(fetchedMenuItems);
       setCurrentPage(category === 'All' ? 1 : currentPage);
@@ -74,19 +74,20 @@ const MenuPage = ({ initialMenuItems, initialCategories, totalCount, totalPages,
 
   const handlePageChange = async (page: number) => {
     if (selectedCategory !== 'All') return;
-
+  
     setIsLoading(true);
     try {
-      const offset = (page - 1) * pageSize;
-      const fetchedMenuItems = await fetchMenuItemsByCate(selectedCategory, offset, pageSize);
+      const offset = (page - 1) * pageSize; 
+      const fetchedMenuItems = await fetchMenuItems(selectedCategory, offset, pageSize);
       setMenuItems(fetchedMenuItems);
-      setCurrentPage(page);
+      setCurrentPage(page); 
     } catch (error) {
       console.error('Error fetching paginated menu items:', error);
     } finally {
       setIsLoading(false);
     }
   };
+  
 
   return (
     <div className="bg-black min-h-screen py-12 pt-40">
@@ -155,9 +156,9 @@ const MenuPage = ({ initialMenuItems, initialCategories, totalCount, totalPages,
 };
 
 export const getStaticProps: GetStaticProps = async () => {
-  const pageSize = 50;
+  const pageSize = await fetchPageSize();
 
-  const menuItems = await fetchMenuItemsByCate('All', 0, pageSize);
+  const menuItems = await fetchMenuItems('All', 0, pageSize);
   const totalCount = await fetchTotalCount('menu');
   const categories = await fetchCategories();
   const totalPages = Math.ceil(totalCount / pageSize);

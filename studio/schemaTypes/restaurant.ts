@@ -28,5 +28,11 @@ export const restaurant = defineType({
       type: 'array', 
       of: [{ type: 'string' }], 
     },
+    {
+      name: 'pageSize',
+      title: 'Page Size',
+      type: 'number',
+      description: 'Number of items to display per page.',
+    },
   ],
 });
