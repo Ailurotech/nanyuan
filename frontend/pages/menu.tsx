@@ -33,8 +33,8 @@ const MenuPage = ({ initialMenuItems, initialCategories, totalCount, totalPages,
       setCartCount(
         parsedCart.reduce(
           (total: number, item: ShoppingCartItem) => total + item.quantity,
-          0
-        )
+          0,
+        ),
       );
     }
   }, []);
@@ -42,7 +42,7 @@ const MenuPage = ({ initialMenuItems, initialCategories, totalCount, totalPages,
   const addToCart = (item: MenuItem) => {
     const updatedCart = [...cart];
     const existingItem = updatedCart.find(
-      (cartItem) => cartItem._id === item._id
+      (cartItem) => cartItem._id === item._id,
     );
     if (existingItem) {
       existingItem.quantity += 1;

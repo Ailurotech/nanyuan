@@ -8,7 +8,6 @@ export interface MenuItem {
   categories: string[]; 
   isAvailable: boolean; 
 }
-
 export interface HeroContent {
   title: string;
   backgroundimg: {
@@ -92,15 +91,15 @@ export interface Category {
 }
 
 export interface FooterContent {
-  mapEmbedUrl: string; 
-  address: string; 
-  phone: string; 
-  email: string; 
-  copyright: string; 
-  insEmbedId: string; 
+  mapEmbedUrl: string;
+  address: string;
+  phone: string;
+  email: string;
+  copyright: string;
+  insEmbedId: string;
   topImage: {
     asset: {
       url: string; 
     };
-  };
+  }
 }

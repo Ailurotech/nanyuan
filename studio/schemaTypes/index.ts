@@ -12,10 +12,10 @@ import reservation from './reservation';
 
 export const schemaTypes = [
   menu,
+  category,
   order,
   booking,
   homepage,
-  category,
   restaurant, 
   reservation,
   durationType, 
