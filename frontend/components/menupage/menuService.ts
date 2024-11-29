@@ -16,12 +16,8 @@ export const fetchMenuItems = async (
       ? `&& references(*[_type == "category" && name == "${cate}"]._id)`
       : '';
 
-    const idFilter = lastId
-      ? `&& _id > "${lastId}"`
-      : ''; 
-
     const query = `
-      *[_type == "menu" && isAvailable == true ${categoryFilter} ${idFilter}]
+      *[_type == "menu" && isAvailable == true ${categoryFilter}]
       | order(_id asc) ${rangeQuery} {
         _id,
         name,
