@@ -62,16 +62,15 @@ const MenuPage = ({ initialMenuItems, initialCategories, totalCount, totalPages,
         category === 'All'
           ? await fetchMenuItemsByCate(category, 0, pageSize)
           : await fetchMenuItemsByCate(category);
-  
+
       setMenuItems(fetchedMenuItems);
-      setCurrentPage(category === 'All' ? 1 : currentPage); 
+      setCurrentPage(category === 'All' ? 1 : currentPage);
     } catch (error) {
       console.error('Error fetching menu items:', error);
     } finally {
       setIsLoading(false);
     }
   };
-  
 
   const handlePageChange = async (page: number) => {
     if (selectedCategory !== 'All') return;
@@ -88,8 +87,6 @@ const MenuPage = ({ initialMenuItems, initialCategories, totalCount, totalPages,
       setIsLoading(false);
     }
   };
-
-  const filteredMenuItems = menuItems.filter((item) => item.isAvailable === true);
 
   return (
     <div className="bg-black min-h-screen py-12 pt-40">
@@ -130,12 +127,12 @@ const MenuPage = ({ initialMenuItems, initialCategories, totalCount, totalPages,
       </div>
 
       <div className="container mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10 px-5 justify-items-center">
-        {filteredMenuItems.map((item) => (
+        {menuItems.map((item) => (
           <MenuCard key={item._id} menuItems={item} addToCart={addToCart} />
         ))}
       </div>
 
-      {selectedCategory === 'All' && (
+      {selectedCategory === 'All' && totalPages > 1 && (
         <div className="flex justify-center mt-8">
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
             <button

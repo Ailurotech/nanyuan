@@ -7,16 +7,16 @@ export const fetchMenuItemsByCate = async (
   limit?: number
 ): Promise<MenuItem[]> => {
   try {
-    const rangeQuery = cate === 'All' && offset !== undefined && limit !== undefined
+    const rangeQuery = offset !== undefined && limit !== undefined 
       ? `[${offset}...${offset + limit}]` 
-      : ''; 
-
+      : '';
+    
     const categoryFilter = cate !== 'All'
       ? `&& references(*[_type == "category" && name == "${cate}"]._id)`
       : '';
 
     const query = `
-      *[_type == "menu" ${categoryFilter}]
+      *[_type == "menu" && isAvailable == true ${categoryFilter}]
       | order(_createdAt desc) ${rangeQuery} {
         _id,
         name,
@@ -34,9 +34,8 @@ export const fetchMenuItemsByCate = async (
   }
 };
 
-
 export const fetchTotalCount = async (docType: string): Promise<number> => {
-  const query = `count(*[_type == "${docType}"])`;
+  const query = `count(*[_type == "${docType}" && isAvailable == true])`;
   return sanityClient.fetch(query);
 };
 
