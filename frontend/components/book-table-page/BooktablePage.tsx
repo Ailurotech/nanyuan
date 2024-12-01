@@ -3,7 +3,7 @@ import { ControlledTestArea } from '@/components/common/ControlledTestArea';
 import { ControlledSelect } from '@/components/common/ControlledSelect';
 import { Button } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
-import { InputsContainer } from '@/components/Take-away-page/component/InputsContainer';
+import { InputsContainer } from '@/components/take-away-page/component/InputsContainer';
 import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as zod from 'zod';

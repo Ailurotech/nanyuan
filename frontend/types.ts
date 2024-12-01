@@ -5,6 +5,8 @@ export interface MenuItem {
   description: string;
   price: number;
   image: string;
+  categories: string[]; 
+  isAvailable: boolean; 
 }
 export interface HeroContent {
   title: string;
@@ -84,6 +86,10 @@ export interface Duration {
   end: string;   
 }
 
+export interface Category {
+  name: string; 
+}
+
 export interface FooterContent {
   mapEmbedUrl: string;
   address: string;
@@ -95,5 +101,5 @@ export interface FooterContent {
     asset: {
       url: string; 
     };
-  } 
+  }
 }
