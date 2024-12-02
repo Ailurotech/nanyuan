@@ -1,8 +1,8 @@
 import { createSchema } from 'sanity';
 import menu from './menu';
-import category from './category';
 import order from './order';
 import homepage from './homepage';  
+import category from './category';
 import { durationType } from './duration/durationType'; 
 import { timeValueType } from './duration/timeValueType'; 
 import { restaurant } from './restaurant'; 

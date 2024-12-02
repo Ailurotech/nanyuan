@@ -1,4 +1,4 @@
-import {defineType} from 'sanity';
+import { defineType } from 'sanity';
 
 export default defineType({
   name: 'category',
@@ -7,8 +7,9 @@ export default defineType({
   fields: [
     {
       name: 'name',
-      title: 'Category Name',
+      title: 'Name',
       type: 'string',
+      description: 'The name of the category.', 
     },
   ],
 });
