@@ -5,6 +5,8 @@ export interface MenuItem {
   description: string;
   price: number;
   image: string;
+  categories: string[]; 
+  isAvailable: boolean; 
 }
 export interface HeroContent {
   title: string;
@@ -82,4 +84,22 @@ export interface Restaurant {
 export interface Duration {
   start: string; 
   end: string;   
+}
+
+export interface Category {
+  name: string; 
+}
+
+export interface FooterContent {
+  mapEmbedUrl: string;
+  address: string;
+  phone: string;
+  email: string;
+  copyright: string;
+  insEmbedId: string;
+  topImage: {
+    asset: {
+      url: string; 
+    };
+  }
 }
