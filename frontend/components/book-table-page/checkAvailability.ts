@@ -1,6 +1,6 @@
 import { Table } from '@/types';
 import { sanityClient } from '@/lib/sanityClient';
-import { DateTime } from 'luxon';
+import { DateTime } from 'luxon/src/datetime';
 
 interface CheckAvailabilityResult {
   tableId?: string;
