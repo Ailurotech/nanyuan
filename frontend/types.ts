@@ -1,13 +1,13 @@
-// types.ts
 export interface MenuItem {
   _id: string;
   name: string;
   description: string;
   price: number;
   image: string;
-  categories: string[]; 
-  isAvailable: boolean; 
+  categories: string[];
+  isAvailable: boolean;
 }
+
 export interface HeroContent {
   title: string;
   backgroundimg: {
@@ -79,15 +79,22 @@ export interface Restaurant {
   Weekdaytime: Duration;
   Weekandtime: Duration;
   blacklist: string[];
+  tables: Table[];
 }
 
 export interface Duration {
-  start: string; 
-  end: string;   
+  start: string;
+  end: string;
+}
+
+export interface Table {
+  type: string;
+  quantity: number;
+  _id: string;
 }
 
 export interface Category {
-  name: string; 
+  name: string;
 }
 
 export interface FooterContent {
@@ -99,7 +106,7 @@ export interface FooterContent {
   insEmbedId: string;
   topImage: {
     asset: {
-      url: string; 
+      url: string;
     };
-  }
+  };
 }

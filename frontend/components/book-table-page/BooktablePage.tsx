@@ -4,18 +4,19 @@ import { ControlledSelect } from '@/components/common/ControlledSelect';
 import { Button } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { InputsContainer } from '@/components/take-away-page/component/InputsContainer';
-import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as zod from 'zod';
 import VerifyOtpModal from '@/components/common/VerifyOtpModal';
-import { Restaurant } from '@/types';
+import { Restaurant, Table } from '@/types';
 import { isValidTime } from './timeUtils';
 import clsx from 'clsx';
 import { sanityClient } from '@/lib/sanityClient';
+import checkAvailability from './checkAvailability';
 import { useSMS } from '../hooks/useSMS';
 
 interface BooktablePageProps {
   restaurant: Restaurant;
+  tables: Table[];
 }
 
 type FormData = {
@@ -29,7 +30,7 @@ type FormData = {
   date: string;
 };
 
-export function BooktablePage({ restaurant }: BooktablePageProps) {
+export function BooktablePage({ restaurant, tables }: BooktablePageProps) {
   const {
     SendOtp,
     handleVerifyOtp,
@@ -39,6 +40,7 @@ export function BooktablePage({ restaurant }: BooktablePageProps) {
     timeLeft,
     isRunning,
   } = useSMS();
+
   const requiredField = zod.string().min(1, { message: 'Required Field' });
   const phoneSchema = zod
     .string()
@@ -52,7 +54,7 @@ export function BooktablePage({ restaurant }: BooktablePageProps) {
       date: requiredField,
       time: requiredField,
       guests: requiredField,
-      email: requiredField.email(),
+      email: zod.string().email({ message: 'Invalid email address' }),
       preference: zod.string(),
       notes: zod.string(),
     })
@@ -99,18 +101,40 @@ export function BooktablePage({ restaurant }: BooktablePageProps) {
   const selectedDate = watch('date');
 
   const onSubmit = async (data: FormData) => {
-    if (verifyOtp) {
-      try {
-        await sanityClient.create({
-          _type: 'reservation',
-          ...data,
-        });
-      } catch (error) {
-        console.error('Error creating reservation:', error);
-        alert('Failed to book a table. Please try again later.');
-      }
-    } else {
-      alert('Please verify your phone number');
+    const result = await checkAvailability(
+      tables,
+      data.guests,
+      data.date,
+      data.time,
+      verifyOtp,
+    );
+
+    if (result.errorMessage) {
+      alert(result.errorMessage);
+      return;
+    }
+
+    const datetime = `${data.date}T${data.time}`;
+
+    try {
+      await sanityClient.create({
+        _type: 'reservation',
+        name: data.name,
+        phone: data.phone,
+        email: data.email,
+        guests: data.guests,
+        preference: data.preference,
+        notes: data.notes,
+        time: datetime,
+        table: {
+          _type: 'reference',
+          _ref: result.tableId,
+        },
+      });
+      // redirect to the success page
+    } catch (error) {
+      console.error('Error creating reservation:', error);
+      alert('Failed to book a table. Please try again later.');
     }
   };
 
