@@ -1,4 +1,4 @@
-import { DateTime } from 'luxon/src/datetime';
+import { DateTime } from 'luxon';
 
 export const isTimeWithinRange = (time: string, start: string, end: string): boolean => {
     const timeToCheck = DateTime.fromFormat(time, 'HH:mm');
