@@ -8,10 +8,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as zod from 'zod';
 import VerifyOtpModal from '@/components/common/VerifyOtpModal';
 import { Restaurant, Table } from '@/types';
-import { isValidTime } from './timeUtils';
+import { isValidTime } from '@/components/common/timeUtils';
 import clsx from 'clsx';
 import { sanityClient } from '@/lib/sanityClient';
-import checkAvailability from './checkAvailability';
+import checkTableBookingAvailability from './checkAvailability';
 import { useSMS } from '../hooks/useSMS';
 
 interface BooktablePageProps {
@@ -101,7 +101,7 @@ export function BooktablePage({ restaurant, tables }: BooktablePageProps) {
   const selectedDate = watch('date');
 
   const onSubmit = async (data: FormData) => {
-    const result = await checkAvailability(
+    const result = await checkTableBookingAvailability(
       tables,
       data.guests,
       data.date,

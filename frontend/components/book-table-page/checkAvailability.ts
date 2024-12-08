@@ -2,7 +2,7 @@ import { Table } from '@/types';
 import { sanityClient } from '@/lib/sanityClient';
 import { DateTime } from 'luxon';
 
-interface CheckAvailabilityResult {
+interface CheckTableBookingAvailabilityResult {
   tableId?: string;
   errorMessage?: string;
 }
@@ -11,7 +11,7 @@ const validateInitialConditions = (
   otp: boolean,
   guests: string,
   tables: Table[]
-): CheckAvailabilityResult => {
+): CheckTableBookingAvailabilityResult => {
   return !otp
     ? { errorMessage: 'OTP not verified' }
     : isNaN(parseInt(guests, 10)) || parseInt(guests, 10) <= 0
@@ -24,7 +24,7 @@ const validateInitialConditions = (
 const validateReservationTime = (
   reservationDate: string,
   reservationTime: string
-): CheckAvailabilityResult => {
+): CheckTableBookingAvailabilityResult => {
   const now = DateTime.now();
   const reservationStart = DateTime.fromISO(`${reservationDate}T${reservationTime}`);
 
@@ -38,7 +38,7 @@ const validateReservationTime = (
 const findTable = (
   tables: Table[],
   guests: string
-): CheckAvailabilityResult => {
+): CheckTableBookingAvailabilityResult => {
   const guestCount = parseInt(guests, 10);
   const suitableTable = tables
     .filter((table) => parseInt(table.type, 10) >= guestCount)
@@ -53,7 +53,7 @@ const checkTableConflicts = async (
   tableId: string,
   reservationDate: string,
   reservationTime: string
-): Promise<CheckAvailabilityResult> => {
+): Promise<CheckTableBookingAvailabilityResult> => {
   try {
     const reservationStart = DateTime.fromISO(`${reservationDate}T${reservationTime}`);
     const bufferStart = reservationStart.minus({ hours: 1 }).toISO();
@@ -83,14 +83,14 @@ const checkTableConflicts = async (
   }
 };
 
-const checkAvailability = async (
+const checkTableBookingAvailability = async (
   tables: Table[],
   guests: string,
   reservationDate: string,
   reservationTime: string,
   otp: boolean
-): Promise<CheckAvailabilityResult> => {
-  let result: CheckAvailabilityResult = {};  
+): Promise<CheckTableBookingAvailabilityResult> => {
+  let result: CheckTableBookingAvailabilityResult = {};  
 
   const validations = [
     () => validateInitialConditions(otp, guests, tables),
@@ -107,4 +107,4 @@ const checkAvailability = async (
   return result; 
 };
 
-export default checkAvailability;
+export default checkTableBookingAvailability;

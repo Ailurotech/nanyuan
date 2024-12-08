@@ -10,8 +10,14 @@ import * as zod from 'zod';
 import { useSMS } from '@/components/hooks/useSMS';
 import clsx from 'clsx';
 import VerifyOtpModal from '@/components/common/VerifyOtpModal';
+import checkTakeawayOrderAvailability from './checkAvailiability';
+import { Restaurant } from '@/types';
 
-export function TakeawayForm() {
+interface TakeawayProps {
+  restaurant: Restaurant;
+}
+
+export function TakeawayForm({ restaurant }: TakeawayProps) {
   interface FormData {
     name: string;
     phone: string;
@@ -76,15 +82,22 @@ export function TakeawayForm() {
     resolver: zodResolver(FormDataSchema),
   });
 
-  const onSubmit = (data: FormData) => {
-    if (verifyOtp) {
-      const parsedData = { ...data, totalPrice, phone: `+61${data.phone}` };
-      console.log(parsedData);
+  const onSubmit = async (data: FormData) => {
+    const date = `${data.pickUpDate}T${data.pickUpTime}`;
+    const result = await checkTakeawayOrderAvailability(
+      verifyOtp,
+      data.pickUpDate,
+      data.pickUpTime,
+      parseFloat(totalPrice)
+    );
+
+    if (result.errorMessage) {
+      alert(result.errorMessage);
     } else {
-      alert('Please verify your phone number');
+      // TODO: Submit order to sanity
+      console.log('Order submitted:', data);
     }
   };
-
   const phoneClickHandler = async () => {
     const result = await trigger('phone');
     const phone = getValues('phone');
