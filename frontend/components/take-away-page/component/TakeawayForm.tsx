@@ -12,6 +12,9 @@ import clsx from 'clsx';
 import VerifyOtpModal from '@/components/common/VerifyOtpModal';
 import checkTakeawayOrderAvailability from './checkAvailiability';
 import { Restaurant } from '@/types';
+import { validateBlacklist, validateOperatingTime } from '@/components/common/utils/validationUtils';
+import OrderList from './small-component/OrderList';
+import OtpButton from '@/components/common/icon-and-button/OtpButton';
 
 interface TakeawayProps {
   restaurant: Restaurant;
@@ -21,8 +24,8 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
   interface FormData {
     name: string;
     phone: string;
-    pickUpDate: string;
-    pickUpTime: string;
+    date: string;
+    time: string;
     email: string;
     notes: string;
   }
@@ -60,22 +63,31 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
     }
   }, []);
 
+  const phoneSchema = zod
+    .string()
+    .min(1, { message: 'Required Field' })
+    .regex(/^\d{9}$/, { message: 'Phone number invalid' });
   const requiredField = zod.string().min(1, { message: 'Required Field' });
-  const FormDataSchema = zod.object({
-    name: requiredField,
-    phone: requiredField,
-    pickUpDate: requiredField,
-    pickUpTime: requiredField,
-    email: requiredField.email(),
-    notes: zod.string().optional(),
-  });
+  const FormDataSchema = zod
+    .object({
+      name: requiredField,
+      phone: phoneSchema,
+      date: requiredField,
+      time: requiredField,
+      email: requiredField.email(),
+      notes: zod.string().optional(),
+    })
+    .superRefine((data, context) => {
+      validateBlacklist(data.phone, restaurant, context);
+      validateOperatingTime(data.date, data.time, restaurant, context);
+    });
 
   const { control, handleSubmit, trigger, getValues } = useForm<FormData>({
     defaultValues: {
       name: '',
       phone: '',
-      pickUpDate: '',
-      pickUpTime: '',
+      date: '',
+      time: '',
       email: '',
       notes: '',
     },
@@ -83,11 +95,11 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
   });
 
   const onSubmit = async (data: FormData) => {
-    const date = `${data.pickUpDate}T${data.pickUpTime}`;
+    const date = `${data.date}T${data.time}`;
     const result = await checkTakeawayOrderAvailability(
       verifyOtp,
-      data.pickUpDate,
-      data.pickUpTime,
+      data.date,
+      data.time,
       parseFloat(totalPrice)
     );
 
@@ -95,7 +107,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
       alert(result.errorMessage);
     } else {
       // TODO: Submit order to sanity
-      console.log('Order submitted:', data);
+      console.log('Order submitted:', data);  
     }
   };
   const phoneClickHandler = async () => {
@@ -119,53 +131,30 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
                 name="phone"
                 disabled={verifyOtp}
               />
-              <Button
-                className={clsx({
-                  'bg-gray-300 text-white': isRunning,
-                  'bg-green-500 text-white': verifyOtp,
-                  'bg-yellow-400 text-black': !isRunning && !verifyOtp,
-                })}
-                variant="solid"
-                padding="0.36rem 1rem"
-                disabled={verifyOtp || isRunning}
-                borderRadius={5}
-                fontSize="small"
-                fontWeight="600"
-                onClick={verifyOtp || isRunning ? undefined : phoneClickHandler}
-              >
-                {verifyOtp ? 'Verified' : isRunning ? `${timeLeft}s` : 'Verify'}
-              </Button>
+              <OtpButton
+                isRunning={isRunning}
+                verifyOtp={verifyOtp}
+                timeLeft={timeLeft}
+                onClick={phoneClickHandler}
+              />
             </span>
           </InputsContainer>
           <InputsContainer>
             <ControlledInput
               label="Pickup Date"
               control={control}
-              name="pickUpDate"
+              name="date"
               type="Date"
             />
             <ControlledInput
               label="Pickup Time"
               control={control}
-              name="pickUpTime"
+              name="time"
               type="Time"
             />
           </InputsContainer>
           <ControlledInput label="Email" control={control} name="email" />
-          <div className="flex flex-col gap-2">
-            <h4 className="text-sm">Ordered Dishes</h4>
-            <ul className="text-base space-y-1 list-disc px-4">
-              {orderList.length === 0 && (
-                <li className="font-bold">No Order Yet!</li>
-              )}
-              {orderList.map((order, index) => (
-                <li
-                  key={index}
-                >{`${order.name} - $${order.price} X${order.quantity}`}</li>
-              ))}
-            </ul>
-            <h4 className="font-bold">{`Total Price: $${totalPrice}`}</h4>
-          </div>
+          <OrderList orderList={orderList} totalPrice={totalPrice} />
           <ControlledTestArea
             label="Special Requested or Notes"
             control={control}

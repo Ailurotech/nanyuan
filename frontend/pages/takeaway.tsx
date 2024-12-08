@@ -19,7 +19,7 @@ export const getStaticProps: GetStaticProps = async () => {
         start,
         end
       },
-      Weekendtime {
+      Weekandtime {
         start,
         end
       },

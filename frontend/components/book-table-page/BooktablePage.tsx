@@ -8,11 +8,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as zod from 'zod';
 import VerifyOtpModal from '@/components/common/VerifyOtpModal';
 import { Restaurant, Table } from '@/types';
-import { isValidTime } from '@/components/common/timeUtils';
 import clsx from 'clsx';
 import { sanityClient } from '@/lib/sanityClient';
 import checkTableBookingAvailability from './checkAvailability';
 import { useSMS } from '../hooks/useSMS';
+import { validateBlacklist, validateOperatingTime } from '../common/utils/validationUtils';
+import OtpButton from '@/components/common/icon-and-button/OtpButton';
 
 interface BooktablePageProps {
   restaurant: Restaurant;
@@ -59,28 +60,8 @@ export function BooktablePage({ restaurant, tables }: BooktablePageProps) {
       notes: zod.string(),
     })
     .superRefine((data, context) => {
-      const isTimeValid = isValidTime(
-        data.date,
-        data.time,
-        restaurant.Weekdaytime,
-        restaurant.Weekandtime,
-      );
-
-      if (!isTimeValid) {
-        context.addIssue({
-          code: zod.ZodIssueCode.custom,
-          message: 'Time is outside of restaurant operating hours',
-          path: ['time'],
-        });
-      }
-
-      if (restaurant.blacklist.includes(data.phone)) {
-        context.addIssue({
-          code: zod.ZodIssueCode.custom,
-          message: 'Internal error, please try again later',
-          path: ['phone'],
-        });
-      }
+      validateBlacklist(data.phone, restaurant, context);
+      validateOperatingTime(data.date, data.time, restaurant, context);
     });
 
   const { control, handleSubmit, trigger, watch, getValues } =
@@ -108,7 +89,6 @@ export function BooktablePage({ restaurant, tables }: BooktablePageProps) {
       data.time,
       verifyOtp,
     );
-
     if (result.errorMessage) {
       alert(result.errorMessage);
       return;
@@ -165,22 +145,12 @@ export function BooktablePage({ restaurant, tables }: BooktablePageProps) {
                 name="phone"
                 disabled={verifyOtp}
               />
-              <Button
-                className={clsx({
-                  'bg-gray-300 text-white': isRunning,
-                  'bg-green-500 text-white': verifyOtp,
-                  'bg-yellow-400 text-black': !isRunning && !verifyOtp,
-                })}
-                variant="solid"
-                padding="0.36rem 1rem"
-                disabled={verifyOtp || isRunning}
-                borderRadius={5}
-                fontSize="small"
-                fontWeight="600"
-                onClick={verifyOtp || isRunning ? undefined : phoneClickHandler}
-              >
-                {verifyOtp ? 'Verified' : isRunning ? `${timeLeft}s` : 'Verify'}
-              </Button>
+              <OtpButton
+                isRunning={isRunning}
+                verifyOtp={verifyOtp}
+                timeLeft={timeLeft}
+                onClick={phoneClickHandler}
+              />
             </span>
           </InputsContainer>
           <InputsContainer>
