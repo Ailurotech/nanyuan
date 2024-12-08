@@ -1,6 +1,6 @@
-import { ControlledInput } from '@/components/common/ControlledInput';
-import { ControlledTestArea } from '@/components/common/ControlledTestArea';
-import { ControlledSelect } from '@/components/common/ControlledSelect';
+import { ControlledInput } from '@/components/common/controller/ControlledInput';
+import { ControlledTestArea } from '@/components/common/controller/ControlledTestArea';
+import { ControlledSelect } from '@/components/common/controller/ControlledSelect';
 import { Button } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { InputsContainer } from '@/components/take-away-page/component/InputsContainer';
@@ -14,6 +14,7 @@ import checkTableBookingAvailability from './checkAvailability';
 import { useSMS } from '../hooks/useSMS';
 import { validateBlacklist, validateOperatingTime } from '../common/utils/validationUtils';
 import OtpButton from '@/components/common/icon-and-button/OtpButton';
+import DateTimePicker from '@/components/common/DateTImePicker';
 
 interface BooktablePageProps {
   restaurant: Restaurant;
@@ -154,19 +155,7 @@ export function BooktablePage({ restaurant, tables }: BooktablePageProps) {
             </span>
           </InputsContainer>
           <InputsContainer>
-            <ControlledInput
-              label="Date"
-              control={control}
-              name="date"
-              type="date"
-            />
-            <ControlledInput
-              label="Time"
-              control={control}
-              name="time"
-              type="time"
-              disabled={!selectedDate}
-            />
+            <DateTimePicker control={control} selectedDate={selectedDate} />
           </InputsContainer>
           <ControlledInput label="Email" control={control} name="email" />
           <InputsContainer>

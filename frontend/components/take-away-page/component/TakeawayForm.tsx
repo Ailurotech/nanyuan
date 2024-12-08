@@ -1,5 +1,5 @@
-import { ControlledInput } from '@/components/common/ControlledInput';
-import { ControlledTestArea } from '@/components/common/ControlledTestArea';
+import { ControlledInput } from '@/components/common/controller/ControlledInput';
+import { ControlledTestArea } from '@/components/common/controller/ControlledTestArea';
 import { Button } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { InputsContainer } from './InputsContainer';
@@ -15,6 +15,7 @@ import { Restaurant } from '@/types';
 import { validateBlacklist, validateOperatingTime } from '@/components/common/utils/validationUtils';
 import OrderList from './small-component/OrderList';
 import OtpButton from '@/components/common/icon-and-button/OtpButton';
+import DateTimePicker from '@/components/common/DateTImePicker';
 
 interface TakeawayProps {
   restaurant: Restaurant;
@@ -82,7 +83,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
       validateOperatingTime(data.date, data.time, restaurant, context);
     });
 
-  const { control, handleSubmit, trigger, getValues } = useForm<FormData>({
+  const { control, handleSubmit, trigger, getValues, watch } = useForm<FormData>({
     defaultValues: {
       name: '',
       phone: '',
@@ -93,6 +94,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
     },
     resolver: zodResolver(FormDataSchema),
   });
+
 
   const onSubmit = async (data: FormData) => {
     const date = `${data.date}T${data.time}`;
@@ -118,6 +120,8 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
     }
   };
 
+  const selectedDate = watch('date');
+  
   return (
     !loading && (
       <section>
@@ -140,18 +144,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
             </span>
           </InputsContainer>
           <InputsContainer>
-            <ControlledInput
-              label="Pickup Date"
-              control={control}
-              name="date"
-              type="Date"
-            />
-            <ControlledInput
-              label="Pickup Time"
-              control={control}
-              name="time"
-              type="Time"
-            />
+            <DateTimePicker control={control} selectedDate={selectedDate} />
           </InputsContainer>
           <ControlledInput label="Email" control={control} name="email" />
           <OrderList orderList={orderList} totalPrice={totalPrice} />

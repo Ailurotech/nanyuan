@@ -1,7 +1,7 @@
 import { TakeawayPage } from "@/components/take-away-page/TakeawayPage";
 import { Restaurant } from "@/types";
 import { GetStaticProps } from "next";
-import { sanityClient } from "@/lib/sanityClient";
+import { fetchRestaurant } from "@/lib/queries"; 
 
 interface TakeawayProps {
   restaurant: Restaurant;
@@ -12,27 +12,11 @@ export default function Page({ restaurant }: TakeawayProps) {
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-  const restaurantQuery = `
-    *[_type == "restaurant"]{
-      title,
-      Weekdaytime {
-        start,
-        end
-      },
-      Weekandtime {
-        start,
-        end
-      },
-      blacklist
-    }
-  `;
-
   try {
-    const restaurantData = await sanityClient.fetch(restaurantQuery);
-
+    const restaurantData = await fetchRestaurant(); 
     return {
       props: {
-        restaurant: restaurantData[0], 
+        restaurant: restaurantData[0],
       },
     };
   } catch (e) {
