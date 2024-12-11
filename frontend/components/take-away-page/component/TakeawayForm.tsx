@@ -16,6 +16,9 @@ import { validateBlacklist, validateOperatingTime } from '@/components/common/ut
 import OrderList from './small-component/OrderList';
 import OtpButton from '@/components/common/icon-and-button/OtpButton';
 import DateTimePicker from '@/components/common/DateTImePicker';
+import { loadStripe } from '@stripe/stripe-js';
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 interface TakeawayProps {
   restaurant: Restaurant;
@@ -120,6 +123,35 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
     }
   };
 
+  const handlePayOnline = async () => {
+    try {
+      const response = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          orderList,
+          totalPrice,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create checkout session');
+      }
+
+      const { sessionId } = await response.json();
+
+      const stripe = await stripePromise;
+      if (stripe) {
+        await stripe.redirectToCheckout({ sessionId });
+      }
+    } catch (error) {
+      console.error('Error during Stripe Checkout:', error);
+      alert('Something went wrong. Please try again.');
+    }
+  };
+
   const selectedDate = watch('date');
   
   return (
@@ -143,9 +175,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
               />
             </span>
           </InputsContainer>
-          <InputsContainer>
-            <DateTimePicker control={control} selectedDate={selectedDate} />
-          </InputsContainer>
+          <DateTimePicker control={control} selectedDate={selectedDate} />
           <ControlledInput label="Email" control={control} name="email" />
           <OrderList orderList={orderList} totalPrice={totalPrice} />
           <ControlledTestArea

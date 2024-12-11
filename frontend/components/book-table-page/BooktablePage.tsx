@@ -154,9 +154,7 @@ export function BooktablePage({ restaurant, tables }: BooktablePageProps) {
               />
             </span>
           </InputsContainer>
-          <InputsContainer>
-            <DateTimePicker control={control} selectedDate={selectedDate} />
-          </InputsContainer>
+          <DateTimePicker control={control} selectedDate={selectedDate} />
           <ControlledInput label="Email" control={control} name="email" />
           <InputsContainer>
             <ControlledInput

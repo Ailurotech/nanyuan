@@ -37,6 +37,19 @@ functions:
       EMAIL_FROM: ${env:EMAIL_FROM}
       EMAIL_TO: ${env:EMAIL_TO}
 
+  createCheckoutSession:
+    handler: lambda/create-checkout-session.handler
+    memorySize: 1024
+    timeout: 30
+    role: ServerlessNextjsLambdaRole
+    events:
+      - http:
+          path: api/create-checkout-session
+          method: post
+    environment:
+      STRIPE_SECRET_KEY: ${env:STRIPE_SECRET_KEY}
+      CLIENT_BASE_URL: ${env:CLIENT_BASE_URL}
+
 resources:
   Resources:
     ServerlessNextjsLambdaRole:
@@ -59,4 +72,14 @@ resources:
                   Action:
                     - ses:SendEmail
                     - ses:SendRawEmail
+                  Resource: "*"
+          - PolicyName: StripePolicy
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - logs:CreateLogStream
+                    - logs:PutLogEvents
+                    - logs:CreateLogGroup
                   Resource: "*"
