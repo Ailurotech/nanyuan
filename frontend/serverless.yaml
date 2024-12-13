@@ -27,12 +27,22 @@ functions:
   sendEmail:
     handler: lambda/send-email.handler
     memorySize: 1024
-    timeout: 30
+    timeout: 28
     role: ServerlessNextjsLambdaRole 
     events:
       - http:
           path: api/send-email
           method: post
+          cors:
+            origin: '*' # 允许所有域名（生产环境建议指定具体域名）
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+
     environment:
       EMAIL_FROM: ${env:EMAIL_FROM}
       EMAIL_TO: ${env:EMAIL_TO}
@@ -40,12 +50,21 @@ functions:
   createCheckoutSession:
     handler: lambda/create-checkout-session.handler
     memorySize: 1024
-    timeout: 30
+    timeout: 28
     role: ServerlessNextjsLambdaRole
     events:
       - http:
           path: api/create-checkout-session
           method: post
+          cors:
+            origin: '*' # 允许所有域名（生产环境建议指定具体域名）
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
     environment:
       STRIPE_SECRET_KEY: ${env:STRIPE_SECRET_KEY}
       CLIENT_BASE_URL: ${env:CLIENT_BASE_URL}

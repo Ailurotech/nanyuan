@@ -22,14 +22,20 @@ export default defineType({
       of: [{ type: 'reference', to: [{ type: 'menu' }] }],
     },
     {
+      name: 'date',
+      title: 'Date',
+      type: 'datetime',
+    },
+    {
       name: 'status',
       title: 'Status',
       type: 'string',
       options: {
         list: [
-          { title: 'Pending', value: 'pending' },
-          { title: 'Confirmed', value: 'confirmed' },
-          { title: 'Delivered', value: 'delivered' },
+          { title: 'Pending', value: 'Pending' },
+          { title: 'Paid', value: 'Paid' },
+          { title: 'Cancelled', value: 'Cancelled' },
+          { title: 'Cash', value: 'Cash' }, 
         ],
         layout: 'dropdown',
       },

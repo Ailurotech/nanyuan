@@ -1,7 +1,7 @@
 import { ControlledInput } from '@/components/common/controller/ControlledInput';
 import { ControlledTestArea } from '@/components/common/controller/ControlledTestArea';
 import { Button } from '@chakra-ui/react';
-import { useForm } from 'react-hook-form';
+import { get, useForm } from 'react-hook-form';
 import { InputsContainer } from './InputsContainer';
 import { useEffect, useState } from 'react';
 import { MenuItem } from '@/types';
@@ -10,13 +10,16 @@ import * as zod from 'zod';
 import { useSMS } from '@/components/hooks/useSMS';
 import clsx from 'clsx';
 import VerifyOtpModal from '@/components/common/VerifyOtpModal';
-import checkTakeawayOrderAvailability from './checkAvailiability';
+import { runValidations, validatePrice, validatePickUpTime, validateOTP } from './checkAvailiability';
 import { Restaurant } from '@/types';
 import { validateBlacklist, validateOperatingTime } from '@/components/common/utils/validationUtils';
 import OrderList from './small-component/OrderList';
 import OtpButton from '@/components/common/icon-and-button/OtpButton';
 import DateTimePicker from '@/components/common/DateTImePicker';
 import { loadStripe } from '@stripe/stripe-js';
+import { sanityClient } from '@/lib/sanityClient';
+import { createSanityOrder } from '@/components/common/createSanityOrder';
+import { triggerAll, fetchStripeSession } from '@/components/common/utils/paymentUtils';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
@@ -25,6 +28,8 @@ interface TakeawayProps {
 }
 
 export function TakeawayForm({ restaurant }: TakeawayProps) {
+
+  
   interface FormData {
     name: string;
     phone: string;
@@ -100,21 +105,57 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
 
 
   const onSubmit = async (data: FormData) => {
-    const date = `${data.date}T${data.time}`;
-    const result = await checkTakeawayOrderAvailability(
-      verifyOtp,
-      data.date,
-      data.time,
-      parseFloat(totalPrice)
-    );
+    try {
+      await runValidations([
+        () => validateOTP(verifyOtp),
+        () => validatePickUpTime(data.date, data.time),
+        () => validatePrice(parseFloat(totalPrice)),
+      ]);
 
-    if (result.errorMessage) {
-      alert(result.errorMessage);
-    } else {
-      // TODO: Submit order to sanity
-      console.log('Order submitted:', data);  
+      await createSanityOrder({
+        customerName: data.name,
+        email: data.email,
+        items: orderList,
+        date: `${data.date}T${data.time}`,
+        status: 'Cash',
+      });
+      //sucessfull page
+    } catch (error) {
+      console.log(error);
     }
   };
+  
+
+  const handlePayOnline = async (data: FormData) => {
+    try {
+      await triggerAll(trigger);
+      await runValidations([
+        () => validateOTP(verifyOtp),
+        () => validatePickUpTime(data.date, data.time),
+        () => validatePrice(parseFloat(totalPrice)),
+      ]);
+      const sessionId = await fetchStripeSession(orderList, totalPrice);
+      await createSanityOrder({
+        customerName: data.name,
+        email: data.email,
+        items: orderList,
+        date: `${data.date}T${data.time}`,
+        status: 'Pending',
+      });
+
+      const stripe = await stripePromise;
+      if (!stripe) throw new Error('Stripe is not loaded.');
+      await stripe.redirectToCheckout({ sessionId });
+      //sucessfull page
+      //cancel modal
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  
+  
+  
+  
   const phoneClickHandler = async () => {
     const result = await trigger('phone');
     const phone = getValues('phone');
@@ -123,36 +164,10 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
     }
   };
 
-  const handlePayOnline = async () => {
-    try {
-      const response = await fetch('/api/create-checkout-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          orderList,
-          totalPrice,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to create checkout session');
-      }
-
-      const { sessionId } = await response.json();
-
-      const stripe = await stripePromise;
-      if (stripe) {
-        await stripe.redirectToCheckout({ sessionId });
-      }
-    } catch (error) {
-      console.error('Error during Stripe Checkout:', error);
-      alert('Something went wrong. Please try again.');
-    }
-  };
 
   const selectedDate = watch('date');
+
+
   
   return (
     !loading && (
@@ -198,6 +213,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
           >
             Submit Order
           </Button>
+          <Button onClick={() => handlePayOnline(getValues())}>Pay Online</Button>
         </form>
         {isModalOpen && (
           <VerifyOtpModal

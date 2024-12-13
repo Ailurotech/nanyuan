@@ -1,61 +1,46 @@
 import { DateTime } from 'luxon';
 
-interface CheckTakeawayOrderAvailabilityResult {
-    errorMessage?: string;
+interface ValidationResult {
+  success: boolean;
+  errorMessage?: string;
 }
 
-const validateInitialConditions = (
-    otp: boolean,
-): CheckTakeawayOrderAvailabilityResult => {
-    return !otp
-        ? { errorMessage: 'OTP not verified' }
-        : {};
+export const validateOTP = (otp: boolean): ValidationResult => {
+  return otp
+    ? { success: true }
+    : { success: false, errorMessage: 'OTP not verified' };
 };
 
-const validatePickUpTime = (
-    pickUpDate: string,
-    pickUpTime: string
-): CheckTakeawayOrderAvailabilityResult => {
-    const now = DateTime.now();
-    const pickUpDateTime = DateTime.fromISO(`${pickUpDate}T${pickUpTime}`);
+export const validatePickUpTime = (
+  pickUpDate: string,
+  pickUpTime: string
+): ValidationResult => {
+  const now = DateTime.now();
+  const pickUpDateTime = DateTime.fromISO(`${pickUpDate}T${pickUpTime}`);
 
-    return pickUpDateTime <= now
-        ? { errorMessage: 'Cannot pick up in the past.' }
-        : pickUpDateTime < now.plus({ hours: 0.5 })
-        ? { errorMessage: 'Pick-up time must be at least 30 minutes from now.' }
-        : {};
+  if (pickUpDateTime <= now) {
+    return { success: false, errorMessage: 'Cannot pick up in the past.' };
+  } else if (pickUpDateTime < now.plus({ hours: 0.5 })) {
+    return { success: false, errorMessage: 'Pick-up time must be at least 30 minutes from now.' };
+  }
+  return { success: true };
 };
 
-const validatePrice = (
-    price: number
-): CheckTakeawayOrderAvailabilityResult => {
-    return price <= 0
-        ? { errorMessage: 'Price must be greater than zero.' }
-        : price >= 1000
-        ? { errorMessage: 'Please call us to order.' }
-        : {};
+export const validatePrice = (price: number): ValidationResult => {
+  if (price <= 0) {
+    return { success: false, errorMessage: 'Price must be greater than zero.' };
+  } else if (price >= 1000) {
+    return { success: false, errorMessage: 'Please call us to order.' };
+  }
+  return { success: true };
 };
 
-const checkTakeawayOrderAvailability = async (
-    otp: boolean,
-    pickUpDate: string,
-    pickUpTime: string,
-    price: number
-): Promise<CheckTakeawayOrderAvailabilityResult> => {
-    let result: CheckTakeawayOrderAvailabilityResult = {};
-
-    const validations = [
-        () => validateInitialConditions(otp),
-        () => validatePickUpTime(pickUpDate, pickUpTime),
-        () => validatePrice(price),
-    ];
-
-    for (const validation of validations) {
-        result = validation();
-        if (result.errorMessage) return result; 
+export const runValidations = async (validations: (() => ValidationResult)[]): Promise<void> => {
+  validations.forEach((validation) => {
+    const result = validation();
+    if (!result.success && result.errorMessage) {
+      alert(result.errorMessage); 
+      throw new Error(result.errorMessage); 
     }
-
-    return result; 
+  });
 };
-
-export default checkTakeawayOrderAvailability;
