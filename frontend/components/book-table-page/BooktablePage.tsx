@@ -10,11 +10,12 @@ import VerifyOtpModal from '@/components/common/VerifyOtpModal';
 import { Restaurant, Table } from '@/types';
 import clsx from 'clsx';
 import { sanityClient } from '@/lib/sanityClient';
-import checkTableBookingAvailability from './checkAvailability';
+import { runValidations,validateInitialConditions, validateReservationTime, validateTableAvailabilityAndConflicts } from './checkAvailability';
 import { useSMS } from '../hooks/useSMS';
 import { validateBlacklist, validateOperatingTime } from '../common/utils/validationUtils';
 import OtpButton from '@/components/common/icon-and-button/OtpButton';
 import DateTimePicker from '@/components/common/DateTImePicker';
+import { createReservation } from '@/components/common/createReservation';
 
 interface BooktablePageProps {
   restaurant: Restaurant;
@@ -82,42 +83,28 @@ export function BooktablePage({ restaurant, tables }: BooktablePageProps) {
 
   const selectedDate = watch('date');
 
-  const onSubmit = async (data: FormData) => {
-    const result = await checkTableBookingAvailability(
-      tables,
-      data.guests,
-      data.date,
-      data.time,
-      verifyOtp,
-    );
-    if (result.errorMessage) {
-      alert(result.errorMessage);
-      return;
-    }
-
-    const datetime = `${data.date}T${data.time}`;
-
+  const onSubmit = async (data: FormData): Promise<void> => {
     try {
-      await sanityClient.create({
-        _type: 'reservation',
-        name: data.name,
-        phone: data.phone,
-        email: data.email,
-        guests: data.guests,
-        preference: data.preference,
-        notes: data.notes,
-        time: datetime,
-        table: {
-          _type: 'reference',
-          _ref: result.tableId,
-        },
-      });
-      // redirect to the success page
+      const validationResult = await runValidations([
+        () => validateInitialConditions(verifyOtp, data.guests, tables),
+        () => validateReservationTime(data.date, data.time),
+        () => validateTableAvailabilityAndConflicts(tables, data.guests, data.date, data.time),
+      ]);
+  
+      const tableId = validationResult.tableId;
+      if (!tableId) {
+        throw new Error('Table ID not found after validations.');
+      }
+  
+      await createReservation(data, tableId);
+  
+      // Redirect to success page or handle successful booking
+      console.log('Reservation created successfully');
     } catch (error) {
-      console.error('Error creating reservation:', error);
-      alert('Failed to book a table. Please try again later.');
+      console.error('Error during reservation:', error);
     }
   };
+  
 
   const phoneClickHandler = async () => {
     const result = await trigger('phone');

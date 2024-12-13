@@ -18,7 +18,7 @@ import OtpButton from '@/components/common/icon-and-button/OtpButton';
 import DateTimePicker from '@/components/common/DateTImePicker';
 import { loadStripe } from '@stripe/stripe-js';
 import { sanityClient } from '@/lib/sanityClient';
-import { createSanityOrder } from '@/components/common/createSanityOrder';
+import { createTakeAwayOrder } from '@/components/common/createTakeAwayOrder';
 import { triggerAll, fetchStripeSession } from '@/components/common/utils/paymentUtils';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
@@ -112,7 +112,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
         () => validatePrice(parseFloat(totalPrice)),
       ]);
 
-      await createSanityOrder({
+      await createTakeAwayOrder({
         customerName: data.name,
         email: data.email,
         items: orderList,
@@ -135,7 +135,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
         () => validatePrice(parseFloat(totalPrice)),
       ]);
       const sessionId = await fetchStripeSession(orderList, totalPrice);
-      await createSanityOrder({
+      await createTakeAwayOrder({
         customerName: data.name,
         email: data.email,
         items: orderList,

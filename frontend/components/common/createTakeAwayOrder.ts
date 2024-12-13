@@ -1,6 +1,6 @@
 import { sanityClient } from '@/lib/sanityClient';
 
-interface CreateOrderParams {
+interface CreateTakeAwayOrderParams {
   customerName: string;
   email: string;
   items: Array<{ _id: string; quantity: number }>;
@@ -8,13 +8,13 @@ interface CreateOrderParams {
   status: string;
 }
 
-export const createSanityOrder = async ({
+export const createTakeAwayOrder = async ({
   customerName,
   email,
   items,
   date,
   status,
-}: CreateOrderParams) => {
+}: CreateTakeAwayOrderParams) => {
   try {
     const createdOrder = await sanityClient.create({
       _type: 'order',

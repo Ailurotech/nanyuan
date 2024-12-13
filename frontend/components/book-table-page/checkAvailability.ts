@@ -2,59 +2,60 @@ import { Table } from '@/types';
 import { sanityClient } from '@/lib/sanityClient';
 import { DateTime } from 'luxon';
 
-interface CheckTableBookingAvailabilityResult {
+interface ValidationResult {
+  success: boolean;
   tableId?: string;
   errorMessage?: string;
 }
 
-const validateInitialConditions = (
+export const validateInitialConditions = (
   otp: boolean,
   guests: string,
   tables: Table[]
-): CheckTableBookingAvailabilityResult => {
-  return !otp
-    ? { errorMessage: 'OTP not verified' }
-    : isNaN(parseInt(guests, 10)) || parseInt(guests, 10) <= 0
-    ? { errorMessage: 'Invalid guest count' }
-    : (!tables || tables.length === 0)
-    ? { errorMessage: 'No tables available' }
-    : {}; 
+): ValidationResult => {
+  if (!otp) return { success: false, errorMessage: 'OTP not verified' };
+  if (isNaN(parseInt(guests, 10)) || parseInt(guests, 10) <= 0) {
+    return { success: false, errorMessage: 'Invalid guest count' };
+  }
+  if (!tables || tables.length === 0) {
+    return { success: false, errorMessage: 'No tables available' };
+  }
+  return { success: true };
 };
 
-const validateReservationTime = (
+export const validateReservationTime = (
   reservationDate: string,
   reservationTime: string
-): CheckTableBookingAvailabilityResult => {
+): ValidationResult => {
   const now = DateTime.now();
   const reservationStart = DateTime.fromISO(`${reservationDate}T${reservationTime}`);
 
-  return reservationStart <= now
-    ? { errorMessage: 'Cannot book for a past date or time.' }
-    : reservationStart < now.plus({ hours: 24 })
-    ? { errorMessage: 'Reservations must be made at least 24 hours in advance.' }
-    : {}; 
+  if (reservationStart <= now) {
+    return { success: false, errorMessage: 'Cannot book for a past date or time.' };
+  }
+  if (reservationStart < now.plus({ hours: 24 })) {
+    return { success: false, errorMessage: 'Reservations must be made at least 24 hours in advance.' };
+  }
+  return { success: true };
 };
 
-const findTable = (
+export const validateTableAvailabilityAndConflicts = async (
   tables: Table[],
-  guests: string
-): CheckTableBookingAvailabilityResult => {
-  const guestCount = parseInt(guests, 10);
-  const suitableTable = tables
-    .filter((table) => parseInt(table.type, 10) >= guestCount)
-    .sort((a, b) => parseInt(a.type, 10) - parseInt(b.type, 10))[0];
-
-  return suitableTable
-    ? { tableId: suitableTable._id }  
-    : { errorMessage: 'No suitable table found for the given guest count, please contact us for a larger table.' };
-};
-
-const checkTableConflicts = async (
-  tableId: string,
+  guests: string,
   reservationDate: string,
   reservationTime: string
-): Promise<CheckTableBookingAvailabilityResult> => {
+): Promise<ValidationResult> => {
   try {
+    const guestCount = parseInt(guests, 10);
+    const suitableTable = tables
+      .filter((table) => parseInt(table.type, 10) >= guestCount)
+      .sort((a, b) => parseInt(a.type, 10) - parseInt(b.type, 10))[0];
+
+    if (!suitableTable) {
+      return { success: false, errorMessage: 'No suitable table found for the given guest count.' };
+    }
+
+    const tableId = suitableTable._id;
     const reservationStart = DateTime.fromISO(`${reservationDate}T${reservationTime}`);
     const bufferStart = reservationStart.minus({ hours: 1 }).toISO();
     const bufferEnd = reservationStart.plus({ hours: 1 }).toISO();
@@ -74,37 +75,32 @@ const checkTableConflicts = async (
 
     const table = await sanityClient.getDocument(tableId);
 
-    return reservations.length >= (table?.quantity || 0)
-      ? { errorMessage: 'No availability for this table at this time, please contact us.' }
-      : { tableId }; 
+    if (reservations.length >= (table?.quantity || 0)) {
+      return { success: false, errorMessage: 'No availability for this table at this time.' };
+    }
+
+    return { success: true, tableId };
   } catch (error) {
-    console.error('Error checking reservations:', error);
-    return { errorMessage: 'Error checking availability.' };  
+    console.error('Error checking table availability and conflicts:', error);
+    return { success: false, errorMessage: 'Error checking table availability.' };
   }
 };
 
-const checkTableBookingAvailability = async (
-  tables: Table[],
-  guests: string,
-  reservationDate: string,
-  reservationTime: string,
-  otp: boolean
-): Promise<CheckTableBookingAvailabilityResult> => {
-  let result: CheckTableBookingAvailabilityResult = {};  
-
-  const validations = [
-    () => validateInitialConditions(otp, guests, tables),
-    () => validateReservationTime(reservationDate, reservationTime),
-    () => findTable(tables, guests),
-    async () => checkTableConflicts(result.tableId!, reservationDate, reservationTime),
-  ];
+export const runValidations = async (
+  validations: (() => ValidationResult | Promise<ValidationResult>)[]
+): Promise<ValidationResult> => {
+  let tableId: string | undefined;
 
   for (const validation of validations) {
-    result = await validation();  
-    if (result.errorMessage) return result;  
+    const result = await validation();
+    if (!result.success) {
+      alert(result.errorMessage || 'Validation failed.');
+      throw new Error(result.errorMessage || 'Validation failed.');
+    }
+    if (result.tableId) tableId = result.tableId; // 更新 tableId
   }
 
-  return result; 
+  return { success: true, tableId };
 };
 
-export default checkTableBookingAvailability;
+

@@ -40,7 +40,7 @@ export const runValidations = async (validations: (() => ValidationResult)[]): P
     const result = validation();
     if (!result.success && result.errorMessage) {
       alert(result.errorMessage); 
-      throw new Error(result.errorMessage); 
+      throw new Error(result.errorMessage);
     }
   });
 };
