@@ -101,7 +101,7 @@ export function BooktablePage({ restaurant, tables }: BooktablePageProps) {
       // Redirect to success page or handle successful booking
       console.log('Reservation created successfully');
     } catch (error) {
-      console.error('Error during reservation:', error);
+      console.log('Error during reservation:', error);
     }
   };
   

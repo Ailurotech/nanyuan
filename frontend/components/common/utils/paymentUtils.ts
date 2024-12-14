@@ -5,7 +5,11 @@ export const triggerAll = async (trigger: () => Promise<boolean>) => {
   };
 
   
-  export const fetchStripeSession = async (orderList: any[], totalPrice: string): Promise<string> => {
+  export const fetchStripeSession = async (
+    orderList: any[],
+    totalPrice: string,
+    id: string
+  ): Promise<string> => {
     const response = await fetch(
       'https://qfsl0v3js4.execute-api.ap-southeast-2.amazonaws.com/dev/api/create-checkout-session',
       {
@@ -13,7 +17,11 @@ export const triggerAll = async (trigger: () => Promise<boolean>) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ orderList, totalPrice }),
+        body: JSON.stringify({
+          orderList,
+          totalPrice,
+          id, 
+        }),
       }
     );
   
@@ -24,4 +32,5 @@ export const triggerAll = async (trigger: () => Promise<boolean>) => {
     const { sessionId } = await response.json();
     return sessionId;
   };
+  
   

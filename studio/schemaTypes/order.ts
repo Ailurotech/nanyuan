@@ -35,7 +35,7 @@ export default defineType({
           { title: 'Pending', value: 'Pending' },
           { title: 'Paid', value: 'Paid' },
           { title: 'Cancelled', value: 'Cancelled' },
-          { title: 'Cash', value: 'Cash' }, 
+          { title: 'Offline', value: 'Offline' }, 
         ],
         layout: 'dropdown',
       },

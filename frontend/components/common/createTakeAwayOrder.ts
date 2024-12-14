@@ -28,8 +28,8 @@ export const createTakeAwayOrder = async ({
       date,
       status,
     });
-    console.log('Order successfully created:', createdOrder);
-    return createdOrder;
+    const orderId = createdOrder._id;
+    return orderId;
   } catch (error) {
     console.error('Error creating order in Sanity:', error);
     throw new Error('Failed to create order. Please try again.');

@@ -34,7 +34,7 @@ functions:
           path: api/send-email
           method: post
           cors:
-            origin: '*' # 允许所有域名（生产环境建议指定具体域名）
+            origin: '*' # Allow all domains (replace with specific domains in production)
             headers:
               - Content-Type
               - Authorization
@@ -57,7 +57,7 @@ functions:
           path: api/create-checkout-session
           method: post
           cors:
-            origin: '*' # 允许所有域名（生产环境建议指定具体域名）
+            origin: '*' # Allow all domains (replace with specific domains in production)
             headers:
               - Content-Type
               - Authorization
@@ -68,6 +68,32 @@ functions:
     environment:
       STRIPE_SECRET_KEY: ${env:STRIPE_SECRET_KEY}
       CLIENT_BASE_URL: ${env:CLIENT_BASE_URL}
+
+  webhookHandler: 
+    handler: lambda/webhook-handler.handler 
+    memorySize: 1024
+    timeout: 28
+    role: ServerlessNextjsLambdaRole
+    events:
+      - http:
+          path: api/webhooks/stripe
+          method: post
+          cors:
+            origin: '*' # Allow all domains
+            headers:
+              - Content-Type
+              - Stripe-Signature
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+    environment:
+      STRIPE_SECRET_KEY: ${env:STRIPE_SECRET_KEY}
+      STRIPE_WEBHOOK_SECRET: ${env:STRIPE_WEBHOOK_SECRET}
+      SANITY_PROJECT_ID: ${env:SANITY_PROJECT_ID}
+      SANITY_DATASET: ${env:SANITY_DATASET}
+      SANITY_API_TOKEN: ${env:SANITY_API_TOKEN}
 
 resources:
   Resources:

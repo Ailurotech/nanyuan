@@ -8,7 +8,6 @@ import { MenuItem } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as zod from 'zod';
 import { useSMS } from '@/components/hooks/useSMS';
-import clsx from 'clsx';
 import VerifyOtpModal from '@/components/common/VerifyOtpModal';
 import { runValidations, validatePrice, validatePickUpTime, validateOTP } from './checkAvailiability';
 import { Restaurant } from '@/types';
@@ -17,7 +16,6 @@ import OrderList from './small-component/OrderList';
 import OtpButton from '@/components/common/icon-and-button/OtpButton';
 import DateTimePicker from '@/components/common/DateTImePicker';
 import { loadStripe } from '@stripe/stripe-js';
-import { sanityClient } from '@/lib/sanityClient';
 import { createTakeAwayOrder } from '@/components/common/createTakeAwayOrder';
 import { triggerAll, fetchStripeSession } from '@/components/common/utils/paymentUtils';
 
@@ -112,13 +110,14 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
         () => validatePrice(parseFloat(totalPrice)),
       ]);
 
-      await createTakeAwayOrder({
+      const id = await createTakeAwayOrder({
         customerName: data.name,
         email: data.email,
         items: orderList,
         date: `${data.date}T${data.time}`,
-        status: 'Cash',
+        status: 'Offline',
       });
+      console.log('Order ID:', id);
       //sucessfull page
     } catch (error) {
       console.log(error);
@@ -128,20 +127,22 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
 
   const handlePayOnline = async (data: FormData) => {
     try {
-      await triggerAll(trigger);
-      await runValidations([
-        () => validateOTP(verifyOtp),
-        () => validatePickUpTime(data.date, data.time),
-        () => validatePrice(parseFloat(totalPrice)),
-      ]);
-      const sessionId = await fetchStripeSession(orderList, totalPrice);
-      await createTakeAwayOrder({
+      //await triggerAll(trigger);
+      //  await runValidations([
+        //() => validateOTP(verifyOtp),
+        //() => validatePickUpTime(data.date, data.time),
+        //() => validatePrice(parseFloat(totalPrice)),
+      //]);
+      
+      const id = await createTakeAwayOrder({
         customerName: data.name,
         email: data.email,
         items: orderList,
         date: `${data.date}T${data.time}`,
         status: 'Pending',
       });
+      const sessionId = await fetchStripeSession(orderList, totalPrice, id);
+      console.log('Order ID:', id);
 
       const stripe = await stripePromise;
       if (!stripe) throw new Error('Stripe is not loaded.');

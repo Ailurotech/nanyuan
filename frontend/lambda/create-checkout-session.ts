@@ -7,7 +7,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 export const handler: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
   try {
-    const { orderList, totalPrice } = JSON.parse(event.body || '{}');
+    const { orderList, totalPrice ,id} = JSON.parse(event.body || '{}');
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -23,7 +23,10 @@ export const handler: APIGatewayProxyHandler = async (event): Promise<APIGateway
       })),
       mode: 'payment',
       success_url: `${process.env.CLIENT_BASE_URL}/success`,
-      cancel_url: `${process.env.CLIENT_BASE_URL}/cancel`,
+      cancel_url: `${process.env.CLIENT_BASE_URL}`,
+      metadata: {
+        orderId: id, 
+      },
     });
 
     return {

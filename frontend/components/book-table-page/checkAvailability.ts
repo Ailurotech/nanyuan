@@ -97,7 +97,7 @@ export const runValidations = async (
       alert(result.errorMessage || 'Validation failed.');
       throw new Error(result.errorMessage || 'Validation failed.');
     }
-    if (result.tableId) tableId = result.tableId; // 更新 tableId
+    if (result.tableId) tableId = result.tableId; 
   }
 
   return { success: true, tableId };
