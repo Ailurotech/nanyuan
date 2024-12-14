@@ -1,23 +1,23 @@
 import { ControlledInput } from '@/components/common/controller/ControlledInput';
 import { ControlledTestArea } from '@/components/common/controller/ControlledTestArea';
 import { Button } from '@chakra-ui/react';
-import { get, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { InputsContainer } from './InputsContainer';
-import { useEffect, useState } from 'react';
-import { MenuItem } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as zod from 'zod';
 import { useSMS } from '@/components/hooks/useSMS';
 import VerifyOtpModal from '@/components/common/VerifyOtpModal';
 import { runValidations, validatePrice, validatePickUpTime, validateOTP } from './checkAvailiability';
 import { Restaurant } from '@/types';
-import { validateBlacklist, validateOperatingTime } from '@/components/common/utils/validationUtils';
 import OrderList from './small-component/OrderList';
 import OtpButton from '@/components/common/icon-and-button/OtpButton';
 import DateTimePicker from '@/components/common/DateTImePicker';
 import { loadStripe } from '@stripe/stripe-js';
 import { createTakeAwayOrder } from '@/components/common/createTakeAwayOrder';
 import { triggerAll, fetchStripeSession } from '@/components/common/utils/paymentUtils';
+import { v4 as uuidv4 } from 'uuid'; 
+import { useCart } from '@/components/hooks/useCart';
+import { usePhoneClickHandler } from '@/components/hooks/usePhoneClickHandler';
+import { getFormDataSchema } from './schema/validationSchema';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
@@ -26,8 +26,8 @@ interface TakeawayProps {
 }
 
 export function TakeawayForm({ restaurant }: TakeawayProps) {
-
   
+  const { orderList, totalPrice, loading } = useCart();
   interface FormData {
     name: string;
     phone: string;
@@ -36,7 +36,6 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
     email: string;
     notes: string;
   }
-  type OrderList = MenuItem & { quantity: number };
 
   const {
     SendOtp,
@@ -47,47 +46,8 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
     timeLeft,
     isRunning,
   } = useSMS();
-  const [orderList, setOrderList] = useState<OrderList[]>([]);
-  const [totalPrice, setTotalPrice] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(true);
-
-  useEffect(() => {
-    const cart = localStorage.getItem('cart');
-    if (!cart) {
-      setOrderList([]);
-      setLoading(false);
-    }
-    if (cart) {
-      const parsedList = JSON.parse(cart) as OrderList[];
-      setOrderList(parsedList);
-      const price = parsedList
-        .reduce((acc, cum) => {
-          return acc + cum.price * cum.quantity;
-        }, 0)
-        .toFixed(2);
-      setTotalPrice(price);
-      setLoading(false);
-    }
-  }, []);
-
-  const phoneSchema = zod
-    .string()
-    .min(1, { message: 'Required Field' })
-    .regex(/^\d{9}$/, { message: 'Phone number invalid' });
-  const requiredField = zod.string().min(1, { message: 'Required Field' });
-  const FormDataSchema = zod
-    .object({
-      name: requiredField,
-      phone: phoneSchema,
-      date: requiredField,
-      time: requiredField,
-      email: requiredField.email(),
-      notes: zod.string().optional(),
-    })
-    .superRefine((data, context) => {
-      validateBlacklist(data.phone, restaurant, context);
-      validateOperatingTime(data.date, data.time, restaurant, context);
-    });
+ 
+  const FormDataSchema = getFormDataSchema(restaurant);
 
   const { control, handleSubmit, trigger, getValues, watch } = useForm<FormData>({
     defaultValues: {
@@ -101,7 +61,6 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
     resolver: zodResolver(FormDataSchema),
   });
 
-
   const onSubmit = async (data: FormData) => {
     try {
       await runValidations([
@@ -109,11 +68,18 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
         () => validatePickUpTime(data.date, data.time),
         () => validatePrice(parseFloat(totalPrice)),
       ]);
+      const id = uuidv4(); 
 
-      const id = await createTakeAwayOrder({
+      await createTakeAwayOrder({
+        id: id,
         customerName: data.name,
         email: data.email,
-        items: orderList,
+        items: orderList.map((item) => ({
+          _id: item._id,
+          quantity: item.quantity,
+          _key: uuidv4(), 
+          menuItem: { _type: 'reference', _ref: item._id },
+        })),
         date: `${data.date}T${data.time}`,
         status: 'Offline',
       });
@@ -127,25 +93,30 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
 
   const handlePayOnline = async (data: FormData) => {
     try {
-      //await triggerAll(trigger);
-      //  await runValidations([
-        //() => validateOTP(verifyOtp),
-        //() => validatePickUpTime(data.date, data.time),
-        //() => validatePrice(parseFloat(totalPrice)),
-      //]);
+      await triggerAll(trigger);
+      await runValidations([
+        () => validateOTP(verifyOtp),
+        () => validatePickUpTime(data.date, data.time),
+        () => validatePrice(parseFloat(totalPrice)),
+      ]);
+      const id = uuidv4();
+      const sessionId = await fetchStripeSession(orderList, totalPrice, id);
       
-      const id = await createTakeAwayOrder({
+      const stripe = await stripePromise;
+      if (!stripe) throw new Error('Stripe is not loaded.');
+      await createTakeAwayOrder({
+        id: id,
         customerName: data.name,
         email: data.email,
-        items: orderList,
+        items: orderList.map((item) => ({
+          _id: item._id,
+          quantity: item.quantity,
+          _key: uuidv4(), 
+          menuItem: { _type: 'reference', _ref: item._id },
+        })),
         date: `${data.date}T${data.time}`,
         status: 'Pending',
       });
-      const sessionId = await fetchStripeSession(orderList, totalPrice, id);
-      console.log('Order ID:', id);
-
-      const stripe = await stripePromise;
-      if (!stripe) throw new Error('Stripe is not loaded.');
       await stripe.redirectToCheckout({ sessionId });
       //sucessfull page
       //cancel modal
@@ -153,22 +124,9 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
       console.log(error);
     }
   };
-  
-  
-  
-  
-  const phoneClickHandler = async () => {
-    const result = await trigger('phone');
-    const phone = getValues('phone');
-    if (result) {
-      SendOtp(phone);
-    }
-  };
-
 
   const selectedDate = watch('date');
-
-
+  const phoneClickHandler = usePhoneClickHandler(SendOtp, trigger, getValues);
   
   return (
     !loading && (

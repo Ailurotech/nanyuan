@@ -5,18 +5,16 @@ import { Button } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { InputsContainer } from '@/components/take-away-page/component/InputsContainer';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as zod from 'zod';
 import VerifyOtpModal from '@/components/common/VerifyOtpModal';
 import { Restaurant, Table } from '@/types';
 import clsx from 'clsx';
-import { sanityClient } from '@/lib/sanityClient';
 import { runValidations,validateInitialConditions, validateReservationTime, validateTableAvailabilityAndConflicts } from './checkAvailability';
 import { useSMS } from '../hooks/useSMS';
-import { validateBlacklist, validateOperatingTime } from '../common/utils/validationUtils';
 import OtpButton from '@/components/common/icon-and-button/OtpButton';
 import DateTimePicker from '@/components/common/DateTImePicker';
 import { createReservation } from '@/components/common/createReservation';
-
+import { usePhoneClickHandler } from '@/components/hooks/usePhoneClickHandler';
+import { getBookTableSchema } from './schema/validationSchemas';
 interface BooktablePageProps {
   restaurant: Restaurant;
   tables: Table[];
@@ -44,27 +42,7 @@ export function BooktablePage({ restaurant, tables }: BooktablePageProps) {
     isRunning,
   } = useSMS();
 
-  const requiredField = zod.string().min(1, { message: 'Required Field' });
-  const phoneSchema = zod
-    .string()
-    .min(1, { message: 'Required Field' })
-    .regex(/^\d{9}$/, { message: 'Phone number invalid' });
-
-  const FormDataSchema = zod
-    .object({
-      name: requiredField,
-      phone: phoneSchema,
-      date: requiredField,
-      time: requiredField,
-      guests: requiredField,
-      email: zod.string().email({ message: 'Invalid email address' }),
-      preference: zod.string(),
-      notes: zod.string(),
-    })
-    .superRefine((data, context) => {
-      validateBlacklist(data.phone, restaurant, context);
-      validateOperatingTime(data.date, data.time, restaurant, context);
-    });
+  const FormDataSchema = getBookTableSchema(restaurant);
 
   const { control, handleSubmit, trigger, watch, getValues } =
     useForm<FormData>({
@@ -106,13 +84,7 @@ export function BooktablePage({ restaurant, tables }: BooktablePageProps) {
   };
   
 
-  const phoneClickHandler = async () => {
-    const result = await trigger('phone');
-    const phone = getValues('phone');
-    if (result) {
-      SendOtp(phone);
-    }
-  };
+  const phoneClickHandler = usePhoneClickHandler(SendOtp, trigger, getValues);
 
   return (
     <section className="bg-[#191919] min-h-screen pt-[200px] flex flex-col items-center">

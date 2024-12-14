@@ -3,10 +3,17 @@ import { sanityClient } from '@/lib/sanityClient';
 interface CreateTakeAwayOrderParams {
   customerName: string;
   email: string;
-  items: Array<{ _id: string; quantity: number }>;
+  items: Array<{
+    _id: string; 
+    quantity: number; 
+    _key: string; 
+    menuItem: { _type: string; _ref: string }; 
+  }>;
   date: string;
   status: string;
+  id: string;
 }
+
 
 export const createTakeAwayOrder = async ({
   customerName,
@@ -14,24 +21,32 @@ export const createTakeAwayOrder = async ({
   items,
   date,
   status,
+  id,
 }: CreateTakeAwayOrderParams) => {
   try {
-    const createdOrder = await sanityClient.create({
+    const createdOrder = await sanityClient.createIfNotExists({
       _type: 'order',
+      _id: id,
       customerName,
       email,
       items: items.map((item) => ({
-        _type: 'reference',
-        _ref: item._id,
-        _key: item._id,
+        _type: 'object',
+        _key: item._id, 
+        menuItem: {
+          _type: 'reference',
+          _ref: item._id,
+        },
+        quantity: item.quantity,
       })),
       date,
       status,
     });
-    const orderId = createdOrder._id;
-    return orderId;
+
+    console.log('Order successfully created:', createdOrder);
+    return createdOrder;
   } catch (error) {
     console.error('Error creating order in Sanity:', error);
     throw new Error('Failed to create order. Please try again.');
   }
 };
+
