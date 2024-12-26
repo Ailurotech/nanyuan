@@ -31,6 +31,7 @@ export function ControlledTestArea<TFieldValues extends FieldValues>({
         {label}
       </Text>
       <Textarea
+        minHeight="100px"
         size="md"
         borderRadius="5px"
         placeholder={placeholder}

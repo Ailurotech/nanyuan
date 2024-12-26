@@ -1,6 +1,6 @@
 import { ControlledInput } from '@/components/common/controller/ControlledInput';
 import { ControlledTestArea } from '@/components/common/controller/ControlledTestArea';
-import { Button } from '@chakra-ui/react';
+import { Button, HStack } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { InputsContainer } from './InputsContainer';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -18,6 +18,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { useCart } from '@/components/hooks/useCart';
 import { usePhoneClickHandler } from '@/components/hooks/usePhoneClickHandler';
 import { getFormDataSchema } from './schema/validationSchema';
+import ActionButton from '@/components/common/ActionButton';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
@@ -159,20 +160,14 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
             placeholder="Enter your special request or notes for your order here..."
             rows={5}
           />
-          <Button
-            marginTop="2rem"
-            colorScheme="orange"
-            variant="solid"
-            type="submit"
-            backgroundColor="#facc16"
-            padding="0.6rem"
-            borderRadius={5}
-            fontSize="small"
-            fontWeight="600"
+          <HStack
+          marginTop="2rem"
+          width="100%"
+          marginX="auto"
           >
-            Submit Order
-          </Button>
-          <Button onClick={() => handlePayOnline(getValues())}>Pay Online</Button>
+            <ActionButton label="Submit Order" onClick={handleSubmit(onSubmit)} />
+            <ActionButton label="Pay Online(4.99% charge)" onClick={() => handlePayOnline(getValues())} />
+          </HStack>
         </form>
         {isModalOpen && (
           <VerifyOtpModal
