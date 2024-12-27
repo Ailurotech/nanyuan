@@ -15,6 +15,7 @@ import DateTimePicker from '@/components/common/DateTImePicker';
 import { createReservation } from '@/components/common/createReservation';
 import { usePhoneClickHandler } from '@/components/hooks/usePhoneClickHandler';
 import { getBookTableSchema } from './schema/validationSchemas';
+import { useRouter } from 'next/router';
 interface BooktablePageProps {
   restaurant: Restaurant;
   tables: Table[];
@@ -32,6 +33,7 @@ type FormData = {
 };
 
 export function BooktablePage({ restaurant, tables }: BooktablePageProps) {
+  const router = useRouter();
   const {
     SendOtp,
     handleVerifyOtp,
@@ -70,14 +72,16 @@ export function BooktablePage({ restaurant, tables }: BooktablePageProps) {
       ]);
   
       const tableId = validationResult.tableId;
-      if (!tableId) {
-        throw new Error('Table ID not found after validations.');
-      }
   
       await createReservation(data, tableId);
-  
-      // Redirect to success page or handle successful booking
-      console.log('Reservation created successfully');
+      router.push({
+        pathname: '/success/booktable',
+        query: {
+          name: data.name,
+          date: data.date,
+          time: data.time,
+        },
+      });
     } catch (error) {
       console.log('Error during reservation:', error);
     }

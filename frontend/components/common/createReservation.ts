@@ -13,7 +13,7 @@ export interface ReservationData {
 
 export const createReservation = async (
   data: ReservationData,
-  tableId: string
+  tableId: string|undefined
 ): Promise<void> => {
   try {
     await sanityClient.create({

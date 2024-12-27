@@ -24,6 +24,14 @@ export const tableQuery = `
   }
 `;
 
+export const restaurantLocationQuery = `
+  *[_type == "restaurant"][0] {
+    locationTitle,
+    address,
+    iframeSrc
+  }
+`;
+
 
 export const homePageQuery = `
   *[_type == "HomePage"]{
@@ -86,6 +94,11 @@ export const homePageQuery = `
 export async function fetchRestaurant() {
   const restaurantData = await sanityClient.fetch(restaurantQuery);
   return restaurantData;
+}
+
+export async function fetchRestaurantLocation() {
+  const locationDetails = await sanityClient.fetch(restaurantLocationQuery);
+  return locationDetails;
 }
 
 export async function fetchTables() {

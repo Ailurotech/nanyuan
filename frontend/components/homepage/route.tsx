@@ -76,6 +76,7 @@ export const SocialRoute = {
 };
 
 
+
 export const ShoppingCart = {
   Path: "/shoppingcart",
   Name: "ShoppingCart",

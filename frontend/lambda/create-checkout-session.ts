@@ -23,7 +23,7 @@ export const handler: APIGatewayProxyHandler = async (event): Promise<APIGateway
       })),
       
       mode: 'payment',
-      success_url: `${process.env.CLIENT_BASE_URL}/success`,
+      success_url: `${process.env.CLIENT_BASE_URL}/success/takeaway`,
       cancel_url: `${process.env.CLIENT_BASE_URL}`,
       metadata: {
         orderId: id, 

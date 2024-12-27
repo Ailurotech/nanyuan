@@ -12,13 +12,14 @@ import OrderList from './small-component/OrderList';
 import OtpButton from '@/components/common/icon-and-button/OtpButton';
 import DateTimePicker from '@/components/common/DateTImePicker';
 import { loadStripe } from '@stripe/stripe-js';
-import { createTakeAwayOrder } from '@/components/common/createTakeAwayOrder';
 import { triggerAll, fetchStripeSession } from '@/components/common/utils/paymentUtils';
 import { v4 as uuidv4 } from 'uuid'; 
 import { useCart } from '@/components/hooks/useCart';
 import { usePhoneClickHandler } from '@/components/hooks/usePhoneClickHandler';
 import { getFormDataSchema } from './schema/validationSchema';
 import ActionButton from '@/components/common/ActionButton';
+import { useRouter } from 'next/router';
+import { processOrder } from '@/components/common/utils/orderUtils';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
@@ -27,7 +28,7 @@ interface TakeawayProps {
 }
 
 export function TakeawayForm({ restaurant }: TakeawayProps) {
-  
+  const router = useRouter();
   const { orderList, totalPrice, loading } = useCart();
   interface FormData {
     name: string;
@@ -69,60 +70,49 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
         () => validatePickUpTime(data.date, data.time),
         () => validatePrice(parseFloat(totalPrice)),
       ]);
-      const id = uuidv4(); 
-
-      await createTakeAwayOrder({
-        id: id,
-        customerName: data.name,
-        email: data.email,
-        items: orderList.map((item) => ({
-          _id: item._id,
-          quantity: item.quantity,
-          _key: uuidv4(), 
-          menuItem: { _type: 'reference', _ref: item._id },
-        })),
-        date: `${data.date}T${data.time}`,
+      const id = uuidv4();
+      await processOrder({
+        data,
+        orderList,
+        totalPrice,
         status: 'Offline',
+        paymentMethod: 'offline',
+        orderId: id,
       });
-      console.log('Order ID:', id);
-      //sucessfull page
+  
+      router.push('/success/takeaway');
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
   
-
+ 
   const handlePayOnline = async (data: FormData) => {
     try {
-      await triggerAll(trigger);
       await runValidations([
         () => validateOTP(verifyOtp),
         () => validatePickUpTime(data.date, data.time),
         () => validatePrice(parseFloat(totalPrice)),
       ]);
+      
       const id = uuidv4();
       const sessionId = await fetchStripeSession(orderList, totalPrice, id);
-      
       const stripe = await stripePromise;
       if (!stripe) throw new Error('Stripe is not loaded.');
-      await createTakeAwayOrder({
-        id: id,
-        customerName: data.name,
-        email: data.email,
-        items: orderList.map((item) => ({
-          _id: item._id,
-          quantity: item.quantity,
-          _key: uuidv4(), 
-          menuItem: { _type: 'reference', _ref: item._id },
-        })),
-        date: `${data.date}T${data.time}`,
+  
+      await processOrder({
+        data,
+        orderList,
+        totalPrice,
         status: 'Pending',
+        paymentMethod: 'online',
+        sessionId,
+        orderId: id,
       });
+  
       await stripe.redirectToCheckout({ sessionId });
-      //sucessfull page
-      //cancel modal
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
@@ -166,7 +156,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
           marginX="auto"
           >
             <ActionButton label="Submit Order" onClick={handleSubmit(onSubmit)} />
-            <ActionButton label="Pay Online(4.99% charge)" onClick={() => handlePayOnline(getValues())} />
+            <ActionButton label="Pay Online(4.99% charge)" onClick={handleSubmit(handlePayOnline)} />
           </HStack>
         </form>
         {isModalOpen && (

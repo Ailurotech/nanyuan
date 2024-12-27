@@ -1,7 +1,5 @@
 import { defineType } from 'sanity';
 
-
-
 export const restaurant = defineType({
   name: 'restaurant',
   title: 'Restaurant',
@@ -13,20 +11,37 @@ export const restaurant = defineType({
       type: 'string',
     },
     {
-      name: 'Weekdaytime', 
-      title: 'Weekdaytime', 
-      type: 'duration', 
+      name: 'address',
+      title: 'Address',
+      type: 'string',
+      description: 'Restaurant physical address.',
     },
     {
-      name: 'Weekandtime', 
-      title: 'Weekandtime', 
-      type: 'duration', 
+      name: 'locationTitle', 
+      title: 'Location Title', 
+      type: 'string',
     },
     {
-      name: 'blacklist', 
+      name: 'iframeSrc',
+      title: 'Google Map Embed URL',
+      type: 'url',
+      description: 'The iframe URL for Google Maps.',
+    },
+    {
+      name: 'Weekdaytime',
+      title: 'Weekday Time',
+      type: 'duration',
+    },
+    {
+      name: 'Weekandtime',
+      title: 'Weekend Time',
+      type: 'duration',
+    },
+    {
+      name: 'blacklist',
       title: 'Blacklist',
-      type: 'array', 
-      of: [{ type: 'string' }], 
+      type: 'array',
+      of: [{ type: 'string' }],
     },
     {
       name: 'pageSize',
