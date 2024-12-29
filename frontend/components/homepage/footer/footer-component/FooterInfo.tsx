@@ -1,5 +1,5 @@
 import React from "react";
-import { Icon } from "@/components/common/Icon";
+import { Icon } from "@/components/common/icon-and-button/Icon";
 import { SocialRoute } from "@/components/homepage/route";
 import Link from "next/link";
 import { FooterContent } from "@/types";

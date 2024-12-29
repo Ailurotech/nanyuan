@@ -1,4 +1,4 @@
-import {defineType} from 'sanity';
+import { defineType } from 'sanity';
 
 export default defineType({
   name: 'order',
@@ -19,7 +19,44 @@ export default defineType({
       name: 'items',
       title: 'Ordered Items',
       type: 'array',
-      of: [{ type: 'reference', to: [{ type: 'menu' }] }],
+      of: [
+        {
+          type: 'object',
+          fields: [
+            {
+              name: 'menuItem',
+              title: 'Menu Item',
+              type: 'reference',
+              to: [{ type: 'menu' }],
+            },
+            {
+              name: 'quantity',
+              title: 'Quantity',
+              type: 'number',
+              validation: (Rule) => Rule.min(1).required(),
+            },
+          ],
+          preview: {
+            select: {
+              title: 'menuItem.name', 
+              media: 'menuItem.image', 
+              quantity: 'quantity', 
+            },
+            prepare(selection) {
+              const { title, media, quantity } = selection;
+              return {
+                title: `${title} (x${quantity})`, 
+                media, 
+              };
+            },
+          },
+        },
+      ],
+    },
+    {
+      name: 'date',
+      title: 'Date',
+      type: 'datetime',
     },
     {
       name: 'status',
@@ -27,9 +64,10 @@ export default defineType({
       type: 'string',
       options: {
         list: [
-          { title: 'Pending', value: 'pending' },
-          { title: 'Confirmed', value: 'confirmed' },
-          { title: 'Delivered', value: 'delivered' },
+          { title: 'Pending', value: 'Pending' },
+          { title: 'Paid', value: 'Paid' },
+          { title: 'Cancelled', value: 'Cancelled' },
+          { title: 'Offline', value: 'Offline' },
         ],
         layout: 'dropdown',
       },

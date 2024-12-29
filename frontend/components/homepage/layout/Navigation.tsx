@@ -1,7 +1,7 @@
 import Image from "next/image";
 import logo from "@/public/logo.png";
 import Link from "next/link";
-import { Icon } from "../../common/Icon";
+import { Icon } from "@/components/common/icon-and-button/Icon";
 import { Acme } from "next/font/google";
 import clsx from "clsx";
 import { RoutRoute, SocialRoute } from "../route";

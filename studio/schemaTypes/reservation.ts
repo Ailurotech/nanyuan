@@ -21,19 +21,21 @@ export default defineType({
       type: 'string',
     },
     {
-      name: 'date',
-      title: 'Date',
-      type: 'string',
-    },
-    {
       name: 'time',
       title: 'Time',
-      type: 'string',
+      type: 'datetime',
     },
     {
       name: 'guests',
       title: 'Guests',
       type: 'string',
+    },
+    {
+      name: 'table',
+      title: 'Table',
+      type: 'reference', 
+      to: [{ type: 'table' }],
+      description: 'The type of table assigned to this reservation.',
     },
     {
       name: 'preference',
@@ -44,6 +46,11 @@ export default defineType({
       name: 'notes',
       title: 'Special Requests or Notes',
       type: 'string',
+    },
+    {
+      name: 'confirmed',
+      title: 'Confirmed',
+      type: 'boolean',
     },
   ],
 });
