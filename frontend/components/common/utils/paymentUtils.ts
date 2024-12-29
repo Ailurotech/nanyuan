@@ -1,36 +1,30 @@
-export const triggerAll = async (trigger: () => Promise<boolean>) => {
-    if (!(await trigger())) {
-      throw new Error('Please fill out all required fields.');
-    }
-  };
+export const fetchStripeSession = async (
+  orderList: any[],
+  totalPrice: string,
+  id: string
+): Promise<string> => {
+  const apiUrl = process.env.NEXT_PUBLIC_STRIPE_CHECKOUT_URL; 
+  
+  if (!apiUrl) {
+    throw new Error('Environment variable NEXT_PUBLIC_STRIPE_CHECKOUT_URL is missing');
+  }
 
-  
-  export const fetchStripeSession = async (
-    orderList: any[],
-    totalPrice: string,
-    id: string
-  ): Promise<string> => {
-    const response = await fetch(
-      'https://qfsl0v3js4.execute-api.ap-southeast-2.amazonaws.com/dev/api/create-checkout-session',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          orderList,
-          totalPrice,
-          id, 
-        }),
-      }
-    );
-  
-    if (!response.ok) {
-      throw new Error('Failed to create Stripe checkout session.');
-    }
-  
-    const { sessionId } = await response.json();
-    return sessionId;
-  };
-  
-  
+  const response = await fetch(apiUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      orderList,
+      totalPrice,
+      id,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to create Stripe checkout session.');
+  }
+
+  const { sessionId } = await response.json();
+  return sessionId;
+};

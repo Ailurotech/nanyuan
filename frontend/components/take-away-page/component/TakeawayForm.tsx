@@ -12,7 +12,7 @@ import OrderList from './small-component/OrderList';
 import OtpButton from '@/components/common/icon-and-button/OtpButton';
 import DateTimePicker from '@/components/common/DateTImePicker';
 import { loadStripe } from '@stripe/stripe-js';
-import { triggerAll, fetchStripeSession } from '@/components/common/utils/paymentUtils';
+import { fetchStripeSession } from '@/components/common/utils/paymentUtils';
 import { v4 as uuidv4 } from 'uuid'; 
 import { useCart } from '@/components/hooks/useCart';
 import { usePhoneClickHandler } from '@/components/hooks/usePhoneClickHandler';
@@ -90,7 +90,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
   const handlePayOnline = async (data: FormData) => {
     try {
       await runValidations([
-        () => validateOTP(verifyOtp),
+        //() => validateOTP(verifyOtp),
         () => validatePickUpTime(data.date, data.time),
         () => validatePrice(parseFloat(totalPrice)),
       ]);

@@ -110,3 +110,14 @@ export interface FooterContent {
     };
   };
 }
+
+export interface ReservationData {
+  name: string;
+  phone: string;
+  email: string;
+  guests: string;
+  preference: string;
+  notes: string;
+  date: string;
+  time: string;
+}

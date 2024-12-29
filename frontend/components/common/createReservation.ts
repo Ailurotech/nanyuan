@@ -1,37 +1,35 @@
-import { sanityClient } from '@/lib/sanityClient';
-
-export interface ReservationData {
-  name: string;
-  phone: string;
-  email: string;
-  guests: string;
-  preference: string;
-  notes: string;
-  date: string;
-  time: string;
-}
+import { ReservationData } from '@/types';
 
 export const createReservation = async (
   data: ReservationData,
-  tableId: string|undefined
+  tableId: string | undefined
 ): Promise<void> => {
+  const apiUrl = process.env.NEXT_PUBLIC_CREATE_RESERVATION_URL;
+
+  if (!apiUrl) {
+    throw new Error('Environment variable NEXT_PUBLIC_CREATE_RESERVATION_URL is missing');
+  }
+
   try {
-    await sanityClient.create({
-      _type: 'reservation',
-      name: data.name,
-      phone: data.phone,
-      email: data.email,
-      guests: data.guests,
-      preference: data.preference,
-      notes: data.notes,
-      time: `${data.date}T${data.time}`,
-      table: {
-        _type: 'reference',
-        _ref: tableId,
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
+      body: JSON.stringify({
+        data,
+        tableId,
+      }),
     });
+
+    if (!response.ok) {
+      throw new Error(`Failed to create reservation. Status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    console.log('Reservation created successfully:', result);
   } catch (error) {
     console.error('Error creating reservation:', error);
-    throw new Error('Failed to create reservation.');
+    throw error;
   }
 };
