@@ -1,13 +1,12 @@
 import HomePage from "../components/homepage/HomePage";
 import TestmonialAndOpeningHours from "../components/homepage/component/TestmonialAndOpeningHours";
 import { GetStaticProps } from "next";
-import { sanityClient } from "@/lib/sanityClient";
-import { GalleryContent, HeroContent, OpeningHoursContent } from "@/types";
+import { GalleryContent, HeroContent, OpeningHoursContent, FooterContent } from "@/types";
 import { Content } from "@/components/homepage/component/Content";
 import { GalleryWidget } from "@/components/homepage/component/GalleryWidget";
 import Footer from "@/components/homepage/footer/Footer";
-import axios from "axios";
-import { FooterContent } from "@/types";
+import { fetchHomePageData, fetchOpeningHours } from "@/lib/queries";
+
 interface IndexProps {
   heroContent: HeroContent;
   galleryContent: GalleryContent;
@@ -15,8 +14,7 @@ interface IndexProps {
   footerContent: FooterContent;
 }
 
-export default function Index({ heroContent, galleryContent, openingHourContent, footerContent}: IndexProps) {
- 
+export default function Index({ heroContent, galleryContent, openingHourContent, footerContent }: IndexProps) {
   return (
     <>
       <HomePage homePageContent={heroContent} />
@@ -30,72 +28,12 @@ export default function Index({ heroContent, galleryContent, openingHourContent,
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-  const sanityQuery = `
-    *[_type == "HomePage"]{
-      Homepagetitle,
-      backgroundimg{
-        asset->{
-          url
-        }
-      },
-      dishimg{
-        asset->{
-          url
-        }
-      },
-      cheftext,
-      chefname,
-      galleryPhotos[] {
-        asset -> {
-          url
-        }
-      },
-      menuName,
-      menuLink,
-      menuDescription[] {
-        children[] {
-          text
-        }
-      },
-      OpeninghourPhotos[] {
-        asset -> {
-          url
-        }
-      },
-      testimonials[] {
-        name,
-        review,
-        region,
-        image {
-          asset -> {
-            url
-          }
-        }
-      },
-      "footer": {
-        address,
-        phone,
-        email,
-        copyright,
-        mapEmbedUrl,
-        insEmbedId,
-        topImage {
-          asset -> {
-            url
-          }
-        }
-      }
-    }
-  `;
-  const apiKey = process.env.GOOGLE_API_KEY; 
-  const placeId = "ChIJeeMv3fjPsGoRqQoVj86mqvM"; 
-  const mapsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=opening_hours&key=${apiKey}`;
+  const apiKey = process.env.GOOGLE_API_KEY;
+  const placeId = "ChIJeeMv3fjPsGoRqQoVj86mqvM";
 
   try {
-    const data = await sanityClient.fetch(sanityQuery);
-
-    const googleResponse = await axios.get(mapsUrl);
-    const openingHours = googleResponse.data.result?.opening_hours?.weekday_text || [""];
+    const data = await fetchHomePageData();
+    const openingHours = await fetchOpeningHours(apiKey!, placeId);
 
     return {
       props: {
@@ -117,17 +55,17 @@ export const getStaticProps: GetStaticProps = async () => {
           testimonials: data[0].testimonials,
           openingHours,
         },
-        footerContent: data[0].footer, 
+        footerContent: data[0].footer,
       },
     };
   } catch (e) {
-    console.error('Error fetching data:', e);
+    console.error("Error fetching data:", e);
     return {
       props: {
         heroContent: null,
         galleryContent: null,
         openingHourContent: null,
-        footerContent: null, 
+        footerContent: null,
       },
     };
   }

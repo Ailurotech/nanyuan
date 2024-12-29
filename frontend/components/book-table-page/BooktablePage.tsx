@@ -1,21 +1,24 @@
-import { ControlledInput } from '@/components/common/ControlledInput';
-import { ControlledTestArea } from '@/components/common/ControlledTestArea';
-import { ControlledSelect } from '@/components/common/ControlledSelect';
+import { ControlledInput } from '@/components/common/controller/ControlledInput';
+import { ControlledTestArea } from '@/components/common/controller/ControlledTestArea';
+import { ControlledSelect } from '@/components/common/controller/ControlledSelect';
 import { Button } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { InputsContainer } from '@/components/take-away-page/component/InputsContainer';
-import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as zod from 'zod';
 import VerifyOtpModal from '@/components/common/VerifyOtpModal';
-import { Restaurant } from '@/types';
-import { isValidTime } from './timeUtils';
+import { Restaurant, Table } from '@/types';
 import clsx from 'clsx';
-import { sanityClient } from '@/lib/sanityClient';
+import { runValidations,validateInitialConditions, validateReservationTime, validateTableAvailabilityAndConflicts } from './checkAvailability';
 import { useSMS } from '../hooks/useSMS';
-
+import OtpButton from '@/components/common/icon-and-button/OtpButton';
+import DateTimePicker from '@/components/common/DateTImePicker';
+import { createReservation } from '@/components/common/createReservation';
+import { usePhoneClickHandler } from '@/components/hooks/usePhoneClickHandler';
+import { getBookTableSchema } from './schema/validationSchemas';
+import { useRouter } from 'next/router';
 interface BooktablePageProps {
   restaurant: Restaurant;
+  tables: Table[];
 }
 
 type FormData = {
@@ -29,7 +32,8 @@ type FormData = {
   date: string;
 };
 
-export function BooktablePage({ restaurant }: BooktablePageProps) {
+export function BooktablePage({ restaurant, tables }: BooktablePageProps) {
+  const router = useRouter();
   const {
     SendOtp,
     handleVerifyOtp,
@@ -39,47 +43,8 @@ export function BooktablePage({ restaurant }: BooktablePageProps) {
     timeLeft,
     isRunning,
   } = useSMS();
-  const requiredField = zod.string().min(1, { message: 'Required Field' });
-  const phoneSchema = zod
-    .string()
-    .min(1, { message: 'Required Field' })
-    .regex(/^\d{9}$/, { message: 'Phone number invalid' });
 
-  const FormDataSchema = zod
-    .object({
-      name: requiredField,
-      phone: phoneSchema,
-      date: requiredField,
-      time: requiredField,
-      guests: requiredField,
-      email: requiredField.email(),
-      preference: zod.string(),
-      notes: zod.string(),
-    })
-    .superRefine((data, context) => {
-      const isTimeValid = isValidTime(
-        data.date,
-        data.time,
-        restaurant.Weekdaytime,
-        restaurant.Weekandtime,
-      );
-
-      if (!isTimeValid) {
-        context.addIssue({
-          code: zod.ZodIssueCode.custom,
-          message: 'Time is outside of restaurant operating hours',
-          path: ['time'],
-        });
-      }
-
-      if (restaurant.blacklist.includes(data.phone)) {
-        context.addIssue({
-          code: zod.ZodIssueCode.custom,
-          message: 'Internal error, please try again later',
-          path: ['phone'],
-        });
-      }
-    });
+  const FormDataSchema = getBookTableSchema(restaurant);
 
   const { control, handleSubmit, trigger, watch, getValues } =
     useForm<FormData>({
@@ -98,29 +63,32 @@ export function BooktablePage({ restaurant }: BooktablePageProps) {
 
   const selectedDate = watch('date');
 
-  const onSubmit = async (data: FormData) => {
-    if (verifyOtp) {
-      try {
-        await sanityClient.create({
-          _type: 'reservation',
-          ...data,
-        });
-      } catch (error) {
-        console.error('Error creating reservation:', error);
-        alert('Failed to book a table. Please try again later.');
-      }
-    } else {
-      alert('Please verify your phone number');
+  const onSubmit = async (data: FormData): Promise<void> => {
+    try {
+      const validationResult = await runValidations([
+        () => validateInitialConditions(verifyOtp, data.guests, tables),
+        () => validateReservationTime(data.date, data.time),
+        () => validateTableAvailabilityAndConflicts(tables, data.guests, data.date, data.time),
+      ]);
+  
+      const tableId = validationResult.tableId;
+  
+      await createReservation(data, tableId);
+      router.push({
+        pathname: '/success/booktable',
+        query: {
+          name: data.name,
+          date: data.date,
+          time: data.time,
+        },
+      });
+    } catch (error) {
+      console.log('Error during reservation:', error);
     }
   };
+  
 
-  const phoneClickHandler = async () => {
-    const result = await trigger('phone');
-    const phone = getValues('phone');
-    if (result) {
-      SendOtp(phone);
-    }
-  };
+  const phoneClickHandler = usePhoneClickHandler(SendOtp, trigger, getValues);
 
   return (
     <section className="bg-[#191919] min-h-screen pt-[200px] flex flex-col items-center">
@@ -141,39 +109,15 @@ export function BooktablePage({ restaurant }: BooktablePageProps) {
                 name="phone"
                 disabled={verifyOtp}
               />
-              <Button
-                className={clsx({
-                  'bg-gray-300 text-white': isRunning,
-                  'bg-green-500 text-white': verifyOtp,
-                  'bg-yellow-400 text-black': !isRunning && !verifyOtp,
-                })}
-                variant="solid"
-                padding="0.36rem 1rem"
-                disabled={verifyOtp || isRunning}
-                borderRadius={5}
-                fontSize="small"
-                fontWeight="600"
-                onClick={verifyOtp || isRunning ? undefined : phoneClickHandler}
-              >
-                {verifyOtp ? 'Verified' : isRunning ? `${timeLeft}s` : 'Verify'}
-              </Button>
+              <OtpButton
+                isRunning={isRunning}
+                verifyOtp={verifyOtp}
+                timeLeft={timeLeft}
+                onClick={phoneClickHandler}
+              />
             </span>
           </InputsContainer>
-          <InputsContainer>
-            <ControlledInput
-              label="Date"
-              control={control}
-              name="date"
-              type="date"
-            />
-            <ControlledInput
-              label="Time"
-              control={control}
-              name="time"
-              type="time"
-              disabled={!selectedDate}
-            />
-          </InputsContainer>
+          <DateTimePicker control={control} selectedDate={selectedDate} />
           <ControlledInput label="Email" control={control} name="email" />
           <InputsContainer>
             <ControlledInput
