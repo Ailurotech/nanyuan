@@ -90,7 +90,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
   const handlePayOnline = async (data: FormData) => {
     try {
       await runValidations([
-        //() => validateOTP(verifyOtp),
+        () => validateOTP(verifyOtp),
         () => validatePickUpTime(data.date, data.time),
         () => validatePrice(parseFloat(totalPrice)),
       ]);

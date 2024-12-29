@@ -56,7 +56,7 @@ functions:
           path: api/create-checkout-session
           method: post
           cors:
-            origin: '*' # Allow all domains (replace with specific domains in production)
+            origin: ${env:ALLOW_ORIGIN} # Allow all domains (replace with specific domains in production)
             headers:
               - Content-Type
               - Authorization
@@ -67,6 +67,7 @@ functions:
     environment:
       STRIPE_SECRET_KEY: ${env:STRIPE_SECRET_KEY}
       CLIENT_BASE_URL: ${env:CLIENT_BASE_URL}
+      ALLOW_ORIGIN: ${env:ALLOW_ORIGIN}
 
   webhookHandler:
     handler: lambda/webhook-handler.handler
@@ -78,7 +79,7 @@ functions:
           path: api/webhooks/stripe
           method: post
           cors:
-            origin: '*' # Allow all domains
+            origin: '*' 
             headers:
               - Content-Type
               - Stripe-Signature
@@ -117,6 +118,31 @@ functions:
       SANITY_DATASET: ${env:SANITY_DATASET}
       SANITY_API_TOKEN: ${env:SANITY_API_TOKEN}
       ALLOW_ORIGIN: ${env:ALLOW_ORIGIN}
+    
+  createTakeAwayOrder:
+    handler: lambda/create-takeaway-order.handler
+    memorySize: 1024
+    timeout: 28
+    role: ServerlessNextjsLambdaRole
+    events:
+      - http:
+          path: api/create-takeaway-order
+          method: post
+          cors:
+            origin: ${env:ALLOW_ORIGIN} 
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+    environment:
+      SANITY_PROJECT_ID: ${env:SANITY_PROJECT_ID}
+      SANITY_DATASET: ${env:SANITY_DATASET}
+      SANITY_API_TOKEN: ${env:SANITY_API_TOKEN}
+      ALLOW_ORIGIN: ${env:ALLOW_ORIGIN}
+
 
 resources:
   Resources:

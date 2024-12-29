@@ -121,3 +121,17 @@ export interface ReservationData {
   date: string;
   time: string;
 }
+
+export interface CreateTakeAwayOrderParams {
+  customerName: string;
+  email: string;
+  items: Array<{
+    _id: string; 
+    quantity: number; 
+    _key: string; 
+    menuItem: { _type: string; _ref: string }; 
+  }>;
+  date: string;
+  status: string;
+  id: string;
+}
