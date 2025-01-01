@@ -10,7 +10,7 @@ export default function SuccessTakeawayPage({ locationDetails }: { locationDetai
 }
 
 export async function getStaticProps() {
-  // 从 Sanity 获取餐厅位置信息
+  
   const locationDetails = await fetchRestaurantLocation();
 
   return {
