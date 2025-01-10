@@ -10,10 +10,7 @@ import { Restaurant, Table } from '@/types';
 import clsx from 'clsx';
 import { runValidations,validateInitialConditions, validateReservationTime, validateTableAvailabilityAndConflicts } from './checkAvailability';
 import { useSMS } from '../hooks/useSMS';
-import OtpButton from '@/components/common/icon-and-button/OtpButton';
-import DateTimePicker from '@/components/common/DateTImePicker';
 import { createReservation } from '@/components/common/createReservation';
-import { usePhoneClickHandler } from '@/components/hooks/usePhoneClickHandler';
 import { getBookTableSchema } from './schema/validationSchemas';
 import { useRouter } from 'next/router';
 interface BooktablePageProps {
@@ -80,7 +77,13 @@ export function BooktablePage({ restaurant, tables }: BooktablePageProps) {
   };
   
 
-  const phoneClickHandler = usePhoneClickHandler(SendOtp, trigger, getValues);
+  const phoneClickHandler = async () => {
+    const result = await trigger('phone');
+    const phone = getValues('phone');
+    if (result) {
+      SendOtp(phone);
+    }
+  };
 
   return (
     <section className="bg-[#191919] min-h-screen pt-[200px] flex flex-col items-center">
@@ -101,15 +104,39 @@ export function BooktablePage({ restaurant, tables }: BooktablePageProps) {
                 name="phone"
                 disabled={verifyOtp}
               />
-              <OtpButton
-                isRunning={isRunning}
-                verifyOtp={verifyOtp}
-                timeLeft={timeLeft}
-                onClick={phoneClickHandler}
-              />
+              <Button
+                className={clsx({
+                  'bg-gray-300 text-white': isRunning,
+                  'bg-green-500 text-white': verifyOtp,
+                  'bg-yellow-400 text-black': !isRunning && !verifyOtp,
+                })}
+                variant="solid"
+                padding="0.36rem 1rem"
+                disabled={verifyOtp || isRunning}
+                borderRadius={5}
+                fontSize="small"
+                fontWeight="600"
+                onClick={verifyOtp || isRunning ? undefined : phoneClickHandler}
+              >
+                {verifyOtp ? 'Verified' : isRunning ? `${timeLeft}s` : 'Verify'}
+              </Button>
             </span>
           </InputsContainer>
-          <DateTimePicker control={control} selectedDate={selectedDate} />
+          <InputsContainer>
+            <ControlledInput
+              label="Date"
+              control={control}
+              name="date"
+              type="date"
+            />
+            <ControlledInput
+              label="Time"
+              control={control}
+              name="time"
+              type="time"
+              disabled={!selectedDate}
+            />
+          </InputsContainer>
           <ControlledInput label="Email" control={control} name="email" />
           <InputsContainer>
             <ControlledInput

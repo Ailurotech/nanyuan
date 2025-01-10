@@ -9,15 +9,13 @@ import VerifyOtpModal from '@/components/common/VerifyOtpModal';
 import { runValidations, validatePrice, validatePickUpTime, validateOTP } from './checkAvailiability';
 import { Restaurant } from '@/types';
 import OrderList from './small-component/OrderList';
-import OtpButton from '@/components/common/icon-and-button/OtpButton';
-import DateTimePicker from '@/components/common/DateTImePicker';
 import { v4 as uuidv4 } from 'uuid'; 
 import { useCart } from '@/components/hooks/useCart';
-import { usePhoneClickHandler } from '@/components/hooks/usePhoneClickHandler';
 import { getFormDataSchema } from './schema/validationSchema';
 import ActionButton from '@/components/common/ActionButton';
 import { useRouter } from 'next/router';
 import { processOrder } from '@/components/common/utils/orderUtils';
+import clsx from 'clsx';
 
 
 interface TakeawayProps {
@@ -109,7 +107,13 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
   };
 
   const selectedDate = watch('date');
-  const phoneClickHandler = usePhoneClickHandler(SendOtp, trigger, getValues);
+  const phoneClickHandler = async () => {
+    const result = await trigger('phone');
+    const phone = getValues('phone');
+    if (result) {
+      SendOtp(phone);
+    }
+  };
   
   return (
     !loading && (
@@ -124,15 +128,39 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
                 name="phone"
                 disabled={verifyOtp}
               />
-              <OtpButton
-                isRunning={isRunning}
-                verifyOtp={verifyOtp}
-                timeLeft={timeLeft}
-                onClick={phoneClickHandler}
-              />
+              <Button
+                className={clsx({
+                  'bg-gray-300 text-white': isRunning,
+                  'bg-green-500 text-white': verifyOtp,
+                  'bg-yellow-400 text-black': !isRunning && !verifyOtp,
+                })}
+                variant="solid"
+                padding="0.36rem 1rem"
+                disabled={verifyOtp || isRunning}
+                borderRadius={5}
+                fontSize="small"
+                fontWeight="600"
+                onClick={verifyOtp || isRunning ? undefined : phoneClickHandler}
+              >
+                {verifyOtp ? 'Verified' : isRunning ? `${timeLeft}s` : 'Verify'}
+              </Button>
             </span>
           </InputsContainer>
-          <DateTimePicker control={control} selectedDate={selectedDate} />
+          <InputsContainer>
+            <ControlledInput
+              label="Date"
+              control={control}
+              name="date"
+              type="date"
+            />
+            <ControlledInput
+              label="Time"
+              control={control}
+              name="time"
+              type="time"
+              disabled={!selectedDate}
+            />
+          </InputsContainer>
           <ControlledInput label="Email" control={control} name="email" />
           <OrderList orderList={orderList} totalPrice={totalPrice} />
           <ControlledTestArea
