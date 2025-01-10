@@ -1,6 +1,6 @@
 import * as zod from 'zod';
 import { Restaurant } from '@/types';
-import { validateBlacklist, validateOperatingTime } from '@/components/common/utils/validationUtils';
+import { isValidTime } from '@/components/common/utils/timeUtils';
 
 export const getBookTableSchema = (restaurant: Restaurant) => {
   const requiredField = zod.string().min(1, { message: 'Required Field' });
@@ -21,7 +21,27 @@ export const getBookTableSchema = (restaurant: Restaurant) => {
       notes: zod.string(),
     })
     .superRefine((data, context) => {
-      validateBlacklist(data.phone, restaurant, context);
-      validateOperatingTime(data.date, data.time, restaurant, context);
+      const isTimeValid = isValidTime(
+        data.date,
+        data.time,
+        restaurant.Weekdaytime,
+        restaurant.Weekandtime,
+      );
+
+      if (!isTimeValid) {
+        context.addIssue({
+          code: zod.ZodIssueCode.custom,
+          message: 'Time is outside of restaurant operating hours',
+          path: ['time'],
+        });
+      }
+      
+      if (restaurant.blacklist.includes(data.phone)) {
+        context.addIssue({
+          code: zod.ZodIssueCode.custom,
+          message: 'Internal error, please try again later',
+          path: ['phone'],
+        });
+      }
     });
 };

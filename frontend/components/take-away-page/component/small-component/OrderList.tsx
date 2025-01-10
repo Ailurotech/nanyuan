@@ -4,7 +4,7 @@ interface OrderListProps {
 }
 
 function formatPrice(price: number): string {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(price);
+  return new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD' }).format(price);
 }
 
 function OrderList({ orderList = [], totalPrice = "0.00" }: OrderListProps) {
