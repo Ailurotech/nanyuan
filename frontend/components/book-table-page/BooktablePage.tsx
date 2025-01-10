@@ -74,14 +74,6 @@ export function BooktablePage({ restaurant, tables }: BooktablePageProps) {
       const tableId = validationResult.tableId;
   
       await createReservation(data, tableId);
-      router.push({
-        pathname: '/success/booktable',
-        query: {
-          name: data.name,
-          date: data.date,
-          time: data.time,
-        },
-      });
     } catch (error) {
       console.log('Error during reservation:', error);
     }

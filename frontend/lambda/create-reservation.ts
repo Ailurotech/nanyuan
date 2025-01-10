@@ -13,7 +13,7 @@ export const handler: APIGatewayProxyHandler = async (event): Promise<APIGateway
       return {
         statusCode: 400,
         headers: {
-          'Access-Control-Allow-Origin': allowedOrigin, // 设置 CORS 响应头
+          'Access-Control-Allow-Origin': allowedOrigin, 
         },
         body: JSON.stringify({ error: 'Invalid request payload' }),
       };
@@ -25,7 +25,7 @@ export const handler: APIGatewayProxyHandler = async (event): Promise<APIGateway
       return {
         statusCode: 400,
         headers: {
-          'Access-Control-Allow-Origin': allowedOrigin, // 设置 CORS 响应头
+          'Access-Control-Allow-Origin': allowedOrigin, 
         },
         body: JSON.stringify({ error: `Missing required fields: ${missingFields.join(', ')}` }),
       };

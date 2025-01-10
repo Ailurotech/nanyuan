@@ -11,6 +11,7 @@ export const createReservation = async (
   }
 
   try {
+    console.log('Creating reservation with data:', data);
     const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {

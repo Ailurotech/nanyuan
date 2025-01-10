@@ -11,8 +11,6 @@ import { Restaurant } from '@/types';
 import OrderList from './small-component/OrderList';
 import OtpButton from '@/components/common/icon-and-button/OtpButton';
 import DateTimePicker from '@/components/common/DateTImePicker';
-import { loadStripe } from '@stripe/stripe-js';
-import { fetchStripeSession } from '@/components/common/utils/paymentUtils';
 import { v4 as uuidv4 } from 'uuid'; 
 import { useCart } from '@/components/hooks/useCart';
 import { usePhoneClickHandler } from '@/components/hooks/usePhoneClickHandler';
@@ -21,7 +19,6 @@ import ActionButton from '@/components/common/ActionButton';
 import { useRouter } from 'next/router';
 import { processOrder } from '@/components/common/utils/orderUtils';
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 interface TakeawayProps {
   restaurant: Restaurant;
@@ -80,7 +77,6 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
         orderId: id,
       });
   
-      router.push('/success/takeaway');
     } catch (error) {
       console.error(error);
     }
@@ -96,21 +92,17 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
       ]);
       
       const id = uuidv4();
-      const sessionId = await fetchStripeSession(orderList, totalPrice, id);
-      const stripe = await stripePromise;
-      if (!stripe) throw new Error('Stripe is not loaded.');
-  
+      
       await processOrder({
         data,
         orderList,
         totalPrice,
         status: 'Pending',
         paymentMethod: 'online',
-        sessionId,
         orderId: id,
       });
   
-      await stripe.redirectToCheckout({ sessionId });
+  
     } catch (error) {
       console.error(error);
     }
