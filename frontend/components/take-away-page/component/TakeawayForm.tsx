@@ -114,7 +114,6 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
       SendOtp(phone);
     }
   };
-  
   return (
     !loading && (
       <section>
