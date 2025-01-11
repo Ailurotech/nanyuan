@@ -19,7 +19,7 @@ export function useSMS() {
     if (enteredOtp === otp) {
       setVerifyOtp(true);
       setIsModalOpen(false);
-      
+      alert('Successfully verified');
     } else {
       alert('OTP is incorrect');
     }
