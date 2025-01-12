@@ -1,7 +1,7 @@
 import { GalleryContent } from "@/types";
 import { IndividualPhoto } from "./IndividualPhoto";
 import { NavigationRoute } from "../route";
-import { Icon } from "@/components/common/icon-and-button/Icon";
+import { Icon } from "@/components/common/Icon";
 import clsx from "clsx";
 import React, { useState } from "react";
 

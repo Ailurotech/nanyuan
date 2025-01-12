@@ -12,7 +12,7 @@ import {
 import { NavigationMenu } from "./NavigationMenu";
 import clsx from "clsx";
 import { NextFont } from "next/dist/compiled/@next/font";
-import { Icon } from "@/components/common/icon-and-button/Icon";
+import { Icon } from "@/components/common/Icon";
 
 export function NavigationDrawer({ font }: { font: NextFont }) {
   const { onOpen, isOpen, onClose } = useDisclosure();

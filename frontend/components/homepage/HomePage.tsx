@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { HeroContent } from "@/types";
 import { NavigationRoute } from "@/components/homepage/route";
-import Arrow from "@/components/common/icon-and-button/Arrow";
+import Arrow from "@/components/common/arrow";
 import { Alegreya_Sans } from 'next/font/google'
 
 interface HomePageProps {
