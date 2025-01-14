@@ -3,34 +3,20 @@ import { sanityClient } from '@/lib/sanityClient';
 import { CreateTakeAwayOrderParams } from '@/types';
 
 export const handler: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
-  const allowedOrigin = process.env.ALLOW_ORIGIN || '*';
-
-  if (event.httpMethod === 'OPTIONS') {
-    return {
-      statusCode: 200,
-      headers: {
-        'Access-Control-Allow-Origin': allowedOrigin,
-        'Access-Control-Allow-Methods': 'OPTIONS,POST',
-        'Access-Control-Allow-Headers': 'Content-Type,Authorization',
-      },
-      body: '',
-    };
-  }
-
   try {
+    // 解析请求体
     const body = JSON.parse(event.body || '{}');
     const { customerName, email, items, date, status, id }: CreateTakeAwayOrderParams = body;
 
+    // 验证请求数据
     if (!customerName || !email || !items || !date || !status || !id) {
       return {
         statusCode: 400,
-        headers: {
-          'Access-Control-Allow-Origin': allowedOrigin,
-        },
         body: JSON.stringify({ error: 'Missing required fields' }),
       };
     }
 
+    // 创建订单
     const createdOrder = await sanityClient.createIfNotExists({
       _type: 'order',
       _id: id,
@@ -51,9 +37,6 @@ export const handler: APIGatewayProxyHandler = async (event): Promise<APIGateway
 
     return {
       statusCode: 200,
-      headers: {
-        'Access-Control-Allow-Origin': allowedOrigin,
-      },
       body: JSON.stringify({
         message: 'Order successfully created',
         order: createdOrder,
@@ -64,9 +47,6 @@ export const handler: APIGatewayProxyHandler = async (event): Promise<APIGateway
 
     return {
       statusCode: 500,
-      headers: {
-        'Access-Control-Allow-Origin': allowedOrigin,
-      },
       body: JSON.stringify({
         error: 'Failed to create order',
         details: (error as Error).message || 'Unknown error',

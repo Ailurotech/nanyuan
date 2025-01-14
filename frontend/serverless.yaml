@@ -5,8 +5,26 @@ provider:
   runtime: nodejs18.x
   stage: ${opt:stage, 'dev'}
   region: ${env:AWS_REGION}
+  environment:
+    AWS_REGION: ${env:AWS_REGION}
+    EMAIL_FROM: ${env:EMAIL_FROM}
+    EMAIL_TO: ${env:EMAIL_TO}
+    SANITY_PROJECT_ID: ${env:SANITY_PROJECT_ID}
+    SANITY_DATASET: ${env:SANITY_DATASET}
+    SANITY_API_TOKEN: ${env:SANITY_API_TOKEN}
+    ALLOW_ORIGIN: ${env:ALLOW_ORIGIN}
 
 custom:
+  defaultCors:
+    origin: ${env:ALLOW_ORIGIN}
+    headers:
+      - Content-Type
+      - Authorization
+      - X-Amz-Date
+      - X-Api-Key
+      - X-Amz-Security-Token
+      - X-Amz-User-Agent
+    allowCredentials: true
   serverless-nextjs:
     bucketName: nanyuan-function-bucket
     name:
@@ -33,18 +51,7 @@ functions:
       - http:
           path: api/send-email
           method: post
-          cors:
-            origin: '*' # Allow all domains (replace with specific domains in production)
-            headers:
-              - Content-Type
-              - Authorization
-              - X-Amz-Date
-              - X-Api-Key
-              - X-Amz-Security-Token
-              - X-Amz-User-Agent
-    environment:
-      EMAIL_FROM: ${env:EMAIL_FROM}
-      EMAIL_TO: ${env:EMAIL_TO}
+          cors: ${self:custom.defaultCors}
 
   createReservation:
     handler: lambda/create-reservation.handler
@@ -55,21 +62,8 @@ functions:
       - http:
           path: api/create-reservation
           method: post
-          cors:
-            origin: ${env:ALLOW_ORIGIN}
-            headers:
-              - Content-Type
-              - Authorization
-              - X-Amz-Date
-              - X-Api-Key
-              - X-Amz-Security-Token
-              - X-Amz-User-Agent
-    environment:
-      SANITY_PROJECT_ID: ${env:SANITY_PROJECT_ID}
-      SANITY_DATASET: ${env:SANITY_DATASET}
-      SANITY_API_TOKEN: ${env:SANITY_API_TOKEN}
-      ALLOW_ORIGIN: ${env:ALLOW_ORIGIN}
-    
+          cors: ${self:custom.defaultCors}
+
   createTakeAwayOrder:
     handler: lambda/create-takeaway-order.handler
     memorySize: 1024
@@ -79,21 +73,7 @@ functions:
       - http:
           path: api/create-takeaway-order
           method: post
-          cors:
-            origin: ${env:ALLOW_ORIGIN} 
-            headers:
-              - Content-Type
-              - Authorization
-              - X-Amz-Date
-              - X-Api-Key
-              - X-Amz-Security-Token
-              - X-Amz-User-Agent
-    environment:
-      SANITY_PROJECT_ID: ${env:SANITY_PROJECT_ID}
-      SANITY_DATASET: ${env:SANITY_DATASET}
-      SANITY_API_TOKEN: ${env:SANITY_API_TOKEN}
-      ALLOW_ORIGIN: ${env:ALLOW_ORIGIN}
-
+          cors: ${self:custom.defaultCors}
 
 resources:
   Resources:
@@ -118,7 +98,7 @@ resources:
                     - ses:SendEmail
                     - ses:SendRawEmail
                   Resource: "*"
-          - PolicyName: StripePolicy
+          - PolicyName: LogAccessPolicy
             PolicyDocument:
               Version: '2012-10-17'
               Statement:
@@ -128,3 +108,4 @@ resources:
                     - logs:PutLogEvents
                     - logs:CreateLogGroup
                   Resource: "*"
+
