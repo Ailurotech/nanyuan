@@ -6,7 +6,6 @@ provider:
   stage: ${opt:stage, 'dev'}
   region: ${env:AWS_REGION}
   environment:
-    AWS_REGION: ${env:AWS_REGION}
     EMAIL_FROM: ${env:EMAIL_FROM}
     EMAIL_TO: ${env:EMAIL_TO}
     SANITY_PROJECT_ID: ${env:SANITY_PROJECT_ID}
