@@ -1,16 +1,16 @@
 import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
 import { sanityClient } from '@/lib/sanityClient';
 import { ReservationData } from '@/types';
-
+import { corsHeaders } from '@/components/common/utils/corsHeaders';
 export const handler: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
   try {
-    
+
     const { data, tableId }: { data: ReservationData; tableId?: string } = JSON.parse(event.body || '{}');
 
-  
     if (!data || !tableId) {
       return {
         statusCode: 400,
+        headers: corsHeaders,
         body: JSON.stringify({ error: 'Invalid request payload' }),
       };
     }
@@ -20,6 +20,7 @@ export const handler: APIGatewayProxyHandler = async (event): Promise<APIGateway
     if (missingFields.length > 0) {
       return {
         statusCode: 400,
+        headers: corsHeaders,
         body: JSON.stringify({ error: `Missing required fields: ${missingFields.join(', ')}` }),
       };
     }
@@ -41,6 +42,7 @@ export const handler: APIGatewayProxyHandler = async (event): Promise<APIGateway
 
     return {
       statusCode: 200,
+      headers: corsHeaders,
       body: JSON.stringify({ message: 'Reservation created successfully' }),
     };
   } catch (error: unknown) {
@@ -48,6 +50,7 @@ export const handler: APIGatewayProxyHandler = async (event): Promise<APIGateway
 
     return {
       statusCode: 500,
+      headers: corsHeaders,
       body: JSON.stringify({
         error: 'Failed to create reservation',
         details: (error as Error).message || 'Unknown error',
