@@ -1,11 +1,12 @@
+// types.ts
 export interface MenuItem {
   _id: string;
   name: string;
   description: string;
   price: number;
   image: string;
-  categories: string[];
-  isAvailable: boolean;
+  categories: string[]; 
+  isAvailable: boolean; 
 }
 
 export interface HeroContent {
@@ -94,7 +95,7 @@ export interface Table {
 }
 
 export interface Category {
-  name: string;
+  name: string; 
 }
 
 export interface FooterContent {
@@ -106,7 +107,7 @@ export interface FooterContent {
   insEmbedId: string;
   topImage: {
     asset: {
-      url: string;
+      url: string; 
     };
   };
 }

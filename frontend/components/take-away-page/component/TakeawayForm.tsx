@@ -15,7 +15,6 @@ import clsx from 'clsx';
 import { useState, useEffect } from 'react';
 import * as zod from 'zod';
 
-
 interface TakeawayProps {
   restaurant: Restaurant;
 }
@@ -41,7 +40,6 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
     timeLeft,
     isRunning,
   } = useSMS();
-
   const [orderList, setOrderList] = useState<OrderList[]>([]);
   const [totalPrice, setTotalPrice] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
@@ -75,8 +73,6 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
     notes: zod.string().optional(),
   });
  
-  
-
   const { control, handleSubmit, trigger, getValues, watch } = useForm<FormData>({
     defaultValues: {
       name: '',
@@ -145,6 +141,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
       SendOtp(phone);
     }
   };
+  
   return (
     !loading && (
       <section>
