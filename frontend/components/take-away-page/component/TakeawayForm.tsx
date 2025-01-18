@@ -1,5 +1,5 @@
-import { ControlledInput } from '@/components/common/controller/ControlledInput';
-import { ControlledTestArea } from '@/components/common/controller/ControlledTestArea';
+import { ControlledInput } from '@/components/common/ControlledInput';
+import { ControlledTestArea } from '@/components/common/ControlledTestArea';
 import { Button, HStack } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { InputsContainer } from './InputsContainer';
@@ -7,15 +7,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useSMS } from '@/components/hooks/useSMS';
 import VerifyOtpModal from '@/components/common/VerifyOtpModal';
 import { runValidations, validatePrice, validatePickUpTime, validateOTP } from './checkAvailiability';
-import { Restaurant } from '@/types';
-import OrderList from './small-component/OrderList';
+import { MenuItem, Restaurant } from '@/types';
 import { v4 as uuidv4 } from 'uuid'; 
-import { useCart } from '@/components/hooks/useCart';
-import { getFormDataSchema } from './schema/validationSchema';
 import ActionButton from '@/components/common/ActionButton';
-import { useRouter } from 'next/router';
-import { processOrder } from '@/components/common/utils/orderUtils';
+import { CreateTakeAwayOrder } from '@/components/common/utils/createTakeAwayOrder';
 import clsx from 'clsx';
+import { useState, useEffect } from 'react';
+import * as zod from 'zod';
 
 
 interface TakeawayProps {
@@ -23,8 +21,7 @@ interface TakeawayProps {
 }
 
 export function TakeawayForm({ restaurant }: TakeawayProps) {
-  const router = useRouter();
-  const { orderList, totalPrice, loading } = useCart();
+  
   interface FormData {
     name: string;
     phone: string;
@@ -33,6 +30,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
     email: string;
     notes: string;
   }
+  type OrderList = MenuItem & { quantity: number };
 
   const {
     SendOtp,
@@ -43,8 +41,41 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
     timeLeft,
     isRunning,
   } = useSMS();
+
+  const [orderList, setOrderList] = useState<OrderList[]>([]);
+  const [totalPrice, setTotalPrice] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const cart = localStorage.getItem('cart');
+    if (!cart) {
+      setOrderList([]);
+      setLoading(false);
+    }
+    if (cart) {
+      const parsedList = JSON.parse(cart) as OrderList[];
+      setOrderList(parsedList);
+      const price = parsedList
+        .reduce((acc, cum) => {
+          return acc + cum.price * cum.quantity;
+        }, 0)
+        .toFixed(2);
+      setTotalPrice(price);
+      setLoading(false);
+    }
+  }, []);
+
+  const requiredField = zod.string().min(1, { message: 'Required Field' });
+  const FormDataSchema = zod.object({
+    name: requiredField,
+    phone: requiredField,
+    pickUpDate: requiredField,
+    pickUpTime: requiredField,
+    email: requiredField.email(),
+    notes: zod.string().optional(),
+  });
  
-  const FormDataSchema = getFormDataSchema(restaurant);
+  
 
   const { control, handleSubmit, trigger, getValues, watch } = useForm<FormData>({
     defaultValues: {
@@ -66,7 +97,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
         () => validatePrice(parseFloat(totalPrice)),
       ]);
       const id = uuidv4();
-      await processOrder({
+      await CreateTakeAwayOrder({
         data,
         orderList,
         totalPrice,
@@ -91,7 +122,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
       
       const id = uuidv4();
       
-      await processOrder({
+      await CreateTakeAwayOrder({
         data,
         orderList,
         totalPrice,
@@ -161,7 +192,20 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
             />
           </InputsContainer>
           <ControlledInput label="Email" control={control} name="email" />
-          <OrderList orderList={orderList} totalPrice={totalPrice} />
+          <div className="flex flex-col gap-2">
+            <h4 className="text-sm">Ordered Dishes</h4>
+            <ul className="text-base space-y-1 list-disc px-4">
+              {orderList.length === 0 && (
+                <li className="font-bold">No Order Yet!</li>
+              )}
+              {orderList.map((order, index) => (
+                <li
+                  key={index}
+                >{`${order.name} - $${order.price} X${order.quantity}`}</li>
+              ))}
+            </ul>
+            <h4 className="font-bold">{`Total Price: $${totalPrice}`}</h4>
+          </div>
           <ControlledTestArea
             label="Special Requested or Notes"
             control={control}

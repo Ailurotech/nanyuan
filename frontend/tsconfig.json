@@ -21,17 +21,12 @@
         "./*"
       ]
     },
-    "typeRoots": [
-      "./node_modules/@types",
-      "./types"
-    ],
     "target": "ES2017"
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
-    "**/*.tsx",
-    "./types/**/*.d.ts"
+    "**/*.tsx"
   ],
   "exclude": [
     "node_modules"

@@ -1,6 +1,6 @@
-import { ControlledInput } from '@/components/common/controller/ControlledInput';
-import { ControlledTestArea } from '@/components/common/controller/ControlledTestArea';
-import { ControlledSelect } from '@/components/common/controller/ControlledSelect';
+import { ControlledInput } from '@/components/common/ControlledInput';
+import { ControlledTestArea } from '@/components/common/ControlledTestArea';
+import { ControlledSelect } from '@/components/common/ControlledSelect';
 import { Button } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { InputsContainer } from '@/components/take-away-page/component/InputsContainer';
@@ -11,8 +11,9 @@ import clsx from 'clsx';
 import { runValidations,validateInitialConditions, validateReservationTime, validateTableAvailabilityAndConflicts } from './checkAvailability';
 import { useSMS } from '../hooks/useSMS';
 import { createReservation } from '@/components/common/createReservation';
-import { getBookTableSchema } from './schema/validationSchemas';
-import { useRouter } from 'next/router';
+import * as zod from 'zod';
+import { isValidTime } from '@/components/common/utils/timeUtils';
+
 interface BooktablePageProps {
   restaurant: Restaurant;
   tables: Table[];
@@ -30,7 +31,7 @@ type FormData = {
 };
 
 export function BooktablePage({ restaurant, tables }: BooktablePageProps) {
-  const router = useRouter();
+
   const {
     SendOtp,
     handleVerifyOtp,
@@ -40,8 +41,47 @@ export function BooktablePage({ restaurant, tables }: BooktablePageProps) {
     timeLeft,
     isRunning,
   } = useSMS();
+  const requiredField = zod.string().min(1, { message: 'Required Field' });
+  const phoneSchema = zod
+    .string()
+    .min(1, { message: 'Required Field' })
+    .regex(/^\d{9}$/, { message: 'Phone number invalid' });
 
-  const FormDataSchema = getBookTableSchema(restaurant);
+  const FormDataSchema = zod
+    .object({
+      name: requiredField,
+      phone: phoneSchema,
+      date: requiredField,
+      time: requiredField,
+      guests: requiredField,
+      email: requiredField.email(),
+      preference: zod.string(),
+      notes: zod.string(),
+    })
+    .superRefine((data, context) => {
+      const isTimeValid = isValidTime(
+        data.date,
+        data.time,
+        restaurant.Weekdaytime,
+        restaurant.Weekandtime,
+      );
+
+      if (!isTimeValid) {
+        context.addIssue({
+          code: zod.ZodIssueCode.custom,
+          message: 'Time is outside of restaurant operating hours',
+          path: ['time'],
+        });
+      }
+
+      if (restaurant.blacklist.includes(data.phone)) {
+        context.addIssue({
+          code: zod.ZodIssueCode.custom,
+          message: 'Internal error, please try again later',
+          path: ['phone'],
+        });
+      }
+    });
 
   const { control, handleSubmit, trigger, watch, getValues } =
     useForm<FormData>({
