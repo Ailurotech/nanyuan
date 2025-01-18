@@ -72,7 +72,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
     email: requiredField.email(),
     notes: zod.string().optional(),
   });
- 
+
   const { control, handleSubmit, trigger, getValues, watch } = useForm<FormData>({
     defaultValues: {
       name: '',
@@ -141,7 +141,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
       SendOtp(phone);
     }
   };
-  
+
   return (
     !loading && (
       <section>

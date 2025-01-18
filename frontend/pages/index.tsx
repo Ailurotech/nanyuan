@@ -28,7 +28,7 @@ export default function Index({ heroContent, galleryContent, openingHourContent,
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
+  const apiKey = process.env.GOOGLE_API_KEY;
   const placeId = "ChIJeeMv3fjPsGoRqQoVj86mqvM";
 
   try {
