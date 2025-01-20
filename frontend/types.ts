@@ -103,3 +103,23 @@ export interface FooterContent {
     };
   }
 }
+
+export interface Table {
+  type: string;
+  quantity: number;
+  _id: string;
+}
+
+export interface ReservationData {
+  name: string;
+  phone: string;
+  email: string;
+  guests: string;  
+  date: string;
+  time: string;
+  preference?: string;  
+  notes?: string;       
+  tableId: string;
+}
+
+

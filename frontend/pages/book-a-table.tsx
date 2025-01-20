@@ -2,18 +2,20 @@ import { BooktablePage } from "@/components/book-table-page/BooktablePage";
 import { Restaurant } from "@/types";
 import { GetStaticProps } from "next";
 import { sanityClient } from "@/lib/sanityClient"; 
+import { Table } from "@/types";
 
 interface BookTableProps {
   restaurant: Restaurant; 
+  table: Table[];
 }
 
-export default function bookATablePage({ restaurant }: BookTableProps) {
-  return <BooktablePage restaurant={restaurant} />; 
+export default function bookATablePage({ restaurant, table }: BookTableProps) {
+  return <BooktablePage restaurant={restaurant} table={table} />; 
 }
 
 
 export const getStaticProps: GetStaticProps = async () => {
-  const query = `
+  const restaurantQuery = `
     *[_type == "restaurant"]{
       title,
       Weekdaytime {
@@ -27,14 +29,23 @@ export const getStaticProps: GetStaticProps = async () => {
       blacklist
     }
   `;
+  
+  const tableQuery = `
+  *[_type == "table"]{
+    type,
+    quantity,
+    _id
+  }
+`;
 
   try {
-    
-    const data = await sanityClient.fetch(query);
+    const restaurantData = await sanityClient.fetch(restaurantQuery);
+    const tableData = await sanityClient.fetch(tableQuery);
 
     return {
       props: {
-        restaurant: data[0], 
+        restaurant: restaurantData[0], 
+        table: tableData,
       },
     };
   } catch (e) {
@@ -42,6 +53,7 @@ export const getStaticProps: GetStaticProps = async () => {
     return {
       props: {
         restaurant: null,
+        table: [],
       },
     };
   }

@@ -16,6 +16,8 @@
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "@hookform/resolvers": "^3.9.0",
+    "@middy/core": "^5",
+    "@middy/http-cors": "^5",
     "@sanity/client": "^6.21.3",
     "@sanity/image-url": "^1.1.0",
     "axios": "^1.7.7",
@@ -37,6 +39,8 @@
   },
   "devDependencies": {
     "@sls-next/serverless-component": "^3.7.0",
+    "@types/aws-lambda": "^8.10.147",
+    "@types/luxon": "^3.4.2",
     "@types/node": "^22.7.4",
     "@types/react": "^18.3.10",
     "@types/react-dom": "^18",

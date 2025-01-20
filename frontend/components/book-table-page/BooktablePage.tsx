@@ -4,18 +4,22 @@ import { ControlledSelect } from '@/components/common/ControlledSelect';
 import { Button } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { InputsContainer } from '@/components/take-away-page/component/InputsContainer';
-import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as zod from 'zod';
 import VerifyOtpModal from '@/components/common/VerifyOtpModal';
-import { Restaurant } from '@/types';
+import { Restaurant, Table } from '@/types';
 import { isValidTime } from './timeUtils';
 import clsx from 'clsx';
-import { sanityClient } from '@/lib/sanityClient';
 import { useSMS } from '../hooks/useSMS';
+import { runValidations } from './checkAvailability';
+import { validateReservationTime } from './checkAvailability';
+import { validateTableAvailabilityAndConflicts } from './checkAvailability';
+import { validateInitialConditions } from './checkAvailability';
+import axios from 'axios';
 
 interface BooktablePageProps {
   restaurant: Restaurant;
+  table: Table[];
 }
 
 type FormData = {
@@ -29,7 +33,8 @@ type FormData = {
   date: string;
 };
 
-export function BooktablePage({ restaurant }: BooktablePageProps) {
+export function BooktablePage({ restaurant, table }: BooktablePageProps) {
+
   const {
     SendOtp,
     handleVerifyOtp,
@@ -99,20 +104,26 @@ export function BooktablePage({ restaurant }: BooktablePageProps) {
   const selectedDate = watch('date');
 
   const onSubmit = async (data: FormData) => {
-    if (verifyOtp) {
-      try {
-        await sanityClient.create({
-          _type: 'reservation',
-          ...data,
-        });
-      } catch (error) {
-        console.error('Error creating reservation:', error);
-        alert('Failed to book a table. Please try again later.');
-      }
-    } else {
-      alert('Please verify your phone number');
+    try {
+      const validationResult = await runValidations([
+        //() => validateInitialConditions(verifyOtp, data.guests, table),
+        () => validateReservationTime(data.date, data.time),
+        () => validateTableAvailabilityAndConflicts(table, data.guests, data.date, data.time),
+      ]);
+  
+      const apiUrl = process.env.NEXT_PUBLIC_CREATE_RESERVATION_URL || '';
+      if (!apiUrl) throw new Error('API URL is missing');
+      const { data: result } = await axios.post(apiUrl, {
+        data,
+        tableId: validationResult.tableId, 
+      });
+
+    } catch (error) {
+      console.error('Error during reservation:', error);
     }
   };
+  
+  
 
   const phoneClickHandler = async () => {
     const result = await trigger('phone');
