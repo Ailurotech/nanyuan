@@ -1,6 +1,7 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { sanityClient } from '@/lib/sanityClient';
 import { withMiddlewares } from '@/components/common/corsMiddleware';
+import { v4 as uuidv4 } from 'uuid';
 
 export const createTakeawayOrder: APIGatewayProxyHandler = async (event) => {
   try {
@@ -14,12 +15,25 @@ export const createTakeawayOrder: APIGatewayProxyHandler = async (event) => {
     const requestData = JSON.parse(event.body);
     const { orderId, customerName, phone, email, items, date, status, totalPrice, paymentMethod, notes } = requestData;
 
-    if (!orderId || !customerName || !phone || !email || !items || !date || !status) {
+    if (!orderId || !customerName || !phone || !email || !items || !date || !status || !totalPrice || !paymentMethod) {
       return {
         statusCode: 400,
         body: JSON.stringify({ error: 'Missing required fields' }),
       };
     }
+
+    const formattedItems = items.map((item: any) => {
+      if (!item.menuItem || !item.quantity || item.price == null) {
+        throw new Error('Each item must contain menuItem, quantity, and price.');
+      }
+      return {
+        _type: 'object',
+        _key: uuidv4(), 
+        menuItem: { _type: 'reference', _ref: item.menuItem._ref },
+        quantity: item.quantity,
+        price: item.price,
+      };
+    });
 
     await sanityClient.create({
       _type: 'order',
@@ -27,12 +41,12 @@ export const createTakeawayOrder: APIGatewayProxyHandler = async (event) => {
       customerName,
       phone,
       email,
-      items,
+      items: formattedItems,
       date,
       status,
       totalPrice,
       paymentMethod,
-      notes,
+      notes: notes || '', 
     });
 
     return {
@@ -43,7 +57,7 @@ export const createTakeawayOrder: APIGatewayProxyHandler = async (event) => {
     console.error('Error creating order:', error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Internal server error' }),
+      body: JSON.stringify({ error: 'Internal server error', details: (error as Error).message }),
     };
   }
 };

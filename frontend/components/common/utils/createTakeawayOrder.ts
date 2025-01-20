@@ -18,6 +18,7 @@ export async function CreateTakeAwayOrder(orderData: OrderData): Promise<string>
         menuItem: { _type: 'reference', _ref: item._id },
         quantity: item.quantity,
         _key: uuidv4(),
+        price: item.price,
       })),
       date: `${orderData.date}T${orderData.time}`,  
       status: orderData.status,
@@ -26,14 +27,11 @@ export async function CreateTakeAwayOrder(orderData: OrderData): Promise<string>
       notes: orderData.notes || '',
     };
 
-    console.log('Submitting order to Lambda:', formattedOrderData);
-
     const response = await axios.post(apiUrl, formattedOrderData, {
       headers: { 'Content-Type': 'application/json' },
     });
 
     if (response.status === 200) {
-      console.log('Order successfully sent to Lambda:', response.data);
       return formattedOrderData.orderId;
     } else {
       throw new Error(`Order submission failed with status ${response.status}`);

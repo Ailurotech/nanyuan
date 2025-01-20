@@ -43,17 +43,19 @@ export default defineType({
               type: 'number',
               validation: (Rule) => Rule.min(1).required(),
             },
+            {name: 'price', title: 'Price', type: 'number'},
           ],
           preview: {
             select: {
               title: 'menuItem.name', 
               media: 'menuItem.image', 
               quantity: 'quantity', 
+              price: 'price',
             },
             prepare(selection) {
-              const { title, media, quantity } = selection;
+              const { title, media, quantity, price } = selection;
               return {
-                title: `${title} (x${quantity})`, 
+                title: `${title} (x${quantity}) ${price} dollars`, 
                 media, 
               };
             },
