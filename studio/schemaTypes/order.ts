@@ -9,11 +9,19 @@ export default defineType({
       name: 'customerName',
       title: 'Customer Name',
       type: 'string',
+      validation: (Rule) => Rule.required(),
     },
     {
       name: 'email',
       title: 'Email',
       type: 'string',
+      validation: (Rule) => Rule.required().email(),
+    },
+    {
+      name: 'phone',
+      title: 'Phone',
+      type: 'string',
+      validation: (Rule) => Rule.required().min(1).max(15),
     },
     {
       name: 'items',
@@ -57,6 +65,26 @@ export default defineType({
       name: 'date',
       title: 'Date',
       type: 'datetime',
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'totalPrice',
+      title: 'Total Price',
+      type: 'number',
+      validation: (Rule) => Rule.min(0).required(),
+    },
+    {
+      name: 'paymentMethod',
+      title: 'Payment Method',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Offline', value: 'offline' },
+          { title: 'Online', value: 'online' },
+        ],
+        layout: 'dropdown',
+      },
+      validation: (Rule) => Rule.required(),
     },
     {
       name: 'status',
@@ -71,6 +99,18 @@ export default defineType({
         ],
         layout: 'dropdown',
       },
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'notes',
+      title: 'Special Requests / Notes',
+      type: 'text',
+    },
+    {
+      name: 'sessionId',
+      title: 'Session ID',
+      type: 'string',
+      hidden: ({ document }) => document?.paymentMethod !== 'online',
     },
   ],
 });

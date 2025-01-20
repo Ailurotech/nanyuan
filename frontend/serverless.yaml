@@ -24,7 +24,6 @@ functions:
           path: api/send-email
           method: post
           cors: true
-          
   createReservation:
     handler: lambda/create-reservation.handler
     memorySize: 1024
@@ -46,6 +45,25 @@ functions:
               - Content-Type
               - Authorization
 
+  createTakeawayOrder:
+    handler: lambda/create-takeaway-order.handler
+    memorySize: 1024
+    timeout: 15
+    role: ServerlessNextjsLambdaRole
+    events:
+      - http:
+          path: api/create-takeaway-order
+          method: post
+          cors:
+            origins:
+              - http://localhost:3000
+              - ${env:CLIENT_BASE_URL}
+            methods:
+              - POST
+              - OPTIONS
+            headers:
+              - Content-Type
+              - Authorization
 
 resources:
   Resources:

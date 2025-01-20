@@ -16,6 +16,7 @@ import { validateReservationTime } from './checkAvailability';
 import { validateTableAvailabilityAndConflicts } from './checkAvailability';
 import { validateInitialConditions } from './checkAvailability';
 import axios from 'axios';
+import { ReservationData } from '@/types';
 
 interface BooktablePageProps {
   restaurant: Restaurant;
@@ -87,7 +88,7 @@ export function BooktablePage({ restaurant, table }: BooktablePageProps) {
     });
 
   const { control, handleSubmit, trigger, watch, getValues } =
-    useForm<FormData>({
+    useForm<ReservationData>({
       defaultValues: {
         name: '',
         phone: '',
@@ -97,13 +98,14 @@ export function BooktablePage({ restaurant, table }: BooktablePageProps) {
         notes: '',
         date: '',
         email: '',
+        tableId: '',
       },
       resolver: zodResolver(FormDataSchema),
     });
 
   const selectedDate = watch('date');
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = async (data: ReservationData) => {
     try {
       const validationResult = await runValidations([
         //() => validateInitialConditions(verifyOtp, data.guests, table),
@@ -123,8 +125,6 @@ export function BooktablePage({ restaurant, table }: BooktablePageProps) {
     }
   };
   
-  
-
   const phoneClickHandler = async () => {
     const result = await trigger('phone');
     const phone = getValues('phone');
