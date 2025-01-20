@@ -14,6 +14,7 @@ import { useState, useEffect } from 'react';
 import * as zod from 'zod';
 import { CreateTakeAwayOrder } from '@/components/common/utils/createTakeawayOrder';
 import { OrderData, OrderItem } from '@/types';
+import { isValidTime } from '@/components/book-table-page/timeUtils';
 
 interface TakeawayProps {
   restaurant: Restaurant;
@@ -58,7 +59,30 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
     time: requiredField,
     email: requiredField.email(),
     notes: zod.string().optional(),
-  });
+  }).superRefine((data, context) => {
+    const isTimeValid = isValidTime(
+      data.date,
+      data.time,
+      restaurant.Weekdaytime,
+      restaurant.Weekandtime,
+    );
+
+    if (!isTimeValid) {
+      context.addIssue({
+        code: zod.ZodIssueCode.custom,
+        message: 'Time is outside of restaurant operating hours',
+        path: ['time'],
+      });
+    }
+
+    if (restaurant.blacklist.includes(data.phone)) {
+      context.addIssue({
+        code: zod.ZodIssueCode.custom,
+        message: 'Internal error, please try again later',
+        path: ['phone'],
+      });
+    }
+  });;
 
   const { control, handleSubmit, trigger, getValues, watch } = useForm<OrderData>({
     defaultValues: {
@@ -80,7 +104,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
   const handleOrderSubmission = async (data: OrderData, paymentMethod: 'offline' | 'online', status: 'Offline' | 'Pending') => {
     try {
       await runValidations([
-        //() => validateOTP(verifyOtp),
+        () => validateOTP(verifyOtp),
         () => validatePickUpTime(data.date, data.time),
         () => validatePrice(data.totalPrice),
       ]);

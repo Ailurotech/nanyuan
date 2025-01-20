@@ -108,7 +108,7 @@ export function BooktablePage({ restaurant, table }: BooktablePageProps) {
   const onSubmit = async (data: ReservationData) => {
     try {
       const validationResult = await runValidations([
-        //() => validateInitialConditions(verifyOtp, data.guests, table),
+        () => validateInitialConditions(verifyOtp, data.guests, table),
         () => validateReservationTime(data.date, data.time),
         () => validateTableAvailabilityAndConflicts(table, data.guests, data.date, data.time),
       ]);
