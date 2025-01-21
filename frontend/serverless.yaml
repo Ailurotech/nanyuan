@@ -18,12 +18,13 @@ functions:
     handler: lambda/send-email.handler
     memorySize: 1024
     timeout: 15
-    role: ServerlessNextjsLambdaRole 
+    role: ServerlessNextjsLambdaRole
     events:
       - http:
           path: api/send-email
           method: post
           cors: true
+
   createReservation:
     handler: lambda/create-reservation.handler
     memorySize: 1024
@@ -88,3 +89,24 @@ resources:
                     - ses:SendEmail
                     - ses:SendRawEmail
                   Resource: "*"
+
+custom:
+  serverless-nextjs:
+    bucketName: nanyuan-function-bucket
+    name:
+      defaultLambda: nanyuan-app-default-lambda
+      apiLambda: nanyuan-api-lambda
+    memory:
+      defaultLambda: 1024
+      apiLambda: 1024
+    timeout:
+      defaultLambda: 10
+      apiLambda: 30
+    hasApi: true
+    build:
+      postBuildCommands:
+        - "yarn run other-script"
+    customDomain: ${env:DOMAIN, ''}
+
+plugins:
+  - serverless-nextjs-plugin
