@@ -184,7 +184,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
           <div className="flex flex-col gap-2">
             <h4 className="text-sm">Ordered Dishes</h4>
             <ul className="text-base space-y-1 list-disc px-4">
-            {orderList.length === 0 && (
+              {orderList.length === 0 && (
                 <li className="font-bold">No Order Yet!</li>
               )}
               {orderList.map((order, index) => (
