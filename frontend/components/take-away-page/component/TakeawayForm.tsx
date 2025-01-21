@@ -42,10 +42,15 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
     if (!cart) {
       setOrderList([]);
       setLoading(false);
-    } else {
+    } 
+    if (cart) {
       const parsedList = JSON.parse(cart) as OrderList[];
       setOrderList(parsedList);
-      const price = parsedList.reduce((acc, cum) => acc + cum.price * cum.quantity, 0).toFixed(2);
+      const price = parsedList
+        .reduce((acc, cum) => {
+          return acc + cum.price * cum.quantity;
+        }, 0)
+        .toFixed(2);
       setTotalPrice(price);
       setLoading(false);
     }
@@ -179,13 +184,14 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
           <div className="flex flex-col gap-2">
             <h4 className="text-sm">Ordered Dishes</h4>
             <ul className="text-base space-y-1 list-disc px-4">
-              {orderList.length === 0 ? (
+            {orderList.length === 0 && (
                 <li className="font-bold">No Order Yet!</li>
-              ) : (
-                orderList.map((order, index) => (
-                  <li key={index}>{`${order.name} - $${order.price} X${order.quantity}`}</li>
-                ))
               )}
+              {orderList.map((order, index) => (
+                <li
+                  key={index}
+                >{`${order.name} - $${order.price} X${order.quantity}`}</li>
+              ))}
             </ul>
             <h4 className="font-bold">{`Total Price: $${totalPrice}`}</h4>
           </div>
@@ -225,7 +231,12 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
             </Button>
           </HStack>
         </form>
-        {isModalOpen && <VerifyOtpModal onVerify={handleVerifyOtp} onClose={() => setIsModalOpen(false)} />}
+        {isModalOpen && (
+          <VerifyOtpModal
+            onVerify={handleVerifyOtp}
+            onClose={() => setIsModalOpen(false)}
+          />
+        )}
       </section>
     )
   );
