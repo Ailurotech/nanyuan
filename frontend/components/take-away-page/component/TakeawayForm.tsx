@@ -1,36 +1,38 @@
 import { ControlledInput } from '@/components/common/ControlledInput';
 import { ControlledTestArea } from '@/components/common/ControlledTestArea';
-import { Button } from '@chakra-ui/react';
+import { Button, HStack } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { InputsContainer } from './InputsContainer';
-import { useEffect, useState } from 'react';
-import { MenuItem } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as zod from 'zod';
 import { useSMS } from '@/components/hooks/useSMS';
-import clsx from 'clsx';
 import VerifyOtpModal from '@/components/common/VerifyOtpModal';
+import { runValidations, validatePrice, validatePickUpTime, validateOTP } from '@/components/take-away-page/component/checkAvailiability';
+import { MenuItem, Restaurant } from '@/types';
+import { v4 as uuidv4 } from 'uuid';
+import clsx from 'clsx';
+import { useState, useEffect } from 'react';
+import * as zod from 'zod';
+import { CreateTakeAwayOrder } from '@/components/common/utils/createTakeawayOrder';
+import { OrderData, OrderItem } from '@/types';
+import { isValidTime } from '@/components/book-table-page/timeUtils';
 
-export function TakeawayForm() {
+interface TakeawayProps {
+  restaurant: Restaurant;
+}
+
+export function TakeawayForm({ restaurant }: TakeawayProps) {
   interface FormData {
     name: string;
     phone: string;
-    pickUpDate: string;
-    pickUpTime: string;
+    date: string;
+    time: string;
     email: string;
     notes: string;
   }
+
   type OrderList = MenuItem & { quantity: number };
 
-  const {
-    SendOtp,
-    handleVerifyOtp,
-    verifyOtp,
-    setIsModalOpen,
-    isModalOpen,
-    timeLeft,
-    isRunning,
-  } = useSMS();
+  const { SendOtp, handleVerifyOtp, verifyOtp, setIsModalOpen, isModalOpen, timeLeft, isRunning } = useSMS();
   const [orderList, setOrderList] = useState<OrderList[]>([]);
   const [totalPrice, setTotalPrice] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
@@ -40,7 +42,7 @@ export function TakeawayForm() {
     if (!cart) {
       setOrderList([]);
       setLoading(false);
-    }
+    } 
     if (cart) {
       const parsedList = JSON.parse(cart) as OrderList[];
       setOrderList(parsedList);
@@ -58,32 +60,87 @@ export function TakeawayForm() {
   const FormDataSchema = zod.object({
     name: requiredField,
     phone: requiredField,
-    pickUpDate: requiredField,
-    pickUpTime: requiredField,
+    date: requiredField,
+    time: requiredField,
     email: requiredField.email(),
     notes: zod.string().optional(),
-  });
+  }).superRefine((data, context) => {
+    const isTimeValid = isValidTime(
+      data.date,
+      data.time,
+      restaurant.Weekdaytime,
+      restaurant.Weekandtime,
+    );
 
-  const { control, handleSubmit, trigger, getValues } = useForm<FormData>({
+    if (!isTimeValid) {
+      context.addIssue({
+        code: zod.ZodIssueCode.custom,
+        message: 'Time is outside of restaurant operating hours',
+        path: ['time'],
+      });
+    }
+
+    if (restaurant.blacklist.includes(data.phone)) {
+      context.addIssue({
+        code: zod.ZodIssueCode.custom,
+        message: 'Internal error, please try again later',
+        path: ['phone'],
+      });
+    }
+  });;
+
+  const { control, handleSubmit, trigger, getValues, watch } = useForm<OrderData>({
     defaultValues: {
       name: '',
       phone: '',
-      pickUpDate: '',
-      pickUpTime: '',
+      date: '',
+      time: '',
       email: '',
-      notes: '',
+      notes: 'Enter your special request or notes for your order here...',
+      items: [],
+      totalPrice: 0,
+      status: 'Offline',
+      paymentMethod: 'offline',
+      orderId: '',
     },
     resolver: zodResolver(FormDataSchema),
   });
 
-  const onSubmit = (data: FormData) => {
-    if (verifyOtp) {
-      const parsedData = { ...data, totalPrice, phone: `+61${data.phone}` };
-      console.log(parsedData);
-    } else {
-      alert('Please verify your phone number');
+  const handleOrderSubmission = async (data: OrderData, paymentMethod: 'offline' | 'online', status: 'Offline' | 'Pending') => {
+    try {
+      await runValidations([
+        () => validateOTP(verifyOtp),
+        () => validatePickUpTime(data.date, data.time),
+        () => validatePrice(data.totalPrice),
+      ]);
+  
+      const id = uuidv4();
+      await CreateTakeAwayOrder({
+        ...data,
+        items: orderList.map((item) => ({
+          _id: item._id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          menuItem: { _type: 'reference', _ref: item._id }, 
+        })),
+        totalPrice: parseFloat(totalPrice),
+        orderId: id,
+        paymentMethod,
+        status,
+        notes: data.notes,
+      });
+      
+    } catch (error) {
+      console.error(`${paymentMethod === 'online' ? 'Online payment' : 'Order submission'} failed:`, error);
     }
   };
+  
+  const onSubmit = (data: OrderData) => handleOrderSubmission(data, 'offline', 'Offline');
+  const handlePayOnline = (data: OrderData) => handleOrderSubmission(data, 'online', 'Pending');
+  
+
+  const selectedDate = watch('date');
 
   const phoneClickHandler = async () => {
     const result = await trigger('phone');
@@ -96,16 +153,11 @@ export function TakeawayForm() {
   return (
     !loading && (
       <section>
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+        <form className="flex flex-col gap-4">
           <InputsContainer>
             <ControlledInput label="Name" control={control} name="name" />
             <span className="flex col-span-1 gap-2 items-end">
-              <ControlledInput
-                label="Phone Number"
-                control={control}
-                name="phone"
-                disabled={verifyOtp}
-              />
+              <ControlledInput label="Phone Number" control={control} name="phone" disabled={verifyOtp} />
               <Button
                 className={clsx({
                   'bg-gray-300 text-white': isRunning,
@@ -125,18 +177,8 @@ export function TakeawayForm() {
             </span>
           </InputsContainer>
           <InputsContainer>
-            <ControlledInput
-              label="Pickup Date"
-              control={control}
-              name="pickUpDate"
-              type="Date"
-            />
-            <ControlledInput
-              label="Pickup Time"
-              control={control}
-              name="pickUpTime"
-              type="Time"
-            />
+            <ControlledInput label="Date" control={control} name="date" type="date" />
+            <ControlledInput label="Time" control={control} name="time" type="time" disabled={!selectedDate} />
           </InputsContainer>
           <ControlledInput label="Email" control={control} name="email" />
           <div className="flex flex-col gap-2">
@@ -160,19 +202,34 @@ export function TakeawayForm() {
             placeholder="Enter your special request or notes for your order here..."
             rows={5}
           />
-          <Button
+          <HStack
             marginTop="2rem"
-            colorScheme="orange"
-            variant="solid"
-            type="submit"
-            backgroundColor="#facc16"
-            padding="0.6rem"
-            borderRadius={5}
+            width="100%"
+            marginX="auto"
+            spacing={4}
             fontSize="small"
             fontWeight="600"
+            borderRadius={5}
+            className="common-btn-styles"
+            color="black"
           >
+            <Button
+              width="100%"
+              backgroundColor="#facc16"
+              padding="0.6rem"
+              onClick={handleSubmit(onSubmit)}
+            >
             Submit Order
-          </Button>
+            </Button>
+            <Button
+              width="100%"
+              backgroundColor="#facc16"
+              padding="0.6rem"
+              onClick={handleSubmit(handlePayOnline)}
+            >
+            Pay Online (4.99% charge)
+            </Button>
+          </HStack>
         </form>
         {isModalOpen && (
           <VerifyOtpModal

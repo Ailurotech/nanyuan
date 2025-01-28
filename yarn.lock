@@ -3414,6 +3414,13 @@
     style-mod "^4.1.0"
     w3c-keyname "^2.2.4"
 
+"@datastream/core@0.0.38":
+  version "0.0.38"
+  resolved "https://registry.yarnpkg.com/@datastream/core/-/core-0.0.38.tgz#bcb0b52c51db2744a243ce3672a0e44a1cfe1f9e"
+  integrity sha512-9rFyIg+dlEhrFqf2IxkMm+nSEptOdBB/soXxvU0ynnkIhBW4CZk5jkDubiaeygOxXzN9sm6pAWdWdmkQohQVxg==
+  dependencies:
+    cloneable-readable "3.0.0"
+
 "@dnd-kit/accessibility@^3.1.0":
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/@dnd-kit/accessibility/-/accessibility-3.1.0.tgz#1054e19be276b5f1154ced7947fc0cb5d99192e0"
@@ -4430,6 +4437,25 @@
     rimraf "^3.0.2"
     semver "^7.3.5"
     tar "^6.1.11"
+
+"@middy/core@^5":
+  version "5.5.1"
+  resolved "https://registry.yarnpkg.com/@middy/core/-/core-5.5.1.tgz#95db9ad9d904c0cecbea94db8bdcbb5b0888d2fa"
+  integrity sha512-D7q0WXoH2HKyAqw+EN9DuKTp1j+Yr1Aup4m+ALdkyx60fZNGYOFXIx8rKO+ipPC9BBqjbig/zloyIHCZhdK0xg==
+  dependencies:
+    "@datastream/core" "0.0.38"
+
+"@middy/http-cors@^5":
+  version "5.5.1"
+  resolved "https://registry.yarnpkg.com/@middy/http-cors/-/http-cors-5.5.1.tgz#995bfd1a5dff21ee985446e8b98e2bd8a741b1cc"
+  integrity sha512-J8Xkxg+htaoXadehMDCZPT2vcBNCFMfKwNIdZ1F8TZZg2mgV6zHLeDQRDVicHnd3wboaVa3mwwYUQ+2+E7MXrQ==
+  dependencies:
+    "@middy/util" "5.5.1"
+
+"@middy/util@5.5.1":
+  version "5.5.1"
+  resolved "https://registry.yarnpkg.com/@middy/util/-/util-5.5.1.tgz#53ab964f89de06e8c573a98624941103b3fa33c1"
+  integrity sha512-yWvycirftFpXFYt4MXCPjPfM4tQOs4Ib2eyzZEIPOJoEz2cg8mogVNI1TehiCD5O2S1rOPbMduUaXNO6LXiOMA==
 
 "@motionone/animation@^10.12.0":
   version "10.18.0"
@@ -6204,6 +6230,11 @@
     "@tufjs/canonical-json" "2.0.0"
     minimatch "^9.0.4"
 
+"@types/aws-lambda@^8.10.147":
+  version "8.10.147"
+  resolved "https://registry.yarnpkg.com/@types/aws-lambda/-/aws-lambda-8.10.147.tgz#dc5c89aa32f47a9b35e52c32630545c83afa6f2f"
+  integrity sha512-nD0Z9fNIZcxYX5Mai2CTmFD7wX7UldCkW2ezCF8D1T5hdiLsnTWDGRpfRYntU6VjTdLQjOvyszru7I1c1oCQew==
+
 "@types/babel__core@^7.20.5":
   version "7.20.5"
   resolved "https://registry.yarnpkg.com/@types/babel__core/-/babel__core-7.20.5.tgz#3df15f27ba85319caa07ba08d0721889bb39c017"
@@ -6331,6 +6362,11 @@
   version "4.17.7"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.17.7.tgz#2f776bcb53adc9e13b2c0dfd493dfcbd7de43612"
   integrity sha512-8wTvZawATi/lsmNu10/j2hk1KEP0IvjubqPE3cu1Xz7xfXXt5oCq3SNUz4fMIP4XGF9Ky+Ue2tBA3hcS7LSBlA==
+
+"@types/luxon@^3.4.2":
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/@types/luxon/-/luxon-3.4.2.tgz#e4fc7214a420173cea47739c33cdf10874694db7"
+  integrity sha512-TifLZlFudklWlMBfhubvgqTXRzLDI5pCbGa4P8a3wPyUQSW+1xQ5eDsreP9DWHX3tjq1ke96uYG/nwundroWcA==
 
 "@types/minimatch@*":
   version "5.1.2"
@@ -8087,6 +8123,13 @@ clone@^1.0.2:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/clone/-/clone-1.0.4.tgz#da309cc263df15994c688ca902179ca3c7cd7c7e"
   integrity sha512-JQHZ2QMW6l3aH/j6xCqQThY/9OH4D/9ls34cgkUBiEeocRTU04tHfKPBsUK1PqZCUQM7GiA0IIXJSuXHI64Kbg==
+
+cloneable-readable@3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/cloneable-readable/-/cloneable-readable-3.0.0.tgz#390b00c3627d961afcb8192b5bad21e09490c591"
+  integrity sha512-Lkfd9IRx1nfiBr7UHNxJSl/x7DOeUfYmxzCkxYJC2tyc/9vKgV75msgLGurGQsak/NvJDHMWcshzEXRlxfvhqg==
+  dependencies:
+    readable-stream "^4.0.0"
 
 clsx@^2.1.1:
   version "2.1.1"

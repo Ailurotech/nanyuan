@@ -103,3 +103,47 @@ export interface FooterContent {
     };
   }
 }
+
+export interface Table {
+  type: string;
+  quantity: number;
+  _id: string;
+}
+
+export interface ReservationData {
+  name: string;
+  phone: string;
+  email: string;
+  guests: string;  
+  date: string;
+  time: string;
+  preference?: string;  
+  notes?: string;       
+  tableId: string;
+}
+
+export interface OrderItem {
+  _id: string;         
+  name: string;        
+  price: number;       
+  quantity: number;    
+  menuItem: {
+    _type: 'reference'; 
+    _ref: string;       
+  };
+}
+
+export interface OrderData {
+  name: string;             
+  phone: string;            
+  date: string;             
+  time: string;             
+  email: string;            
+  notes?: string;           
+  items: OrderItem[];    
+  totalPrice: number;       
+  status: 'Offline' | 'Pending'|'Paid'|'Cancelled'; 
+  paymentMethod: 'offline' | 'online'; 
+  orderId: string;           
+  sessionId?: string | null; 
+}
