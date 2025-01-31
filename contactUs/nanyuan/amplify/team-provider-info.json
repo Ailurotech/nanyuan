@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-nanyuan-dev-336c5-authRole",
+      "UnauthRoleArn": "arn:aws:iam::864981714278:role/amplify-nanyuan-dev-336c5-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::864981714278:role/amplify-nanyuan-dev-336c5-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-nanyuan-dev-336c5-deployment",
+      "UnauthRoleName": "amplify-nanyuan-dev-336c5-unauthRole",
+      "StackName": "amplify-nanyuan-dev-336c5",
+      "StackId": "arn:aws:cloudformation:us-east-1:864981714278:stack/amplify-nanyuan-dev-336c5/5c0af430-d797-11ef-916d-0e4d0ae812b7",
+      "AmplifyAppId": "d2v38j71upwnl7"
+    },
+    "categories": {
+      "function": {
+        "contactFormHandler": {}
+      }
+    }
+  }
+}
