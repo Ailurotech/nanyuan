@@ -147,3 +147,9 @@ export interface OrderData {
   orderId: string;           
   sessionId?: string | null; 
 }
+
+export interface LocationInfo{
+  address: string;
+  phone: string;
+  email: string;
+}
