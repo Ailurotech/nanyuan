@@ -127,7 +127,7 @@ export interface OrderItem {
   name: string;        
   price: number;       
   quantity: number;    
-  menuItem: {
+  menuItem?: {
     _type: 'reference'; 
     _ref: string;       
   };
