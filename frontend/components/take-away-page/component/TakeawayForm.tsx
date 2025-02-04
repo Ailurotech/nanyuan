@@ -15,12 +15,16 @@ import * as zod from 'zod';
 import { CreateTakeAwayOrder } from '@/components/common/utils/createTakeawayOrder';
 import { OrderData, OrderItem } from '@/types';
 import { isValidTime } from '@/components/book-table-page/timeUtils';
+import { loadStripe } from '@stripe/stripe-js';
+import axios from 'axios';
+import { useRouter } from 'next/router';
 
 interface TakeawayProps {
   restaurant: Restaurant;
 }
 
 export function TakeawayForm({ restaurant }: TakeawayProps) {
+  const router = useRouter();
   interface FormData {
     name: string;
     phone: string;
@@ -87,7 +91,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
         path: ['phone'],
       });
     }
-  });;
+  });
 
   const { control, handleSubmit, trigger, getValues, watch } = useForm<OrderData>({
     defaultValues: {
@@ -115,6 +119,9 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
       ]);
   
       const id = uuidv4();
+      const stripeEmbedUrl = process.env.NEXT_PUBLIC_STRIPE_EMBED_API_URL;
+
+     
       await CreateTakeAwayOrder({
         ...data,
         items: orderList.map((item) => ({
@@ -130,7 +137,35 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
         status,
         notes: data.notes,
       });
+
+      sessionStorage.setItem('orderDetails', JSON.stringify({
+        ...data,
+        items: orderList,
+        totalPrice: parseFloat(totalPrice),
+        orderId: id,
+        paymentMethod,
+        status,
+      }));
+
+      if (paymentMethod === 'offline') {
+        router.push('/success/takeaway');
+      }
+
+      if (paymentMethod === 'online') {
+        const response = await axios.post(`${stripeEmbedUrl}`, {
+          orderList,
+          totalPrice,
+          id,
+        });
       
+        const { sessionId } = response.data;
+        const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
+        if (stripe && sessionId) {
+          await stripe.redirectToCheckout({ sessionId });
+        } else {
+          throw new Error('Failed to create Stripe session');
+        }
+      }
     } catch (error) {
       console.error(`${paymentMethod === 'online' ? 'Online payment' : 'Order submission'} failed:`, error);
     }

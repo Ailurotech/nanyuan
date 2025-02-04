@@ -8,6 +8,7 @@ import { timeValueType } from './duration/timeValueType';
 import { restaurant } from './restaurant'; 
 import reservation from './reservation';
 import table from './table';
+import location from './location';
 
 export const schemaTypes = [
   menu,
@@ -20,4 +21,5 @@ export const schemaTypes = [
   reservation,
   durationType, 
   timeValueType,
+  location,
 ];

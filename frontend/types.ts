@@ -144,6 +144,5 @@ export interface OrderData {
   totalPrice: number;       
   status: 'Offline' | 'Pending'|'Paid'|'Cancelled'; 
   paymentMethod: 'offline' | 'online'; 
-  orderId: string;           
-  sessionId?: string | null; 
+  orderId: string;            
 }

@@ -12,6 +12,9 @@ provider:
     SANITY_DATASET: ${env:SANITY_DATASET}
     SANITY_API_TOKEN: ${env:SANITY_API_TOKEN}
     ALLOW_ORIGIN: ${env:ALLOW_ORIGIN}
+    CLIENT_BASE_URL: ${env:CLIENT_BASE_URL}
+    STRIPE_SECRET_KEY: ${env:STRIPE_SECRET_KEY}
+    STRIPE_WEBHOOK_SECRET: ${env:STRIPE_WEBHOOK_SECRET}
 
 functions:
   sendEmail:
@@ -66,6 +69,37 @@ functions:
               - Content-Type
               - Authorization
 
+  stripeEmbed:
+    handler: lambda/stripe-embed.handler
+    memorySize: 1024
+    timeout: 15
+    role: ServerlessNextjsLambdaRole
+    events:
+      - http:
+          path: api/stripe-embed
+          method: post
+          cors:
+            origins:
+              - http://localhost:3000
+              - ${env:CLIENT_BASE_URL}
+            methods:
+              - POST
+              - OPTIONS
+            headers:
+              - Content-Type
+              - Authorization
+
+  stripeWebhook:
+    handler: lambda/webhook-handler.webhookHandler
+    memorySize: 1024
+    timeout: 15
+    role: ServerlessNextjsLambdaRole
+    events:
+      - http:
+          path: api/stripe-webhook
+          method: post
+          cors: false
+
 resources:
   Resources:
     ServerlessNextjsLambdaRole:
@@ -89,7 +123,16 @@ resources:
                     - ses:SendEmail
                     - ses:SendRawEmail
                   Resource: "*"
-
+          - PolicyName: LambdaLoggingPolicy
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - logs:CreateLogGroup
+                    - logs:CreateLogStream
+                    - logs:PutLogEvents
+                  Resource: "*"
 custom:
   serverless-nextjs:
     bucketName: nanyuan-function-bucket
@@ -107,6 +150,3 @@ custom:
       postBuildCommands:
         - "yarn run other-script"
     customDomain: ${env:DOMAIN, ''}
-
-plugins:
-  - serverless-nextjs-plugin
