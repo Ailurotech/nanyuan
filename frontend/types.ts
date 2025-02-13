@@ -1,5 +1,6 @@
 // types.ts
 export interface MenuItem {
+  quantity: number;
   _id: string;
   name: string;
   description: string;

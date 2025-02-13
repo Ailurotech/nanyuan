@@ -16,9 +16,10 @@ import { useState, useEffect } from 'react';
 interface MenuProps {
   menuItems: MenuItem;
   addToCart: (item: MenuItem) => void;
+  removeFromCart: (item: MenuItem) => void;
 }
 
-const MenuCard = ({ menuItems, addToCart }: MenuProps) => {
+const MenuCard = ({ menuItems, addToCart,removeFromCart }: MenuProps) => {
   const [itemCount, setItemCount] = useState(0);
 
   useEffect(() => {
@@ -40,22 +41,10 @@ const addToCartHandler = () => {
 };
 
 const removeFromCartHandler = () => {
-  if (typeof window !== 'undefined') {
-    const cartData = localStorage.getItem('cart');
-    if (cartData) {
-      const parsedCart = JSON.parse(cartData);
-      const updatedCart = parsedCart.map((item: MenuItem) => {
-        if (item._id === menuItems._id) {
-          return { ...item, quantity: item.quantity - 1 };
-        }
-        return item;
-      }).filter((item: MenuItem) => item.quantity > 0);
-
-      localStorage.setItem('cart', JSON.stringify(updatedCart));
-      setItemCount((prev) => Math.max(prev - 1, 0));
-    }
-  }
+  removeFromCart(menuItems); 
+  setItemCount((prev) => Math.max(prev - 1, 0)); 
 };
+
 
 const imageUrl = menuItems.image
   ? urlFor(menuItems.image).width(250).height(150).auto('format').url()

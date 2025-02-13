@@ -54,6 +54,19 @@ const MenuPage = ({ initialMenuItems, initialCategories, totalCount, totalPages,
     localStorage.setItem('cart', JSON.stringify(updatedCart));
   };
 
+  const removeFromCart = (item: MenuItem) => {
+    const updatedCart = cart
+      .map(cartItem => cartItem._id === item._id 
+          ? { ...cartItem, quantity: cartItem.quantity - 1 }
+          : cartItem)
+      .filter(cartItem => cartItem.quantity > 0);
+
+    setCart(updatedCart);
+    setCartCount(updatedCart.reduce((total, cartItem) => total + cartItem.quantity, 0)); 
+    localStorage.setItem('cart', JSON.stringify(updatedCart)); 
+};
+
+
   const handleCategoryClick = async (category: string) => {
     setSelectedCategory(category);
     setIsLoading(true);
@@ -129,7 +142,7 @@ const MenuPage = ({ initialMenuItems, initialCategories, totalCount, totalPages,
 
       <div className="container mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10 px-5 justify-items-center">
         {menuItems.map((item) => (
-          <MenuCard key={item._id} menuItems={item} addToCart={addToCart} />
+          <MenuCard key={item._id} menuItems={item} addToCart={addToCart} removeFromCart={removeFromCart} />
         ))}
       </div>
 
