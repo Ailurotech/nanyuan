@@ -1,7 +1,12 @@
 import { GetStaticProps } from 'next';
 import { MenuItem, ShoppingCartItem, Category } from '../types';
 import MenuCard from '../components/menupage/MenuCard';
-import { fetchMenuItems, fetchTotalCount, fetchCategories, fetchPageSize } from '@/components/menupage/menuService';
+import {
+  fetchMenuItems,
+  fetchTotalCount,
+  fetchCategories,
+  fetchPageSize,
+} from '@/components/menupage/menuService';
 import { useState, useEffect } from 'react';
 import { RiShoppingBagLine } from 'react-icons/ri';
 import Link from 'next/link';
@@ -15,7 +20,13 @@ interface MenuProps {
   pageSize: number;
 }
 
-const MenuPage = ({ initialMenuItems, initialCategories, totalCount, totalPages, pageSize }: MenuProps) => {
+const MenuPage = ({
+  initialMenuItems,
+  initialCategories,
+  totalCount,
+  totalPages,
+  pageSize,
+}: MenuProps) => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>(initialMenuItems);
   const [cart, setCart] = useState<ShoppingCartItem[]>([]);
   const [cartCount, setCartCount] = useState(0);
@@ -29,6 +40,14 @@ const MenuPage = ({ initialMenuItems, initialCategories, totalCount, totalPages,
     const cartData = localStorage.getItem('cart');
     if (cartData) {
       const parsedCart = JSON.parse(cartData);
+      
+      // Check if the parsedCart is an empty object
+      if (Object.keys(parsedCart).length === 0) {
+        setCart([]);
+        setCartCount(0);
+        return;
+      };
+      
       setCart(parsedCart);
       setCartCount(
         parsedCart.reduce(
@@ -122,15 +141,41 @@ const MenuPage = ({ initialMenuItems, initialCategories, totalCount, totalPages,
             onClick={() => handleCategoryClick(category)}
             disabled={isLoading && selectedCategory === category}
           >
-            {isLoading && selectedCategory === category ? 'Loading...' : category}
+            {category}
           </button>
         ))}
       </div>
 
       <div className="container mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10 px-5 justify-items-center">
-        {menuItems.map((item) => (
-          <MenuCard key={item._id} menuItems={item} addToCart={addToCart} />
-        ))}
+        {isLoading ? (
+          <div className="flex justify-center items-center col-span-full">
+            <svg
+              className="animate-spin h-10 w-10 text-yellow-400"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+              ></path>
+            </svg>
+            <span className="text-white text-lg font-bold ml-2">
+              Loading...
+            </span>
+          </div>
+        ) : (
+          menuItems.map((item) => (
+            <MenuCard key={item._id} menuItems={item} addToCart={addToCart} />
+          ))
+        )}
       </div>
 
       {selectedCategory === 'All' && totalPages > 1 && (
