@@ -145,7 +145,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
         totalPrice: parseFloat(totalPrice),
         orderId: id,
         status: status,
-        paymentMethod: paymentMethod, 
+        paymentMethod: paymentMethod,
       });
     } catch (error) {
       console.error(

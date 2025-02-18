@@ -5,8 +5,8 @@ export interface MenuItem {
   description: string;
   price: number;
   image: string;
-  categories: string[]; 
-  isAvailable: boolean; 
+  categories: string[];
+  isAvailable: boolean;
   _type: string;
 }
 export interface HeroContent {
@@ -124,22 +124,22 @@ export interface ReservationData {
 }
 
 export interface OrderItem {
-  _key: string; 
-  price: number;       
-  quantity: number;    
-  menuItem: { _type: 'reference'; _ref: string }; 
+  _key: string;
+  price: number;
+  quantity: number;
+  menuItem: { _type: 'reference'; _ref: string };
 }
 
 export interface OrderData {
-  name: string;             
-  phone: string;            
-  date: string;             
-  time: string;             
-  email: string;            
-  notes?: string;           
-  items: OrderItem[];    
-  totalPrice: number;       
-  status: 'Offline' | 'Pending'|'Paid'|'Cancelled'; 
-  paymentMethod: 'offline' | 'online'; 
-  orderId: string;           
+  name: string;
+  phone: string;
+  date: string;
+  time: string;
+  email: string;
+  notes?: string;
+  items: OrderItem[];
+  totalPrice: number;
+  status: 'Offline' | 'Pending' | 'Paid' | 'Cancelled';
+  paymentMethod: 'offline' | 'online';
+  orderId: string;
 }

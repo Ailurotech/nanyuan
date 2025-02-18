@@ -9,25 +9,38 @@ const createReservation = async (req: NextApiRequest, res: NextApiResponse) => {
       return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
-    const { data, tableId }: { data: ReservationData; tableId?: string } = req.body;
+    const { data, tableId }: { data: ReservationData; tableId?: string } =
+      req.body;
 
     if (!data || !tableId) {
-      return res.status(400).json({ error: 'Invalid request payload: data and tableId are required' });
+      return res
+        .status(400)
+        .json({
+          error: 'Invalid request payload: data and tableId are required',
+        });
     }
 
     const requiredFields = ['name', 'phone', 'email', 'guests', 'date', 'time'];
-    const missingFields = requiredFields.filter((field) => !(data as any)[field]);
-    
+    const missingFields = requiredFields.filter(
+      (field) => !(data as any)[field],
+    );
+
     if (missingFields.length > 0) {
-      return res.status(400).json({ error: `Missing required fields: ${missingFields.join(', ')}` });
+      return res
+        .status(400)
+        .json({
+          error: `Missing required fields: ${missingFields.join(', ')}`,
+        });
     }
 
     await sanityClient.create({
       _type: 'reservation',
-      ...data
+      ...data,
     });
 
-    return res.status(200).json({ message: 'Reservation created successfully' });
+    return res
+      .status(200)
+      .json({ message: 'Reservation created successfully' });
   } catch (error: unknown) {
     console.error('Error creating reservation:', error);
 
