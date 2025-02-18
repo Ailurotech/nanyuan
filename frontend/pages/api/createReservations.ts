@@ -13,11 +13,9 @@ const createReservation = async (req: NextApiRequest, res: NextApiResponse) => {
       req.body;
 
     if (!data || !tableId) {
-      return res
-        .status(400)
-        .json({
-          error: 'Invalid request payload: data and tableId are required',
-        });
+      return res.status(400).json({
+        error: 'Invalid request payload: data and tableId are required',
+      });
     }
 
     const requiredFields = ['name', 'phone', 'email', 'guests', 'date', 'time'];
@@ -26,11 +24,9 @@ const createReservation = async (req: NextApiRequest, res: NextApiResponse) => {
     );
 
     if (missingFields.length > 0) {
-      return res
-        .status(400)
-        .json({
-          error: `Missing required fields: ${missingFields.join(', ')}`,
-        });
+      return res.status(400).json({
+        error: `Missing required fields: ${missingFields.join(', ')}`,
+      });
     }
 
     await sanityClient.create({

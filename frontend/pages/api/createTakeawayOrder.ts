@@ -39,11 +39,9 @@ const createTakeawayOrder = async (
       (field) => !(req.body as any)[field],
     );
     if (missingFields.length > 0) {
-      return res
-        .status(400)
-        .json({
-          error: `Missing required fields: ${missingFields.join(', ')}`,
-        });
+      return res.status(400).json({
+        error: `Missing required fields: ${missingFields.join(', ')}`,
+      });
     }
 
     await sanityClient.create({
@@ -55,12 +53,10 @@ const createTakeawayOrder = async (
     return res.status(200).json({ message: 'Order created successfully' });
   } catch (error) {
     console.error('Error creating order:', error);
-    return res
-      .status(500)
-      .json({
-        error: 'Internal server error',
-        details: (error as Error).message,
-      });
+    return res.status(500).json({
+      error: 'Internal server error',
+      details: (error as Error).message,
+    });
   }
 };
 
