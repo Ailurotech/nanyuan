@@ -34,7 +34,7 @@ const MenuPage = ({
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [loadingError, setLoadingError] = useState<string | null>(null);
+  const [loadingError, setLoadingError] = useState<string | null>(null); // State for loading error
 
   const categories = [
     'All',
