@@ -136,6 +136,7 @@ const MenuPage = ({
           href={ShoppingCart.Path}
           className="text-white absolute right-0 md:mr-12 mr-2 mb-8 hover:text-yellow-400"
           aria-label="View shopping cart"
+          title="View shopping cart"
         >
           <div className="relative">
             <RiShoppingBagLine className="w-7 h-7" />
@@ -182,7 +183,9 @@ const MenuPage = ({
             aria-live="assertive"
             aria-describedby="error-message"
           >
-            <p className="text-center text-red-500 mb-4">{loadingError}</p>
+            <p id="error-message" className="text-center text-red-500 mb-4">
+              {loadingError}
+            </p>
           </div>
         ) : (
           menuItems.map((item) => (
