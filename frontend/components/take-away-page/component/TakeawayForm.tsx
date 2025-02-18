@@ -227,7 +227,8 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
               padding="0.6rem"
               onClick={handleSubmit(handlePayOnline)}
             >
-            Pay Online (4.99% charge)
+            Pay Online (4.99% charge) <br />
+            Approx ${ (parseFloat(totalPrice) * 0.0499).toFixed(1) }
             </Button>
           </HStack>
         </form>
