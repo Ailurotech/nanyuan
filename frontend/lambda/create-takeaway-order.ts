@@ -13,9 +13,30 @@ export const createTakeawayOrder: APIGatewayProxyHandler = async (event) => {
     }
 
     const requestData = JSON.parse(event.body);
-    const { orderId, customerName, phone, email, items, date, status, totalPrice, paymentMethod, notes } = requestData;
+    const {
+      orderId,
+      customerName,
+      phone,
+      email,
+      items,
+      date,
+      status,
+      totalPrice,
+      paymentMethod,
+      notes,
+    } = requestData;
 
-    if (!orderId || !customerName || !phone || !email || !items || !date || !status || !totalPrice || !paymentMethod) {
+    if (
+      !orderId ||
+      !customerName ||
+      !phone ||
+      !email ||
+      !items ||
+      !date ||
+      !status ||
+      !totalPrice ||
+      !paymentMethod
+    ) {
       return {
         statusCode: 400,
         body: JSON.stringify({ error: 'Missing required fields' }),
@@ -24,11 +45,13 @@ export const createTakeawayOrder: APIGatewayProxyHandler = async (event) => {
 
     const formattedItems = items.map((item: any) => {
       if (!item.menuItem || !item.quantity || item.price == null) {
-        throw new Error('Each item must contain menuItem, quantity, and price.');
+        throw new Error(
+          'Each item must contain menuItem, quantity, and price.',
+        );
       }
       return {
         _type: 'object',
-        _key: uuidv4(), 
+        _key: uuidv4(),
         menuItem: { _type: 'reference', _ref: item.menuItem._ref },
         quantity: item.quantity,
         price: item.price,
@@ -46,7 +69,7 @@ export const createTakeawayOrder: APIGatewayProxyHandler = async (event) => {
       status,
       totalPrice,
       paymentMethod,
-      notes: notes || '', 
+      notes: notes || '',
     });
 
     return {
@@ -57,7 +80,10 @@ export const createTakeawayOrder: APIGatewayProxyHandler = async (event) => {
     console.error('Error creating order:', error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Internal server error', details: (error as Error).message }),
+      body: JSON.stringify({
+        error: 'Internal server error',
+        details: (error as Error).message,
+      }),
     };
   }
 };

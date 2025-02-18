@@ -1,18 +1,17 @@
-import { BooktablePage } from "@/components/book-table-page/BooktablePage";
-import { Restaurant } from "@/types";
-import { GetStaticProps } from "next";
-import { sanityClient } from "@/lib/sanityClient"; 
-import { Table } from "@/types";
+import { BooktablePage } from '@/components/book-table-page/BooktablePage';
+import { Restaurant } from '@/types';
+import { GetStaticProps } from 'next';
+import { sanityClient } from '@/lib/sanityClient';
+import { Table } from '@/types';
 
 interface BookTableProps {
-  restaurant: Restaurant; 
+  restaurant: Restaurant;
   table: Table[];
 }
 
 export default function bookATablePage({ restaurant, table }: BookTableProps) {
-  return <BooktablePage restaurant={restaurant} table={table} />; 
+  return <BooktablePage restaurant={restaurant} table={table} />;
 }
-
 
 export const getStaticProps: GetStaticProps = async () => {
   const restaurantQuery = `
@@ -29,7 +28,7 @@ export const getStaticProps: GetStaticProps = async () => {
       blacklist
     }
   `;
-  
+
   const tableQuery = `
   *[_type == "table"]{
     type,
@@ -44,12 +43,12 @@ export const getStaticProps: GetStaticProps = async () => {
 
     return {
       props: {
-        restaurant: restaurantData[0], 
+        restaurant: restaurantData[0],
         table: tableData,
       },
     };
   } catch (e) {
-    console.error("Error fetching restaurant data:", e);
+    console.error('Error fetching restaurant data:', e);
     return {
       props: {
         restaurant: null,

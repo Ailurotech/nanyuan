@@ -105,7 +105,6 @@ const MenuPage = ({
   const handlePageChange = async (page: number) => {
     if (selectedCategory !== 'All') return;
 
-    setLoadingError(null);
     setIsLoading(true);
     try {
       const offset = (page - 1) * pageSize;

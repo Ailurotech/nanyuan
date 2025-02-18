@@ -5,16 +5,18 @@ export const fetchMenuItems = async (
   cate: string,
   offset?: number,
   limit?: number,
-  lastId?: string 
+  lastId?: string,
 ): Promise<MenuItem[]> => {
   try {
-    const rangeQuery = offset !== undefined && limit !== undefined 
-      ? `[${offset}...${offset + limit}]`
-      : '';
+    const rangeQuery =
+      offset !== undefined && limit !== undefined
+        ? `[${offset}...${offset + limit}]`
+        : '';
 
-    const categoryFilter = cate !== 'All'
-      ? `&& references(*[_type == "category" && name == "${cate}"]._id)`
-      : '';
+    const categoryFilter =
+      cate !== 'All'
+        ? `&& references(*[_type == "category" && name == "${cate}"]._id)`
+        : '';
 
     const query = `
       *[_type == "menu" && isAvailable == true ${categoryFilter}]
@@ -34,8 +36,6 @@ export const fetchMenuItems = async (
     throw error;
   }
 };
-
-
 
 export const fetchTotalCount = async (docType: string): Promise<number> => {
   const query = `count(*[_type == "${docType}" && isAvailable == true])`;
@@ -59,9 +59,9 @@ export const fetchPageSize = async (): Promise<number> => {
       }
     `;
     const result = await sanityClient.fetch<{ pageSize: number }>(query);
-    return result?.pageSize ?? 50; 
+    return result?.pageSize ?? 50;
   } catch (error) {
     console.error('Error fetching page size:', error);
-    return 50; 
+    return 50;
   }
 };
