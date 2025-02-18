@@ -47,6 +47,7 @@ const MenuPage = ({
       if (cartData) {
         const parsedCart = JSON.parse(cartData);
 
+        // Check if the parsed cart is an array
         if (Array.isArray(parsedCart)) {
           setCart(parsedCart);
           setCartCount(
@@ -56,14 +57,17 @@ const MenuPage = ({
             ),
           );
         } else {
+          // If the parsed cart is not an array, set it as an empty array
           setCart([]);
           setCartCount(0);
         }
       } else {
+        // If cart data is not found, set it as an empty array
         setCart([]);
         setCartCount(0);
       }
     } catch (error) {
+      // Set cart to an empty array
       setCart([]);
       setCartCount(0);
     }
@@ -85,8 +89,8 @@ const MenuPage = ({
   };
 
   const handleCategoryClick = async (category: string) => {
-    setSelectedCategory(category);
     setLoadingError(null);
+    setSelectedCategory(category);
     setIsLoading(true);
     try {
       const fetchedMenuItems =
