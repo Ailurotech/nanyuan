@@ -6,15 +6,40 @@ on:
       - reopened    # Triggers when a PR is reopened
       - synchronize # Triggers when a commit is pushed to the PR
 
+# fix: GraphQL: Resource not accessible by integration (addComment) error
 permissions:
   pull-requests: write
 
 jobs:
-  setup-deepseek-review:
+  format-check:
     runs-on: ubuntu-latest
-    name: Code Review
+    name: Check Code Formatting
     steps:
-      - name: DeepSeek Code Review
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+          cache-dependency-path: frontend/yarn.lock
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: yarn install --frozen-lockfile
+
+      - name: Check formatting
+        working-directory: frontend
+        run: yarn format:check
+
+  code-review:
+    runs-on: ubuntu-latest
+    name: AI Code Review
+    needs: format-check
+    steps:
+      - name: Code Review
         uses: hustcer/deepseek-review@v1
         with:
           chat-token: ${{ secrets.CHAT_TOKEN }}
