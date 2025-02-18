@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "offline": "serverless offline"
+    "offline": "serverless offline",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\""
   },
   "dependencies": {
     "@aws-sdk/client-ses": "^3.662.0",

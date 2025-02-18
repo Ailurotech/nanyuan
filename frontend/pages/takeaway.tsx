@@ -1,10 +1,10 @@
-import { TakeawayPage } from "@/components/take-away-page/TakeawayPage";
-import { sanityClient } from "@/lib/sanityClient";
-import { Restaurant } from "@/types";
-import { GetStaticProps } from "next";
+import { TakeawayPage } from '@/components/take-away-page/TakeawayPage';
+import { sanityClient } from '@/lib/sanityClient';
+import { Restaurant } from '@/types';
+import { GetStaticProps } from 'next';
 
 interface TakeawayProps {
-  restaurant: Restaurant ;
+  restaurant: Restaurant;
 }
 
 export default function Page({ restaurant }: TakeawayProps) {
@@ -23,7 +23,7 @@ export const getStaticProps: GetStaticProps = async () => {
     const data = await sanityClient.fetch(query);
     return { props: { restaurant: data[0] || null } };
   } catch (error) {
-    console.error("Error fetching data:", error);
+    console.error('Error fetching data:', error);
     return { props: { restaurant: null } };
   }
 };
