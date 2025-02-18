@@ -175,6 +175,7 @@ const MenuPage = ({
             className="flex justify-center items-center col-span-full"
             role="alert"
             aria-live="assertive"
+            aria-describedby="error-message"
           >
             <p className="text-center text-red-500 mb-4">{loadingError}</p>
           </div>
