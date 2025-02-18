@@ -7,7 +7,10 @@ export interface MenuItem {
   image: string;
   categories: string[];
   isAvailable: boolean;
-  _type: string;
+}
+export interface MenuItemReference {
+  _type: 'reference';
+  _ref: string;
 }
 export interface HeroContent {
   title: string;
@@ -127,7 +130,8 @@ export interface OrderItem {
   _key: string;
   price: number;
   quantity: number;
-  menuItem: { _type: 'reference'; _ref: string };
+  menuItem: MenuItemReference;
+  name: string;
 }
 
 export interface OrderData {

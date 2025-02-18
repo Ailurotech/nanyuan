@@ -12,7 +12,7 @@ import {
   validatePickUpTime,
   validateOTP,
 } from '@/components/take-away-page/component/checkAvailiability';
-import { MenuItem, Restaurant } from '@/types';
+import { Restaurant } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
 import clsx from 'clsx';
 import { useState, useEffect } from 'react';
@@ -21,21 +21,12 @@ import { CreateTakeAwayOrder } from '@/components/common/utils/createTakeawayOrd
 import { OrderData, OrderItem } from '@/types';
 import { isValidTime } from '@/components/book-table-page/timeUtils';
 
+
 interface TakeawayProps {
   restaurant: Restaurant;
 }
 
 export function TakeawayForm({ restaurant }: TakeawayProps) {
-  interface FormData {
-    name: string;
-    phone: string;
-    date: string;
-    time: string;
-    email: string;
-    notes: string;
-  }
-
-  type OrderList = MenuItem & { quantity: number };
 
   const {
     SendOtp,
@@ -46,28 +37,35 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
     timeLeft,
     isRunning,
   } = useSMS();
-  const [orderList, setOrderList] = useState<OrderList[]>([]);
+  const [orderList, setOrderList] = useState<OrderItem[]>([]);
   const [totalPrice, setTotalPrice] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const cart = localStorage.getItem('cart');
+  
     if (!cart) {
       setOrderList([]);
+      setTotalPrice('0.00');
       setLoading(false);
+      return;
     }
-    if (cart) {
-      const parsedList = JSON.parse(cart) as OrderList[];
-      setOrderList(parsedList);
-      const price = parsedList
-        .reduce((acc, cum) => {
-          return acc + cum.price * cum.quantity;
-        }, 0)
-        .toFixed(2);
-      setTotalPrice(price);
-      setLoading(false);
-    }
+    const parsedList: OrderItem[] = JSON.parse(cart).map((item: any) => ({
+      ...item,
+      _key: uuidv4(),
+      menuItem: {
+        _type: 'reference',
+        _ref: item._id, 
+      },
+      menuItemName: item.name, 
+    }));
+    setOrderList(parsedList);
+    setTotalPrice(
+      parsedList.reduce((acc, item) => acc + item.price * item.quantity, 0).toFixed(2)
+    );
+    setLoading(false);
   }, []);
+  
 
   const requiredField = zod.string().min(1, { message: 'Required Field' });
   const FormDataSchema = zod
@@ -137,11 +135,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
       const id = uuidv4();
       await CreateTakeAwayOrder({
         ...data,
-        items: orderList.map((item) => ({
-          _key: uuidv4(),
-          menuItem: { _type: 'reference', _ref: item._id },
-          ...item,
-        })),
+        items: orderList,
         totalPrice: parseFloat(totalPrice),
         orderId: id,
         status: status,

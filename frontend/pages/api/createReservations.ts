@@ -5,10 +5,7 @@ import { withMiddlewares } from '@/components/common/corsMiddleware'; // 确保�
 
 const createReservation = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
-    if (req.method !== 'POST') {
-      return res.status(405).json({ error: 'Method Not Allowed' });
-    }
-
+    
     const { data, tableId }: { data: ReservationData; tableId?: string } =
       req.body;
 
