@@ -9,6 +9,7 @@ export const LoadingSpinner = () => (
       className="animate-spin h-10 w-10 text-yellow-400"
       viewBox="0 0 24 24"
     >
+      <title>Loading spinner</title>
       <circle
         className="opacity-25"
         cx="12"
