@@ -161,6 +161,11 @@ const MenuPage = ({
             disabled={isLoading && selectedCategory === category}
             aria-disabled={isLoading && selectedCategory === category}
             aria-label={`Filter by ${category}`}
+            style={
+              isLoading && selectedCategory === category
+                ? { opacity: 0.5, cursor: 'not-allowed' }
+                : {}
+            }
           >
             {category}
           </button>
