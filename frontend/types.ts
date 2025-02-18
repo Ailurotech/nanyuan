@@ -147,3 +147,30 @@ export interface OrderData {
   orderId: string;           
   sessionId?: string | null; 
 }
+
+export interface LocationInfo {
+  title: string;
+  address: string;
+  phone: string;
+  email: string;
+  images: Array<{
+    _type: string;
+    asset: {
+      _id: string;
+      url: string;  // 确保包含 url
+    };
+    alt: string;
+  }>;
+}
+
+export interface SanityImage {
+  _type: 'image';
+  asset: {
+    _ref: string;
+    _type: 'reference';
+  };
+  alt?: string
+  width?: number; // Add width, make it optional
+  height?: number;
+  blurDataURL?: string;
+}
