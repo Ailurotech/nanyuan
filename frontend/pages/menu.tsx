@@ -11,6 +11,7 @@ import { useState, useEffect } from 'react';
 import { RiShoppingBagLine } from 'react-icons/ri';
 import Link from 'next/link';
 import { ShoppingCart } from '@/components/homepage/route';
+import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 
 interface MenuProps {
   initialMenuItems: MenuItem[];
@@ -41,27 +42,27 @@ const MenuPage = ({
   ];
 
   useEffect(() => {
-    const cartData = localStorage.getItem('cart');
-    if (cartData) {
-      const parsedCart = JSON.parse(cartData);
+    try {
+      const cartData = localStorage.getItem('cart');
+      if (cartData) {
+        const parsedCart = JSON.parse(cartData);
 
-      // Check if the parsedCart is an empty object
-      if (
-        typeof parsedCart === 'object' &&
-        Object.keys(parsedCart).length === 0
-      ) {
-        setCart([]);
-        setCartCount(0);
-        return;
+        if (Array.isArray(parsedCart)) {
+          setCart(parsedCart);
+          setCartCount(
+            parsedCart.reduce(
+              (total: number, item: ShoppingCartItem) => total + item.quantity,
+              0,
+            ),
+          );
+        } else {
+          setCart([]);
+          setCartCount(0);
+        }
       }
-
-      setCart(parsedCart);
-      setCartCount(
-        parsedCart.reduce(
-          (total: number, item: ShoppingCartItem) => total + item.quantity,
-          0,
-        ),
-      );
+    } catch (error) {
+      setCart([]);
+      setCartCount(0);
     }
   }, []);
 
@@ -131,6 +132,7 @@ const MenuPage = ({
         <Link
           href={ShoppingCart.Path}
           className="text-white absolute right-0 md:mr-12 mr-2 mb-8 hover:text-yellow-400"
+          aria-label="View shopping cart"
         >
           <div className="relative">
             <RiShoppingBagLine className="w-7 h-7" />
@@ -154,6 +156,7 @@ const MenuPage = ({
             }`}
             onClick={() => handleCategoryClick(category)}
             disabled={isLoading && selectedCategory === category}
+            aria-label={`Filter by ${category}`}
           >
             {category}
           </button>
@@ -162,33 +165,7 @@ const MenuPage = ({
 
       <div className="container mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10 px-5 justify-items-center">
         {isLoading ? (
-          <div
-            role="status"
-            aria-live="polite"
-            className="flex justify-center items-center col-span-full"
-          >
-            <svg
-              className="animate-spin h-10 w-10 text-yellow-400"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              ></circle>
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-              ></path>
-            </svg>
-            <span className="text-white text-lg font-bold ml-2">
-              Loading...
-            </span>
-          </div>
+          <LoadingSpinner />
         ) : loadingError ? (
           <div className="flex justify-center items-center col-span-full ">
             <p className="text-center text-red-500 mb-4">{loadingError}</p>
@@ -212,6 +189,7 @@ const MenuPage = ({
               }`}
               onClick={() => handlePageChange(page)}
               disabled={isLoading}
+              aria-label={`Go to page ${page}`}
             >
               {page}
             </button>
