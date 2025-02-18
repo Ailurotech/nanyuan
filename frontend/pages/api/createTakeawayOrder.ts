@@ -1,8 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { sanityClient } from '@/lib/sanityClient';
 import { withMiddlewares } from '@/components/common/corsMiddleware';
-import { v4 as uuidv4 } from 'uuid';
-import { OrderItem } from '@/types';
 
 const createTakeawayOrder = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== 'POST') {
