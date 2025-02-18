@@ -1,4 +1,4 @@
-import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
+import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 
 const sesClient = new SESClient({ region: process.env.AWS_REGION });
 
@@ -13,7 +13,9 @@ export const handler = async (event: any) => {
   if (!name || !email || !message) {
     return {
       statusCode: 400,
-      body: JSON.stringify({ message: 'Name, email, and message are required.' }),
+      body: JSON.stringify({
+        message: 'Name, email, and message are required.',
+      }),
     };
   }
 
@@ -24,7 +26,7 @@ export const handler = async (event: any) => {
     Message: {
       Body: {
         Html: {
-          Charset: "UTF-8",
+          Charset: 'UTF-8',
           Data: `
             <html>
               <body>
@@ -37,13 +39,13 @@ export const handler = async (event: any) => {
           `,
         },
         Text: {
-          Charset: "UTF-8",
+          Charset: 'UTF-8',
           Data: `Name: ${name}\nEmail: ${email}\nMessage: ${message}`,
         },
       },
       Subject: {
-        Charset: "UTF-8",
-        Data: "New Form Submission",
+        Charset: 'UTF-8',
+        Data: 'New Form Submission',
       },
     },
     Source: process.env.EMAIL_FROM as string,

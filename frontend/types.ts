@@ -83,12 +83,12 @@ export interface Restaurant {
 }
 
 export interface Duration {
-  start: string; 
-  end: string;   
+  start: string;
+  end: string;
 }
 
 export interface Category {
-  name: string; 
+  name: string;
 }
 
 export interface FooterContent {
@@ -100,9 +100,9 @@ export interface FooterContent {
   insEmbedId: string;
   topImage: {
     asset: {
-      url: string; 
+      url: string;
     };
-  }
+  };
 }
 
 export interface Table {
@@ -115,11 +115,11 @@ export interface ReservationData {
   name: string;
   phone: string;
   email: string;
-  guests: string;  
+  guests: string;
   date: string;
   time: string;
-  preference?: string;  
-  notes?: string;       
+  preference?: string;
+  notes?: string;
   tableId: string;
 }
 

@@ -8,11 +8,11 @@ import {
   DrawerHeader,
   DrawerOverlay,
   useDisclosure,
-} from "@chakra-ui/react";
-import { NavigationMenu } from "./NavigationMenu";
-import clsx from "clsx";
-import { NextFont } from "next/dist/compiled/@next/font";
-import { Icon } from "@/components/common/Icon";
+} from '@chakra-ui/react';
+import { NavigationMenu } from './NavigationMenu';
+import clsx from 'clsx';
+import { NextFont } from 'next/dist/compiled/@next/font';
+import { Icon } from '@/components/common/Icon';
 
 export function NavigationDrawer({ font }: { font: NextFont }) {
   const { onOpen, isOpen, onClose } = useDisclosure();
@@ -29,7 +29,7 @@ export function NavigationDrawer({ font }: { font: NextFont }) {
       <Drawer isOpen={isOpen} onClose={onClose} size="xs" colorScheme="green">
         <DrawerOverlay />
         <DrawerContent
-          className={clsx("py-4", font.className)}
+          className={clsx('py-4', font.className)}
           backgroundColor="rgba(22, 24,33, 0.8)"
           color="white"
         >

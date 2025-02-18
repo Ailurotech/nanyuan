@@ -1,7 +1,12 @@
 import { GetStaticProps } from 'next';
 import { MenuItem, ShoppingCartItem, Category } from '../types';
 import MenuCard from '../components/menupage/MenuCard';
-import { fetchMenuItems, fetchTotalCount, fetchCategories, fetchPageSize } from '@/components/menupage/menuService';
+import {
+  fetchMenuItems,
+  fetchTotalCount,
+  fetchCategories,
+  fetchPageSize,
+} from '@/components/menupage/menuService';
 import { useState, useEffect } from 'react';
 import { RiShoppingBagLine } from 'react-icons/ri';
 import Link from 'next/link';
@@ -15,7 +20,13 @@ interface MenuProps {
   pageSize: number;
 }
 
-const MenuPage = ({ initialMenuItems, initialCategories, totalCount, totalPages, pageSize }: MenuProps) => {
+const MenuPage = ({
+  initialMenuItems,
+  initialCategories,
+  totalCount,
+  totalPages,
+  pageSize,
+}: MenuProps) => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>(initialMenuItems);
   const [cart, setCart] = useState<ShoppingCartItem[]>([]);
   const [cartCount, setCartCount] = useState(0);
@@ -23,7 +34,10 @@ const MenuPage = ({ initialMenuItems, initialCategories, totalCount, totalPages,
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const categories = ['All', ...Array.from(new Set(initialCategories.map((cat) => cat.name)))];
+  const categories = [
+    'All',
+    ...Array.from(new Set(initialCategories.map((cat) => cat.name))),
+  ];
 
   useEffect(() => {
     const cartData = localStorage.getItem('cart');
@@ -74,20 +88,23 @@ const MenuPage = ({ initialMenuItems, initialCategories, totalCount, totalPages,
 
   const handlePageChange = async (page: number) => {
     if (selectedCategory !== 'All') return;
-  
+
     setIsLoading(true);
     try {
-      const offset = (page - 1) * pageSize; 
-      const fetchedMenuItems = await fetchMenuItems(selectedCategory, offset, pageSize);
+      const offset = (page - 1) * pageSize;
+      const fetchedMenuItems = await fetchMenuItems(
+        selectedCategory,
+        offset,
+        pageSize,
+      );
       setMenuItems(fetchedMenuItems);
-      setCurrentPage(page); 
+      setCurrentPage(page);
     } catch (error) {
       console.error('Error fetching paginated menu items:', error);
     } finally {
       setIsLoading(false);
     }
   };
-  
 
   return (
     <div className="bg-black min-h-screen py-12 pt-40">
@@ -122,7 +139,9 @@ const MenuPage = ({ initialMenuItems, initialCategories, totalCount, totalPages,
             onClick={() => handleCategoryClick(category)}
             disabled={isLoading && selectedCategory === category}
           >
-            {isLoading && selectedCategory === category ? 'Loading...' : category}
+            {isLoading && selectedCategory === category
+              ? 'Loading...'
+              : category}
           </button>
         ))}
       </div>
