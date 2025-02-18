@@ -59,6 +59,9 @@ const MenuPage = ({
           setCart([]);
           setCartCount(0);
         }
+      } else {
+        setCart([]);
+        setCartCount(0);
       }
     } catch (error) {
       console.error('Error parsing cart data:', error);
@@ -156,6 +159,7 @@ const MenuPage = ({
             }`}
             onClick={() => handleCategoryClick(category)}
             disabled={isLoading && selectedCategory === category}
+            aria-disabled={isLoading && selectedCategory === category}
             aria-label={`Filter by ${category}`}
           >
             {category}
@@ -170,6 +174,7 @@ const MenuPage = ({
           <div
             className="flex justify-center items-center col-span-full"
             role="alert"
+            aria-live="assertive"
           >
             <p className="text-center text-red-500 mb-4">{loadingError}</p>
           </div>
