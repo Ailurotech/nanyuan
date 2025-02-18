@@ -33,21 +33,28 @@ const MenuPage = ({
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [loadingError, setLoadingError] = useState<string | null>(null);
 
-  const categories = ['All', ...Array.from(new Set(initialCategories.map((cat) => cat.name)))];
+  const categories = [
+    'All',
+    ...Array.from(new Set(initialCategories.map((cat) => cat.name))),
+  ];
 
   useEffect(() => {
     const cartData = localStorage.getItem('cart');
     if (cartData) {
       const parsedCart = JSON.parse(cartData);
-      
+
       // Check if the parsedCart is an empty object
-      if (Object.keys(parsedCart).length === 0) {
+      if (
+        typeof parsedCart === 'object' &&
+        Object.keys(parsedCart).length === 0
+      ) {
         setCart([]);
         setCartCount(0);
         return;
-      };
-      
+      }
+
       setCart(parsedCart);
       setCartCount(
         parsedCart.reduce(
@@ -75,6 +82,7 @@ const MenuPage = ({
 
   const handleCategoryClick = async (category: string) => {
     setSelectedCategory(category);
+    setLoadingError(null);
     setIsLoading(true);
     try {
       const fetchedMenuItems =
@@ -86,6 +94,7 @@ const MenuPage = ({
       setCurrentPage(category === 'All' ? 1 : currentPage);
     } catch (error) {
       console.error('Error fetching menu items:', error);
+      setLoadingError('Failed to load menu items. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -93,20 +102,25 @@ const MenuPage = ({
 
   const handlePageChange = async (page: number) => {
     if (selectedCategory !== 'All') return;
-  
+
+    setLoadingError(null);
     setIsLoading(true);
     try {
-      const offset = (page - 1) * pageSize; 
-      const fetchedMenuItems = await fetchMenuItems(selectedCategory, offset, pageSize);
+      const offset = (page - 1) * pageSize;
+      const fetchedMenuItems = await fetchMenuItems(
+        selectedCategory,
+        offset,
+        pageSize,
+      );
       setMenuItems(fetchedMenuItems);
-      setCurrentPage(page); 
+      setCurrentPage(page);
     } catch (error) {
       console.error('Error fetching paginated menu items:', error);
+      setLoadingError('Failed to load menu items. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
-  
 
   return (
     <div className="bg-black min-h-screen py-12 pt-40">
@@ -148,7 +162,11 @@ const MenuPage = ({
 
       <div className="container mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10 px-5 justify-items-center">
         {isLoading ? (
-          <div className="flex justify-center items-center col-span-full">
+          <div
+            role="status"
+            aria-live="polite"
+            className="flex justify-center items-center col-span-full"
+          >
             <svg
               className="animate-spin h-10 w-10 text-yellow-400"
               viewBox="0 0 24 24"
@@ -170,6 +188,10 @@ const MenuPage = ({
             <span className="text-white text-lg font-bold ml-2">
               Loading...
             </span>
+          </div>
+        ) : loadingError ? (
+          <div className="flex justify-center items-center col-span-full ">
+            <p className="text-center text-red-500 mb-4">{loadingError}</p>
           </div>
         ) : (
           menuItems.map((item) => (
