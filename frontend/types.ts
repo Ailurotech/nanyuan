@@ -8,6 +8,10 @@ export interface MenuItem {
   categories: string[];
   isAvailable: boolean;
 }
+export interface MenuItemReference {
+  _type: 'reference';
+  _ref: string;
+}
 export interface HeroContent {
   title: string;
   backgroundimg: {
@@ -123,14 +127,11 @@ export interface ReservationData {
 }
 
 export interface OrderItem {
-  _id: string;
-  name: string;
+  _key: string;
   price: number;
   quantity: number;
-  menuItem: {
-    _type: 'reference';
-    _ref: string;
-  };
+  menuItem: MenuItemReference;
+  name: string;
 }
 
 export interface OrderData {
@@ -145,5 +146,4 @@ export interface OrderData {
   status: 'Offline' | 'Pending' | 'Paid' | 'Cancelled';
   paymentMethod: 'offline' | 'online';
   orderId: string;
-  sessionId?: string | null;
 }
