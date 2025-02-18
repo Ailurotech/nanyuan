@@ -5,7 +5,6 @@ import { withMiddlewares } from '@/components/common/corsMiddleware'; // 确保�
 
 const createReservation = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
-    
     const { data, tableId }: { data: ReservationData; tableId?: string } =
       req.body;
 

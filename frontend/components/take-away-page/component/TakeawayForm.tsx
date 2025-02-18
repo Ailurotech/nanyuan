@@ -21,13 +21,11 @@ import { CreateTakeAwayOrder } from '@/components/common/utils/createTakeawayOrd
 import { OrderData, OrderItem } from '@/types';
 import { isValidTime } from '@/components/book-table-page/timeUtils';
 
-
 interface TakeawayProps {
   restaurant: Restaurant;
 }
 
 export function TakeawayForm({ restaurant }: TakeawayProps) {
-
   const {
     SendOtp,
     handleVerifyOtp,
@@ -43,7 +41,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
 
   useEffect(() => {
     const cart = localStorage.getItem('cart');
-  
+
     if (!cart) {
       setOrderList([]);
       setTotalPrice('0.00');
@@ -55,17 +53,18 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
       _key: uuidv4(),
       menuItem: {
         _type: 'reference',
-        _ref: item._id, 
+        _ref: item._id,
       },
-      menuItemName: item.name, 
+      menuItemName: item.name,
     }));
     setOrderList(parsedList);
     setTotalPrice(
-      parsedList.reduce((acc, item) => acc + item.price * item.quantity, 0).toFixed(2)
+      parsedList
+        .reduce((acc, item) => acc + item.price * item.quantity, 0)
+        .toFixed(2),
     );
     setLoading(false);
   }, []);
-  
 
   const requiredField = zod.string().min(1, { message: 'Required Field' });
   const FormDataSchema = zod
