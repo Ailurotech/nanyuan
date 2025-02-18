@@ -118,17 +118,14 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
       await CreateTakeAwayOrder({
         ...data,
         items: orderList.map((item) => ({
-          _id: item._id,
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity,
-          menuItem: { _type: 'reference', _ref: item._id }, 
+          _key: uuidv4(),
+          menuItem: { _type: 'reference', _ref: item._id },
+          ...item,
         })),
         totalPrice: parseFloat(totalPrice),
         orderId: id,
-        paymentMethod,
-        status,
-        notes: data.notes,
+        status: status,
+        paymentMethod: paymentMethod, 
       });
       
     } catch (error) {

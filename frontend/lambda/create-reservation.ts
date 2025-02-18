@@ -26,17 +26,7 @@ const createReservation: APIGatewayProxyHandler = async (event): Promise<APIGate
 
     await sanityClient.create({
       _type: 'reservation',
-      name: data.name,
-      phone: data.phone,
-      email: data.email,
-      guests: data.guests,
-      preference: data.preference || '',
-      notes: data.notes || '',
-      time: `${data.date}T${data.time}`,
-      table: {
-        _type: 'reference',
-        _ref: tableId,
-      },
+      ...data
     });
 
     return {
