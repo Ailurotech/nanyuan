@@ -64,7 +64,6 @@ const MenuPage = ({
         setCartCount(0);
       }
     } catch (error) {
-      console.error('Error parsing cart data:', error);
       setCart([]);
       setCartCount(0);
     }
@@ -94,11 +93,9 @@ const MenuPage = ({
         category === 'All'
           ? await fetchMenuItems(category, 0, pageSize)
           : await fetchMenuItems(category);
-
       setMenuItems(fetchedMenuItems);
       setCurrentPage(category === 'All' ? 1 : currentPage);
     } catch (error) {
-      console.error('Error fetching menu items:', error);
       setLoadingError('Failed to load menu items. Please try again.');
     } finally {
       setIsLoading(false);
@@ -119,7 +116,6 @@ const MenuPage = ({
       setMenuItems(fetchedMenuItems);
       setCurrentPage(page);
     } catch (error) {
-      console.error('Error fetching paginated menu items:', error);
       setLoadingError('Failed to load menu items. Please try again.');
     } finally {
       setIsLoading(false);
