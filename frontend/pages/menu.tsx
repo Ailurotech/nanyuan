@@ -193,6 +193,7 @@ const MenuPage = ({
               onClick={() => handlePageChange(page)}
               disabled={isLoading}
               aria-label={`Go to page ${page}`}
+              aria-current={currentPage === page ? 'page' : undefined}
             >
               {page}
             </button>
