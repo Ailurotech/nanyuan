@@ -61,6 +61,7 @@ const MenuPage = ({
         }
       }
     } catch (error) {
+      console.error('Error parsing cart data:', error);
       setCart([]);
       setCartCount(0);
     }
@@ -167,7 +168,7 @@ const MenuPage = ({
         {isLoading ? (
           <LoadingSpinner />
         ) : loadingError ? (
-          <div className="flex justify-center items-center col-span-full ">
+          <div className="flex justify-center items-center col-span-full" role="alert">
             <p className="text-center text-red-500 mb-4">{loadingError}</p>
           </div>
         ) : (
