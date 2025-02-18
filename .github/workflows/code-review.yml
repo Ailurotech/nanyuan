@@ -26,12 +26,12 @@ jobs:
           cache: 'yarn'
           cache-dependency-path: yarn.lock
 
-      - name: Install dependencies
+      - name: Install frontend dependencies
+        working-directory: frontend
         run: yarn install --frozen-lockfile
 
       - name: Check formatting
-        working-directory: frontend
-        run: yarn format:check
+        run: yarn run format:check
 
   code-review:
     runs-on: ubuntu-latest
