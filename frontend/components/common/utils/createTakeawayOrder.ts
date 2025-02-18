@@ -7,7 +7,7 @@ export async function CreateTakeAwayOrder(orderData: OrderData): Promise<string>
 
   try {
     const formattedOrderData = {
-      orderId: orderData.orderId || uuidv4(), 
+      orderId: orderData.orderId, 
       customerName: orderData.name,
       phone: orderData.phone,
       email: orderData.email,
@@ -15,7 +15,7 @@ export async function CreateTakeAwayOrder(orderData: OrderData): Promise<string>
       status: orderData.status,
       totalPrice: orderData.totalPrice,
       paymentMethod: orderData.paymentMethod,
-      notes: orderData.notes || '',
+      notes: orderData.notes,
       items: orderData.items,
     };
     
