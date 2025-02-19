@@ -80,9 +80,7 @@ jobs:
           identifier: deepseek-review-comment
           body: |
             **AI Code Review Results:**
-            
-            ![Code Quality](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/<your-org>/<your-repo>/main/badge.json)
-            
+                        
             **Detailed Breakdown:**
             - **Code Readability:** _X/20 – [explanation]_
             - **Maintainability:** _Y/20 – [explanation]_
