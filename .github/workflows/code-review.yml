@@ -2,11 +2,10 @@ name: Code Review
 on:
   pull_request_target:
     types:
-      - opened      # Triggers when a PR is opened
-      - reopened    # Triggers when a PR is reopened
-      - synchronize # Triggers when a commit is pushed to the PR
+      - opened
+      - reopened
+      - synchronize
 
-# fix: GraphQL: Resource not accessible by integration (addComment) error
 permissions:
   pull-requests: write
 
@@ -67,29 +66,3 @@ jobs:
             5. Finally, if the overall score is 90 or above, conclude with the message: "Good enough for merging." Otherwise, list all issues that need addressing.
           user-prompt: "Please review the following code changes:\n\n($diff_content)"
           exclude-patterns: "pnpm-lock.yaml,package-lock.json,*.lock,yarn.lock,package.json"
-
-  update-comment:
-    runs-on: ubuntu-latest
-    name: Update PR Comment with Code Quality Badge
-    needs: code-review
-    steps:
-      - name: Create or update PR comment
-        uses: peter-evans/create-or-update-comment@v3
-        with:
-          issue-number: ${{ github.event.pull_request.number }}
-          identifier: deepseek-review-comment
-          body: |
-            **AI Code Review Results:**
-            
-            ![Code Quality](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/<your-org>/<your-repo>/main/badge.json)
-            
-            **Detailed Breakdown:**
-            - **Code Readability:** _X/20 – [explanation]_
-            - **Maintainability:** _Y/20 – [explanation]_
-            - **Performance:** _Z/20 – [explanation]_
-            - **Security:** _W/20 – [explanation]_
-            - **Code Style:** _V/20 – [explanation]_
-            
-            **Overall Quality Score:** _Q/100_
-            
-            ${{ fromJson(needs.code-review.outputs.review_output).overall_comment }}
