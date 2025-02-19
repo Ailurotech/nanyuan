@@ -36,8 +36,6 @@ jobs:
     runs-on: ubuntu-latest
     name: AI Code Review
     needs: format-check
-    outputs:
-      review_output: ${{ steps.review.outputs.review_output }}
     steps:
       - name: Code Review
         id: review
@@ -63,6 +61,6 @@ jobs:
               - A breakdown of scores for each category.
               - A summary comment listing identified issues or areas for improvement.
             
-            5. Finally, if the overall score is 90 or above, conclude with the message: "Good enough for merging." Otherwise, list all issues that need addressing.
+            5. Finally, if the overall score is 90 or above, conclude with the message: "Good enough for merging." Otherwise, give the score and list all issues that need addressing.
           user-prompt: "Please review the following code changes:\n\n($diff_content)"
           exclude-patterns: "pnpm-lock.yaml,package-lock.json,*.lock,yarn.lock,package.json"
