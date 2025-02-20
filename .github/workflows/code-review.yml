@@ -65,4 +65,4 @@ jobs:
             
             5. Finally, if the overall score is 90 or above, conclude with the message: "Good enough for merging." Otherwise, list all issues that need addressing.
           user-prompt: "Please review the following code changes:\n\n($diff_content)"
-          exclude-patterns: "pnpm-lock.yaml,package-lock.json,*.lock,yarn.lock,package.json,node_modules/**"
+          exclude-patterns: "pnpm-lock.yaml,package-lock.json,*.lock,yarn.lock,package.json"
