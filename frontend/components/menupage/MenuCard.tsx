@@ -19,6 +19,7 @@ interface MenuProps {
   removeFromCart: (item: MenuItem) => void;
 }
 
+
 const MenuCard = ({ menuItems, addToCart,removeFromCart }: MenuProps) => {
   const [itemCount, setItemCount] = useState(0);
 
@@ -60,7 +61,7 @@ const imageUrl = menuItems.image
       <CardBody className="relative" justifyContent="center">
         {imageUrl ? (
           <Image
-            src={imageUrl} 
+            src={imageUrl}
             alt={menuItems.name}
             boxSize="150px"
             objectFit="cover"
@@ -70,7 +71,7 @@ const imageUrl = menuItems.image
             textColor="white"
             mx="auto"
             borderRadius="lg"
-            loading="lazy" 
+            loading="lazy"
           />
         ) : (
           <div className="bg-gray-500 w-[250px] h-[150px] mx-auto rounded-lg flex items-center justify-center text-white">

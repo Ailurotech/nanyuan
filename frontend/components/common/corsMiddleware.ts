@@ -5,8 +5,8 @@ export const withMiddlewares = (handler: any) => {
   return middy(handler).use(
     httpCors({
       origins: [process.env.CLIENT_BASE_URL || '*'],
-      methods: 'GET,POST,OPTIONS',
+      methods: 'POST',
       headers: 'Content-Type,Authorization',
-    })
+    }),
   );
 };

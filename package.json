@@ -9,7 +9,9 @@
     "dev": "concurrently \"yarn dev:frontend\" \"yarn dev:studio\"",
     "dev:frontend": "yarn workspace frontend dev",
     "dev:studio": "yarn workspace studio dev",
-    "build": "yarn workspace frontend build && yarn workspace studio build"
+    "build": "yarn workspace frontend build && yarn workspace studio build",
+    "format": "yarn workspace frontend prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:check": "yarn workspace frontend prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\""
   },
   "devDependencies": {
     "concurrently": "^7.0.0"

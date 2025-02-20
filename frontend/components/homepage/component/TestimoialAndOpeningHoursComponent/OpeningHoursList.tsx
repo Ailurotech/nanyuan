@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 function OpeningHoursList({ openingHours }: { openingHours: string[] }) {
   return (
@@ -7,10 +7,13 @@ function OpeningHoursList({ openingHours }: { openingHours: string[] }) {
         const [day, time] = hour.split(/:(.+)/);
 
         return time ? (
-          <div key={index} className="flex justify-between text-[1.5rem] sm:text-[1.2em] xl:text-[1.8rem]">
+          <div
+            key={index}
+            className="flex justify-between text-[1.5rem] sm:text-[1.2em] xl:text-[1.8rem]"
+          >
             <span className="font-bold">{day}:</span>
             <span className="text-right">
-              {time.split(",").map((t, i) => (
+              {time.split(',').map((t, i) => (
                 <span key={i} className="block">
                   {t}
                 </span>
@@ -18,7 +21,10 @@ function OpeningHoursList({ openingHours }: { openingHours: string[] }) {
             </span>
           </div>
         ) : (
-          <div key={index} className="h-[40vh] text-[1.5rem] sm:text-[1.2em] xl:text-[1.8rem]">
+          <div
+            key={index}
+            className="h-[40vh] text-[1.5rem] sm:text-[1.2em] xl:text-[1.8rem]"
+          >
             <span>Loading ,Please visit Google Maps for more info</span>
           </div>
         );
