@@ -40,11 +40,9 @@ export default function ipFilter(
 
   const geo = geoip.lookup(clientIp);
   if (!geo || geo.country !== ALLOWED_COUNTRY) {
-    return res
-      .status(403)
-      .json({
-        error: 'Forbidden: Only Australian users are allowed to access',
-      });
+    return res.status(403).json({
+      error: 'Forbidden: Only Australian users are allowed to access',
+    });
   }
 
   next();
