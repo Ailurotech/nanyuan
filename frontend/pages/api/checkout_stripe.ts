@@ -14,6 +14,15 @@ export default async function handler(
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
+  const requiredFields = ['orderId', 'email', 'name', 'phone', 'items'];
+  for (const field of requiredFields) {
+    if (!req.body[field]) {
+      return res
+        .status(400)
+        .json({ error: `Missing required field: ${field}` });
+    }
+  }
+
   try {
     const order: OrderData = req.body;
 
