@@ -26,7 +26,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "payment",
-      success_url: `${req.headers.origin}/order-success?session_id={CHECKOUT_SESSION_ID}&order_id=${order.orderId}`,
+      success_url: `${req.headers.origin}/order-success`,
       cancel_url: `${req.headers.origin}/takeaway`,
       customer_email: order.email,
       line_items: lineItems,
