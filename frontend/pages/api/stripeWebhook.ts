@@ -3,12 +3,14 @@ import Stripe from 'stripe';
 import { sanityClient } from '@/lib/sanityClient';
 import { buffer } from 'node:stream/consumers';
 import apiHandler from '@/lib/apiHandler';
+
 export const config = {
   api: {
     bodyParser: false,
   },
 };
-const sessionStatus = {
+
+const sessionStatus: { [key: string]: string } = {
   'checkout.session.completed': 'Paid',
   'checkout.session.expired': 'Cancelled',
 };
@@ -29,22 +31,28 @@ export default apiHandler().post(
         process.env.STRIPE_WEBHOOK_SECRET as string,
       );
 
-      if (event.type === 'checkout.session.completed') {
+      console.log(`✅ Webhook received: ${event.type}`);
+
+      if (
+        event.type === 'checkout.session.completed' ||
+        event.type === 'checkout.session.expired'
+      ) {
         const session = event.data.object as Stripe.Checkout.Session;
         const orderId = session.metadata?.orderId;
 
-        if (orderId) {
-          await sanityClient
-            .patch(orderId)
-            .set({ status: sessionStatus[event.type] })
-            .commit();
-
-          console.log(
-            `Sanity Order Updated: ${orderId} → ${sessionStatus[event.type]}`,
-          );
-        } else {
-          console.warn('No orderId found in metadata');
+        if (!orderId) {
+          console.warn('❌ No orderId found in metadata');
+          return res.status(400).json({ error: 'Missing orderId' });
         }
+
+        await sanityClient
+          .patch(orderId)
+          .set({ status: sessionStatus[event.type] })
+          .commit();
+
+        console.log(
+          `✅ Order ${orderId} updated to "${sessionStatus[event.type]}"`,
+        );
       }
 
       res.status(200).json({ received: true });

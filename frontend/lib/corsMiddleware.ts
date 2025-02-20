@@ -1,7 +1,7 @@
 import Cors from 'cors';
 import { NextApiRequest, NextApiResponse } from 'next';
 
-const allowedOrigins = ['http://localhost:3000', 'nanyuan.netlify.app'];
+const allowedOrigins = [process.env.NEXT_PUBLIC_CLIENT_BASE_URL];
 
 const cors = Cors({
   origin: (origin, callback) => {

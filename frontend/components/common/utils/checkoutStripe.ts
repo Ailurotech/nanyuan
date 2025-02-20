@@ -4,7 +4,7 @@ export const checkout_stripe = async (
   orderData: OrderData,
 ): Promise<boolean> => {
   try {
-    const response = await fetch('/api/checkout_stripe', {
+    const response = await fetch('/api/checkoutStripe', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(orderData),

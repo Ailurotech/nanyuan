@@ -20,7 +20,7 @@ import * as zod from 'zod';
 import { CreateTakeAwayOrder } from '@/components/common/utils/createTakeawayOrder';
 import { OrderData, OrderItem } from '@/types';
 import { isValidTime } from '@/components/book-table-page/timeUtils';
-import { checkout_stripe } from '@/components/common/utils/checkout_stripe';
+import { checkout_stripe } from '@/components/common/utils/checkoutStripe';
 
 interface TakeawayProps {
   restaurant: Restaurant;
@@ -127,7 +127,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
   ) => {
     try {
       await runValidations([
-        () => validateOTP(verifyOtp),
+        //() => validateOTP(verifyOtp),
         () => validatePickUpTime(data.date, data.time),
         () => validatePrice(data.totalPrice),
       ]);
