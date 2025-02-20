@@ -20,7 +20,7 @@ import * as zod from 'zod';
 import { CreateTakeAwayOrder } from '@/components/common/utils/createTakeawayOrder';
 import { OrderData, OrderItem } from '@/types';
 import { isValidTime } from '@/components/book-table-page/timeUtils';
-import { checkout_stripe } from '@/components/common/utils/checkoutStripe';
+import { checkoutStripe } from '@/components/common/utils/checkoutStripe';
 
 interface TakeawayProps {
   restaurant: Restaurant;
@@ -142,7 +142,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
       };
       await CreateTakeAwayOrder(orderData);
       if (paymentMethod === 'online') {
-        await checkout_stripe(orderData);
+        await checkoutStripe(orderData);
       }
     } catch (error) {
       console.error(

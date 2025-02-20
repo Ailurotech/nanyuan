@@ -1,6 +1,6 @@
 import { OrderData } from '@/types';
 
-export const checkout_stripe = async (
+export const checkoutStripe = async (
   orderData: OrderData,
 ): Promise<boolean> => {
   try {
