@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { sanityClient } from '@/lib/sanityClient';
-import { withMiddlewares } from '@/components/common/corsMiddleware';
+import apiHandler from '@/lib/apiHandler';
 
 const createTakeawayOrder = async (
   req: NextApiRequest,
@@ -56,4 +56,4 @@ const createTakeawayOrder = async (
   }
 };
 
-export default withMiddlewares(createTakeawayOrder);
+export default apiHandler().post(createTakeawayOrder);
