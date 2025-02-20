@@ -19,7 +19,7 @@ interface MenuProps {
   removeFromCart: (item: MenuItem) => void;
 }
 
-const MenuCard = ({ menuItems, addToCart,removeFromCart }: MenuProps) => {
+const MenuCard = ({ menuItems, addToCart, removeFromCart }: MenuProps) => {
   const [itemCount, setItemCount] = useState(0);
 
   useEffect(() => {
@@ -27,7 +27,9 @@ const MenuCard = ({ menuItems, addToCart,removeFromCart }: MenuProps) => {
       const cartData = localStorage.getItem('cart');
       if (cartData) {
         const parsedCart = JSON.parse(cartData);
-        const existingItem = parsedCart.find((item: MenuItem) => item._id === menuItems._id);
+        const existingItem = parsedCart.find(
+          (item: MenuItem) => item._id === menuItems._id,
+        );
         if (existingItem) {
           setItemCount(existingItem.quantity);
         }
@@ -35,20 +37,19 @@ const MenuCard = ({ menuItems, addToCart,removeFromCart }: MenuProps) => {
     }
   }, [menuItems]);
 
-const addToCartHandler = () => {
-  addToCart(menuItems);
-  setItemCount((prev) => prev + 1);
-};
+  const addToCartHandler = () => {
+    addToCart(menuItems);
+    setItemCount((prev) => prev + 1);
+  };
 
-const removeFromCartHandler = () => {
-  removeFromCart(menuItems); 
-  setItemCount((prev) => Math.max(prev - 1, 0)); 
-};
+  const removeFromCartHandler = () => {
+    removeFromCart(menuItems);
+    setItemCount((prev) => Math.max(prev - 1, 0));
+  };
 
-
-const imageUrl = menuItems.image
-  ? urlFor(menuItems.image).width(250).height(150).auto('format').url()
-  : null; 
+  const imageUrl = menuItems.image
+    ? urlFor(menuItems.image).width(250).height(150).auto('format').url()
+    : null;
 
   return (
     <Card
@@ -90,7 +91,12 @@ const imageUrl = menuItems.image
           <Text className="text-white">{menuItems.description}</Text>
         </Stack>
       </CardBody>
-      <CardFooter display="flex" justifyContent="space-between" alignItems="center" mt={10}>
+      <CardFooter
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        mt={10}
+      >
         <Text color="yellow.400" fontSize="xl" fontWeight="bold">
           ${menuItems.price}
         </Text>
@@ -129,7 +135,6 @@ const imageUrl = menuItems.image
           </Button>
         )}
       </CardFooter>
-
     </Card>
   );
 };
