@@ -20,6 +20,7 @@ import * as zod from 'zod';
 import { CreateTakeAwayOrder } from '@/components/common/utils/createTakeawayOrder';
 import { OrderData, OrderItem } from '@/types';
 import { isValidTime } from '@/components/book-table-page/timeUtils';
+import { checkout_stripe } from '@/components/common/utils/checkout_stripe';
 
 interface TakeawayProps {
   restaurant: Restaurant;
@@ -126,20 +127,24 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
   ) => {
     try {
       await runValidations([
-        () => validateOTP(verifyOtp),
+        //() => validateOTP(verifyOtp),
         () => validatePickUpTime(data.date, data.time),
         () => validatePrice(data.totalPrice),
       ]);
 
-      const id = uuidv4();
-      await CreateTakeAwayOrder({
+      const orderData: OrderData = {
         ...data,
-        items: orderList,
         totalPrice: parseFloat(totalPrice),
-        orderId: id,
-        status: status,
-        paymentMethod: paymentMethod,
-      });
+        paymentMethod,
+        status,
+        orderId: uuidv4(),
+        items: orderList,
+      };
+
+      await CreateTakeAwayOrder(orderData);
+      if (paymentMethod === 'online') {
+        await checkout_stripe(orderData);
+      }
     } catch (error) {
       console.error(
         `${paymentMethod === 'online' ? 'Online payment' : 'Order submission'} failed:`,
