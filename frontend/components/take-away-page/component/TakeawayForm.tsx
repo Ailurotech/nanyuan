@@ -127,7 +127,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
   ) => {
     try {
       await runValidations([
-        //() => validateOTP(verifyOtp),
+        () => validateOTP(verifyOtp),
         () => validatePickUpTime(data.date, data.time),
         () => validatePrice(data.totalPrice),
       ]);
