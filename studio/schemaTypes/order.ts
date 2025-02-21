@@ -24,6 +24,12 @@ export default defineType({
       validation: (Rule) => Rule.required().min(1).max(15),
     },
     {
+      name: 'orderId',
+      title: 'Order ID',
+      type: 'string',
+      validation: (Rule) => Rule.required(),
+    },
+    {
       name: 'items',
       title: 'Ordered Items',
       type: 'array',
