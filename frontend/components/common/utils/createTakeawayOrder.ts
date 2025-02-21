@@ -1,6 +1,5 @@
 import axios from 'axios';
-import { OrderData, OrderItem } from '@/types';
-import { v4 as uuidv4 } from 'uuid';
+import { OrderData } from '@/types';
 
 export async function CreateTakeAwayOrder(
   orderData: OrderData,

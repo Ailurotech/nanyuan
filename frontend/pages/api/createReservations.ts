@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { sanityClient } from '@/lib/sanityClient';
 import { ReservationData } from '@/types';
-import { withMiddlewares } from '@/components/common/corsMiddleware'; // 确保你有一个 Next.js 兼容的 CORS 中间件
+import apiHandler from '@/lib/apiHandler';
 
 const createReservation = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
@@ -43,4 +43,4 @@ const createReservation = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 };
 
-export default withMiddlewares(createReservation);
+export default apiHandler().post(createReservation);
