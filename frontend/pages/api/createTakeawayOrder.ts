@@ -2,61 +2,18 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { sanityClient } from '@/lib/sanityClient';
 import apiHandler from '@/lib/apiHandler';
 import { errorMap } from '@/error/errorMap';
-import {
-  validateRequiredFields,
-  validatePhoneNumber,
-  validateEmail,
-  validateItemsArray,
-  validateTotalPrice,
-  validatePaymentMethod,
-  validateDateFormat,
-  validateFutureDate,
-  validateNotesLength,
-} from '@/components/common/utils/validation';
+import { OrderValidator } from '@/components/common/validations/OrderValidator';
 
 const createTakeawayOrder = async (
   req: NextApiRequest,
   res: NextApiResponse,
 ) => {
   try {
-    const {
-      orderId,
-      customerName,
-      phone,
-      email,
-      items,
-      date,
-      status,
-      totalPrice,
-      paymentMethod,
-      notes,
-    } = req.body;
+    const data = req.body;
 
-    validateRequiredFields(req.body, [
-      'orderId',
-      'customerName',
-      'phone',
-      'email',
-      'items',
-      'date',
-      'status',
-      'totalPrice',
-      'paymentMethod',
-    ]);
-    validatePhoneNumber(phone);
-    validateEmail(email);
-    validateItemsArray(items);
-    validateTotalPrice(totalPrice);
-    validatePaymentMethod(paymentMethod);
-    validateDateFormat(date);
-    validateFutureDate(date);
-    validateNotesLength(notes);
+    OrderValidator.validateAll(data);
 
-    await sanityClient.create({
-      ...req.body,
-      _type: 'order',
-      _id: orderId,
-    });
+    await sanityClient.create(data);
 
     return res.status(200).json({ message: 'Order created successfully' });
   } catch (error) {
