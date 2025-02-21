@@ -269,12 +269,14 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
             >
               <div style={{ display: 'block' }}>
                 Pay Online (4.99% charge)
-                <div>
-                  Approx $
-                  {(
-                    parseFloat(totalPrice) * ONLINE_PAYMENT_CHARGE_PERCENTAGE
-                  ).toFixed(2)}
-                </div>
+                {parseFloat(totalPrice) > 0 && (
+                  <div>
+                    Approx $
+                    {(
+                      parseFloat(totalPrice) * ONLINE_PAYMENT_CHARGE_PERCENTAGE
+                    ).toFixed(2)}
+                  </div>
+                )}
               </div>
             </Button>
           </HStack>
