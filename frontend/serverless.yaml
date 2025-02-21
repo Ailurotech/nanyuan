@@ -88,7 +88,7 @@ resources:
                   Action:
                     - ses:SendEmail
                     - ses:SendRawEmail
-                  Resource: "*"
+                  Resource: '*'
 
 custom:
   serverless-nextjs:
@@ -105,7 +105,7 @@ custom:
     hasApi: true
     build:
       postBuildCommands:
-        - "yarn run other-script"
+        - 'yarn run other-script'
     customDomain: ${env:DOMAIN, ''}
 
 plugins:

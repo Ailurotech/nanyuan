@@ -1,9 +1,9 @@
-import { GalleryContent } from "@/types";
-import { IndividualPhoto } from "./IndividualPhoto";
-import { NavigationRoute } from "../route";
-import { Icon } from "@/components/common/Icon";
-import clsx from "clsx";
-import React, { useState } from "react";
+import { GalleryContent } from '@/types';
+import { IndividualPhoto } from './IndividualPhoto';
+import { NavigationRoute } from '../route';
+import { Icon } from '@/components/common/Icon';
+import clsx from 'clsx';
+import React, { useState } from 'react';
 
 type GalleryWidgetProps = {
   galleryContent: GalleryContent;
@@ -23,16 +23,16 @@ export function GalleryWidget({ galleryContent }: GalleryWidgetProps) {
               <React.Fragment key={index}>
                 <div
                   className={clsx(
-                    "relative col-span-2 bg-white flex flex-col items-end justify-center lg:justify-end text-right overflow-hidden",
-                    "p-2 sm:p-6 xl:pb-5 xl:px-12 2xl:pb-8 2xl:px-16",
-                    "gap-1 md:gap-2 lg:gap-4 xl:gap-6 2xl:gap-8"
+                    'relative col-span-2 bg-white flex flex-col items-end justify-center lg:justify-end text-right overflow-hidden',
+                    'p-2 sm:p-6 xl:pb-5 xl:px-12 2xl:pb-8 2xl:px-16',
+                    'gap-1 md:gap-2 lg:gap-4 xl:gap-6 2xl:gap-8',
                   )}
                 >
                   <h1
                     className={clsx(
-                      "relative text-[1rem] sm:text-[1.3rem] lg:text-[2rem] xl:text-[2.5rem] 2xl:text-[3rem] font-serif",
+                      'relative text-[1rem] sm:text-[1.3rem] lg:text-[2rem] xl:text-[2.5rem] 2xl:text-[3rem] font-serif',
                       "after:content-[''] after:block after:w-[30%] after:h-[1px] after:bg-[#F9BF28] after:absolute",
-                      "after:right-0 after:top-full after:md:mt-1 after:2xl:mt-2"
+                      'after:right-0 after:top-full after:md:mt-1 after:2xl:mt-2',
                     )}
                   >
                     {menuName}

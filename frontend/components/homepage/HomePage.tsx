@@ -1,15 +1,14 @@
-import Link from "next/link";
-import Image from "next/image";
-import { HeroContent } from "@/types";
-import { NavigationRoute } from "@/components/homepage/route";
-import Arrow from "@/components/common/arrow";
-import { Alegreya_Sans } from 'next/font/google'
+import Link from 'next/link';
+import Image from 'next/image';
+import { HeroContent } from '@/types';
+import { NavigationRoute } from '@/components/homepage/route';
+import Arrow from '@/components/common/arrow';
+import { Alegreya_Sans } from 'next/font/google';
 
 interface HomePageProps {
   homePageContent: HeroContent;
-  
 }
-const alegreyaSans = Alegreya_Sans({subsets: ['latin'], weight: ['400']})
+const alegreyaSans = Alegreya_Sans({ subsets: ['latin'], weight: ['400'] });
 
 const HomePage = ({ homePageContent }: HomePageProps) => {
   if (!homePageContent) {

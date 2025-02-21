@@ -1,10 +1,10 @@
-import { Text, Textarea } from "@chakra-ui/react";
+import { Text, Textarea } from '@chakra-ui/react';
 import {
   Control,
   FieldPath,
   FieldValues,
   useController,
-} from "react-hook-form";
+} from 'react-hook-form';
 
 interface ControlledTextAreaProps<
   TFieldValues extends FieldValues = FieldValues,

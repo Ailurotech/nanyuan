@@ -1,8 +1,8 @@
-import React from "react";
-import InsEmbed from "./footer-component/InsEmbed";
-import FooterInfo from "./footer-component/FooterInfo";
-import { FooterContent } from "@/types";
-import Image from "next/image";
+import React from 'react';
+import InsEmbed from './footer-component/InsEmbed';
+import FooterInfo from './footer-component/FooterInfo';
+import { FooterContent } from '@/types';
+import Image from 'next/image';
 
 interface FooterProps {
   footerContent: FooterContent;

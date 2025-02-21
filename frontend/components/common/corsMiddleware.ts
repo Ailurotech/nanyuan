@@ -7,6 +7,6 @@ export const withMiddlewares = (handler: any) => {
       origins: [process.env.CLIENT_BASE_URL || '*'],
       methods: 'GET,POST,OPTIONS',
       headers: 'Content-Type,Authorization',
-    })
+    }),
   );
 };

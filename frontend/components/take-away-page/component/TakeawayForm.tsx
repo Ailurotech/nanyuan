@@ -6,7 +6,12 @@ import { InputsContainer } from './InputsContainer';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useSMS } from '@/components/hooks/useSMS';
 import VerifyOtpModal from '@/components/common/VerifyOtpModal';
-import { runValidations, validatePrice, validatePickUpTime, validateOTP } from '@/components/take-away-page/component/checkAvailiability';
+import {
+  runValidations,
+  validatePrice,
+  validatePickUpTime,
+  validateOTP,
+} from '@/components/take-away-page/component/checkAvailiability';
 import { MenuItem, Restaurant } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
 import clsx from 'clsx';
@@ -32,17 +37,26 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
 
   type OrderList = MenuItem & { quantity: number };
 
-  const { SendOtp, handleVerifyOtp, verifyOtp, setIsModalOpen, isModalOpen, timeLeft, isRunning } = useSMS();
+  const {
+    SendOtp,
+    handleVerifyOtp,
+    verifyOtp,
+    setIsModalOpen,
+    isModalOpen,
+    timeLeft,
+    isRunning,
+  } = useSMS();
   const [orderList, setOrderList] = useState<OrderList[]>([]);
   const [totalPrice, setTotalPrice] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
+  const ONLINE_PAYMENT_CHARGE_PERCENTAGE = 0.0499;
 
   useEffect(() => {
     const cart = localStorage.getItem('cart');
     if (!cart) {
       setOrderList([]);
       setLoading(false);
-    } 
+    }
     if (cart) {
       const parsedList = JSON.parse(cart) as OrderList[];
       setOrderList(parsedList);
@@ -57,63 +71,70 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
   }, []);
 
   const requiredField = zod.string().min(1, { message: 'Required Field' });
-  const FormDataSchema = zod.object({
-    name: requiredField,
-    phone: requiredField,
-    date: requiredField,
-    time: requiredField,
-    email: requiredField.email(),
-    notes: zod.string().optional(),
-  }).superRefine((data, context) => {
-    const isTimeValid = isValidTime(
-      data.date,
-      data.time,
-      restaurant.Weekdaytime,
-      restaurant.Weekandtime,
-    );
+  const FormDataSchema = zod
+    .object({
+      name: requiredField,
+      phone: requiredField,
+      date: requiredField,
+      time: requiredField,
+      email: requiredField.email(),
+      notes: zod.string().optional(),
+    })
+    .superRefine((data, context) => {
+      const isTimeValid = isValidTime(
+        data.date,
+        data.time,
+        restaurant.Weekdaytime,
+        restaurant.Weekandtime,
+      );
 
-    if (!isTimeValid) {
-      context.addIssue({
-        code: zod.ZodIssueCode.custom,
-        message: 'Time is outside of restaurant operating hours',
-        path: ['time'],
-      });
-    }
+      if (!isTimeValid) {
+        context.addIssue({
+          code: zod.ZodIssueCode.custom,
+          message: 'Time is outside of restaurant operating hours',
+          path: ['time'],
+        });
+      }
 
-    if (restaurant.blacklist.includes(data.phone)) {
-      context.addIssue({
-        code: zod.ZodIssueCode.custom,
-        message: 'Internal error, please try again later',
-        path: ['phone'],
-      });
-    }
-  });;
+      if (restaurant.blacklist.includes(data.phone)) {
+        context.addIssue({
+          code: zod.ZodIssueCode.custom,
+          message: 'Internal error, please try again later',
+          path: ['phone'],
+        });
+      }
+    });
 
-  const { control, handleSubmit, trigger, getValues, watch } = useForm<OrderData>({
-    defaultValues: {
-      name: '',
-      phone: '',
-      date: '',
-      time: '',
-      email: '',
-      notes: 'Enter your special request or notes for your order here...',
-      items: [],
-      totalPrice: 0,
-      status: 'Offline',
-      paymentMethod: 'offline',
-      orderId: '',
-    },
-    resolver: zodResolver(FormDataSchema),
-  });
+  const { control, handleSubmit, trigger, getValues, watch } =
+    useForm<OrderData>({
+      defaultValues: {
+        name: '',
+        phone: '',
+        date: '',
+        time: '',
+        email: '',
+        notes: 'Enter your special request or notes for your order here...',
+        items: [],
+        totalPrice: 0,
+        status: 'Offline',
+        paymentMethod: 'offline',
+        orderId: '',
+      },
+      resolver: zodResolver(FormDataSchema),
+    });
 
-  const handleOrderSubmission = async (data: OrderData, paymentMethod: 'offline' | 'online', status: 'Offline' | 'Pending') => {
+  const handleOrderSubmission = async (
+    data: OrderData,
+    paymentMethod: 'offline' | 'online',
+    status: 'Offline' | 'Pending',
+  ) => {
     try {
       await runValidations([
         () => validateOTP(verifyOtp),
         () => validatePickUpTime(data.date, data.time),
         () => validatePrice(data.totalPrice),
       ]);
-  
+
       const id = uuidv4();
       await CreateTakeAwayOrder({
         ...data,
@@ -122,7 +143,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
           name: item.name,
           price: item.price,
           quantity: item.quantity,
-          menuItem: { _type: 'reference', _ref: item._id }, 
+          menuItem: { _type: 'reference', _ref: item._id },
         })),
         totalPrice: parseFloat(totalPrice),
         orderId: id,
@@ -130,15 +151,18 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
         status,
         notes: data.notes,
       });
-      
     } catch (error) {
-      console.error(`${paymentMethod === 'online' ? 'Online payment' : 'Order submission'} failed:`, error);
+      console.error(
+        `${paymentMethod === 'online' ? 'Online payment' : 'Order submission'} failed:`,
+        error,
+      );
     }
   };
-  
-  const onSubmit = (data: OrderData) => handleOrderSubmission(data, 'offline', 'Offline');
-  const handlePayOnline = (data: OrderData) => handleOrderSubmission(data, 'online', 'Pending');
-  
+
+  const onSubmit = (data: OrderData) =>
+    handleOrderSubmission(data, 'offline', 'Offline');
+  const handlePayOnline = (data: OrderData) =>
+    handleOrderSubmission(data, 'online', 'Pending');
 
   const selectedDate = watch('date');
 
@@ -157,7 +181,12 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
           <InputsContainer>
             <ControlledInput label="Name" control={control} name="name" />
             <span className="flex col-span-1 gap-2 items-end">
-              <ControlledInput label="Phone Number" control={control} name="phone" disabled={verifyOtp} />
+              <ControlledInput
+                label="Phone Number"
+                control={control}
+                name="phone"
+                disabled={verifyOtp}
+              />
               <Button
                 className={clsx({
                   'bg-gray-300 text-white': isRunning,
@@ -177,8 +206,19 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
             </span>
           </InputsContainer>
           <InputsContainer>
-            <ControlledInput label="Date" control={control} name="date" type="date" />
-            <ControlledInput label="Time" control={control} name="time" type="time" disabled={!selectedDate} />
+            <ControlledInput
+              label="Date"
+              control={control}
+              name="date"
+              type="date"
+            />
+            <ControlledInput
+              label="Time"
+              control={control}
+              name="time"
+              type="time"
+              disabled={!selectedDate}
+            />
           </InputsContainer>
           <ControlledInput label="Email" control={control} name="email" />
           <div className="flex flex-col gap-2">
@@ -219,7 +259,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
               padding="0.6rem"
               onClick={handleSubmit(onSubmit)}
             >
-            Submit Order
+              Submit Order
             </Button>
             <Button
               width="100%"
@@ -227,8 +267,15 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
               padding="0.6rem"
               onClick={handleSubmit(handlePayOnline)}
             >
-            Pay Online (4.99% charge) <br />
-            Approx ${ (parseFloat(totalPrice) * 0.0499).toFixed(1) }
+              <div style={{ display: 'block' }}>
+                Pay Online (4.99% charge)
+                <div>
+                  Approx $
+                  {(
+                    parseFloat(totalPrice) * ONLINE_PAYMENT_CHARGE_PERCENTAGE
+                  ).toFixed(2)}
+                </div>
+              </div>
             </Button>
           </HStack>
         </form>

@@ -1,16 +1,16 @@
-import React from "react";
-import { Icon } from "@/components/common/Icon";
-import { SocialRoute } from "@/components/homepage/route";
-import Link from "next/link";
-import { FooterContent } from "@/types";
-import { Abhaya_Libre } from "next/font/google";
-import { NavigationRoute } from "@/components/homepage/route";
+import React from 'react';
+import { Icon } from '@/components/common/Icon';
+import { SocialRoute } from '@/components/homepage/route';
+import Link from 'next/link';
+import { FooterContent } from '@/types';
+import { Abhaya_Libre } from 'next/font/google';
+import { NavigationRoute } from '@/components/homepage/route';
 
 interface FooterInfoProps {
   footerContent: FooterContent;
 }
 
-const abhayaLibre = Abhaya_Libre({ weight: "400", subsets: ["latin"] });
+const abhayaLibre = Abhaya_Libre({ weight: '400', subsets: ['latin'] });
 
 export default function FooterInfo({ footerContent }: FooterInfoProps) {
   return (
@@ -57,9 +57,9 @@ export default function FooterInfo({ footerContent }: FooterInfoProps) {
       <div className="flex flex-col-reverse gap-5 md:flex-row md:justify-between items-center lg:w-[1024px] md:w-[768px] w-[320px] xl:w-[70%] h-auto pb-10 mx-auto mt-2">
         <div className="text-center md:text-left mb-4 md:mb-0">
           <p className="text-sm text-white">
-            {footerContent.copyright.split("!")[0]}
+            {footerContent.copyright.split('!')[0]}
             <span className="text-yellow-500">
-              {footerContent.copyright.split("!")[1]}
+              {footerContent.copyright.split('!')[1]}
             </span>
           </p>
         </div>

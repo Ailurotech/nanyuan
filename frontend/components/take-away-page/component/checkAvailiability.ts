@@ -13,7 +13,7 @@ export const validateOTP = (otp: boolean): ValidationResult => {
 
 export const validatePickUpTime = (
   pickUpDate: string,
-  pickUpTime: string
+  pickUpTime: string,
 ): ValidationResult => {
   const now = DateTime.now();
   const pickUpDateTime = DateTime.fromISO(`${pickUpDate}T${pickUpTime}`);
@@ -21,7 +21,10 @@ export const validatePickUpTime = (
   if (pickUpDateTime <= now) {
     return { success: false, errorMessage: 'Cannot pick up in the past.' };
   } else if (pickUpDateTime < now.plus({ hours: 0.5 })) {
-    return { success: false, errorMessage: 'Pick-up time must be at least 30 minutes from now.' };
+    return {
+      success: false,
+      errorMessage: 'Pick-up time must be at least 30 minutes from now.',
+    };
   }
   return { success: true };
 };
@@ -35,11 +38,13 @@ export const validatePrice = (price: number): ValidationResult => {
   return { success: true };
 };
 
-export const runValidations = async (validations: (() => ValidationResult)[]): Promise<void> => {
+export const runValidations = async (
+  validations: (() => ValidationResult)[],
+): Promise<void> => {
   validations.forEach((validation) => {
     const result = validation();
     if (!result.success && result.errorMessage) {
-      alert(result.errorMessage); 
+      alert(result.errorMessage);
       throw new Error(result.errorMessage);
     }
   });

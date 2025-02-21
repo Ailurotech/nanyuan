@@ -1,8 +1,8 @@
-import { SinglePhoto } from "@/types";
-import clsx from "clsx";
-import Image from "next/image";
-import { NavigationRoute } from "../route";
-import React from "react";
+import { SinglePhoto } from '@/types';
+import clsx from 'clsx';
+import Image from 'next/image';
+import { NavigationRoute } from '../route';
+import React from 'react';
 
 interface IndividualPhotoProps {
   photo: SinglePhoto;
@@ -22,10 +22,10 @@ export function IndividualPhoto({
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className={clsx(
-            "duration-500",
+            'duration-500',
             isColor
-              ? "hover:!grayscale-0 group-hover:grayscale"
-              : "grayscale hover:grayscale-0"
+              ? 'hover:!grayscale-0 group-hover:grayscale'
+              : 'grayscale hover:grayscale-0',
           )}
         />
       </NavigationRoute.Menu.Link>
