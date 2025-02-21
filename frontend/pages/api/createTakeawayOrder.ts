@@ -1,6 +1,18 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { sanityClient } from '@/lib/sanityClient';
 import apiHandler from '@/lib/apiHandler';
+import { errorMap } from '@/error/errorMap';
+import {
+  validateRequiredFields,
+  validatePhoneNumber,
+  validateEmail,
+  validateItemsArray,
+  validateTotalPrice,
+  validatePaymentMethod,
+  validateDateFormat,
+  validateFutureDate,
+  validateNotesLength,
+} from '@/components/common/utils/validation';
 
 const createTakeawayOrder = async (
   req: NextApiRequest,
@@ -20,7 +32,7 @@ const createTakeawayOrder = async (
       notes,
     } = req.body;
 
-    const requiredFields = [
+    validateRequiredFields(req.body, [
       'orderId',
       'customerName',
       'phone',
@@ -30,15 +42,15 @@ const createTakeawayOrder = async (
       'status',
       'totalPrice',
       'paymentMethod',
-    ];
-    const missingFields = requiredFields.filter(
-      (field) => !(req.body as any)[field],
-    );
-    if (missingFields.length > 0) {
-      return res.status(400).json({
-        error: `Missing required fields: ${missingFields.join(', ')}`,
-      });
-    }
+    ]);
+    validatePhoneNumber(phone);
+    validateEmail(email);
+    validateItemsArray(items);
+    validateTotalPrice(totalPrice);
+    validatePaymentMethod(paymentMethod);
+    validateDateFormat(date);
+    validateFutureDate(date);
+    validateNotesLength(notes);
 
     await sanityClient.create({
       ...req.body,
@@ -48,11 +60,14 @@ const createTakeawayOrder = async (
 
     return res.status(200).json({ message: 'Order created successfully' });
   } catch (error) {
-    console.error('Error creating order:', error);
-    return res.status(500).json({
-      error: 'Internal server error',
-      details: (error as Error).message,
-    });
+    if (error instanceof Error) {
+      const errorName = error.name;
+      const errorInfo = errorMap.get(errorName);
+      return res
+        .status(errorInfo?.status || 500)
+        .json({ error: errorInfo?.message || 'Internal server error' });
+    }
+    return res.status(500).json({ error: 'Internal server error' });
   }
 };
 
