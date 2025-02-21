@@ -11,12 +11,42 @@ import {
 import { MenuItem } from '../../types';
 import { urlFor } from '../../lib/sanityClient';
 
+import { useState, useEffect } from 'react';
+
 interface MenuProps {
   menuItems: MenuItem;
   addToCart: (item: MenuItem) => void;
+  removeFromCart: (item: MenuItem) => void;
 }
 
-const MenuCard = ({ menuItems, addToCart }: MenuProps) => {
+const MenuCard = ({ menuItems, addToCart, removeFromCart }: MenuProps) => {
+  const [itemCount, setItemCount] = useState(0);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const cartData = localStorage.getItem('cart');
+      if (cartData) {
+        const parsedCart = JSON.parse(cartData);
+        const existingItem = parsedCart.find(
+          (item: MenuItem) => item._id === menuItems._id,
+        );
+        if (existingItem) {
+          setItemCount(existingItem.quantity);
+        }
+      }
+    }
+  }, [menuItems]);
+
+  const addToCartHandler = () => {
+    addToCart(menuItems);
+    setItemCount((prev) => prev + 1);
+  };
+
+  const removeFromCartHandler = () => {
+    removeFromCart(menuItems);
+    setItemCount((prev) => Math.max(prev - 1, 0));
+  };
+
   const imageUrl = menuItems.image
     ? urlFor(menuItems.image).width(250).height(150).auto('format').url()
     : null;
@@ -70,21 +100,40 @@ const MenuCard = ({ menuItems, addToCart }: MenuProps) => {
         <Text color="yellow.400" fontSize="xl" fontWeight="bold">
           ${menuItems.price}
         </Text>
-        <Button
-          variant="solid"
-          bg="white"
-          color="black"
-          w="40px"
-          h="40px"
-          borderRadius="50%"
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          _hover={{ bg: 'black', color: 'white' }}
-          onClick={() => addToCart(menuItems)}
-        >
-          +
-        </Button>
+
+        {itemCount > 0 ? (
+          <div className="flex items-center bg-white text-black rounded-full px-2 py-1">
+            <button
+              onClick={removeFromCartHandler}
+              className="px-2 text-lg font-bold"
+            >
+              -
+            </button>
+            <span className="px-2">{itemCount}</span>
+            <button
+              onClick={addToCartHandler}
+              className="px-2 text-lg font-bold"
+            >
+              +
+            </button>
+          </div>
+        ) : (
+          <Button
+            variant="solid"
+            bg="white"
+            color="black"
+            w="40px"
+            h="40px"
+            borderRadius="50%"
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            _hover={{ bg: 'black', color: 'white' }}
+            onClick={addToCartHandler}
+          >
+            +
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );
