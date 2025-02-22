@@ -3,6 +3,8 @@ import nextConnect from 'next-connect';
 import applyRateLimit from '@/lib/rateLimiter';
 import ipFilter from '@/lib/ipFilter';
 import corsMiddleware from '@/lib/corsMiddleware';
+import sanitizeMiddleware from '@/lib/sanitizeMiddleware';
+import securityHeaders from '@/lib/securityHeaders';
 
 const apiHandler = () => {
   return nextConnect<NextApiRequest, NextApiResponse>()
@@ -11,7 +13,9 @@ const apiHandler = () => {
       next();
     })
     .use(ipFilter)
-    .use(corsMiddleware);
+    .use(corsMiddleware)
+    .use(sanitizeMiddleware)
+    .use(securityHeaders);
 };
 
 export default apiHandler;

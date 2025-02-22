@@ -114,11 +114,5 @@ export default defineType({
       title: 'Special Requests / Notes',
       type: 'text',
     },
-    {
-      name: 'sessionId',
-      title: 'Session ID',
-      type: 'string',
-      hidden: ({ document }) => document?.paymentMethod !== 'online',
-    },
   ],
 });
