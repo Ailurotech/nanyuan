@@ -118,7 +118,7 @@ export function BooktablePage({ restaurant, table }: BooktablePageProps) {
           ),
       ]);
 
-      const CreateReservationData = {
+      const createReservationData = {
         _type: 'reservation',
         time: `${data.date}T${data.time}`,
         table: { _type: 'reference', _ref: validationResult.tableId },
@@ -130,7 +130,7 @@ export function BooktablePage({ restaurant, table }: BooktablePageProps) {
         notes: data.notes,
       };
 
-      await axios.post('/api/createReservations', CreateReservationData);
+      await axios.post('/api/createReservations', createReservationData);
     } catch (error) {
       console.error('Error during reservation:', error);
     }
