@@ -3,7 +3,7 @@ import { mockRequestResponse } from './requestMock';
 export const testRequiredFields = (
   requiredFields: string[],
   validOrder: Record<string, any>,
-  createTakeawayOrder: (req: any, res: any) => Promise<void>,
+  apiHandler: (req: any, res: any) => Promise<void>, 
 ) => {
   describe('❌ Required Fields Validation', () => {
     requiredFields.forEach((field) => {
@@ -12,7 +12,7 @@ export const testRequiredFields = (
         delete (invalidOrder as any)[field];
 
         const { req, res, status, json } = mockRequestResponse(invalidOrder);
-        await createTakeawayOrder(req, res);
+        await apiHandler(req, res);
 
         expect(status).toHaveBeenCalledWith(400);
         expect(json).toHaveBeenCalledWith(
