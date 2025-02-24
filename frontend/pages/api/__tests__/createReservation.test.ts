@@ -46,6 +46,6 @@ const validationCases = [
 ];
 
 // 只测试 `createReservations`
-testRequiredFields(requiredFields, validReservation,createReservations );
+testRequiredFields(requiredFields, validReservation, createReservations);
 testValidation(validationCases, validReservation, createReservations);
 testApiErrorHandling(validReservation, createReservations);

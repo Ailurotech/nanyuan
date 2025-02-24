@@ -3,7 +3,7 @@ import { mockRequestResponse } from './requestMock';
 export const testValidation = (
   cases: { field: string; invalidValue: any; expectedError: string }[],
   validOrder: Record<string, any>,
-  apiHandler: (req: any, res: any) => Promise<void>, 
+  apiHandler: (req: any, res: any) => Promise<void>,
 ) => {
   describe('❌ Data Validation Errors', () => {
     cases.forEach(({ field, invalidValue, expectedError }) => {

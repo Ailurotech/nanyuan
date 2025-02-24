@@ -3,7 +3,7 @@ import { sanityClient } from '@/lib/sanityClient';
 
 export const testApiErrorHandling = (
   validOrder: Record<string, any>,
-  apiHandler: (req: any, res: any) => Promise<void>, 
+  apiHandler: (req: any, res: any) => Promise<void>,
 ) => {
   describe('❌ API Error Handling', () => {
     beforeEach(() => {

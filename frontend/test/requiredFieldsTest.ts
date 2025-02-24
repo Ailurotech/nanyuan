@@ -3,7 +3,7 @@ import { mockRequestResponse } from './requestMock';
 export const testRequiredFields = (
   requiredFields: string[],
   validOrder: Record<string, any>,
-  apiHandler: (req: any, res: any) => Promise<void>, 
+  apiHandler: (req: any, res: any) => Promise<void>,
 ) => {
   describe('❌ Required Fields Validation', () => {
     requiredFields.forEach((field) => {
