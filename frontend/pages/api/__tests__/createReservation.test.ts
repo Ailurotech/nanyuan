@@ -45,7 +45,6 @@ const validationCases = [
   { field: 'table', invalidValue: {}, expectedError: 'Format error' },
 ];
 
-// 只测试 `createReservations`
 testRequiredFields(requiredFields, validReservation, createReservations);
 testValidation(validationCases, validReservation, createReservations);
 testApiErrorHandling(validReservation, createReservations);

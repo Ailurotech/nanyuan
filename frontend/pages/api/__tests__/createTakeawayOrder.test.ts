@@ -6,7 +6,6 @@ import { testApiErrorHandling } from '@/test/apiErrorTest';
 import { mockRequestResponse } from '@/test/requestMock';
 import { DateTime } from 'luxon';
 
-// ✅ Mock Sanity API
 jest.mock('@/lib/sanityClient', () => ({
   sanityClient: {
     create: jest.fn(),
