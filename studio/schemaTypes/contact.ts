@@ -1,30 +1,14 @@
 import { defineType } from 'sanity';
 
+const contactFields = ['name', 'phone', 'message'];
+
 export default defineType({
   name: 'contact',
-  title: 'Contact Messages',
+  title: 'Contact Form',
   type: 'document',
-  fields: [
-    {
-      name: 'name',
-      type: 'string',
-      title: 'Name'
-    },
-    {
-      name: 'phone',
-      type: 'string',
-      title: 'Phone Number'
-    },
-    {
-      name: 'message',
-      type: 'text',
-      title: 'Message'
-    },
-    {
-      name: 'createdAt',
-      type: 'datetime',
-      title: 'Submitted At',
-      options: { dateFormat: 'YYYY-MM-DD', timeFormat: 'HH:mm' },
-    }
-  ]
+  fields: contactFields.map((fieldName) => ({
+    name: fieldName,
+    title: fieldName.charAt(0).toUpperCase() + fieldName.slice(1),
+    type: 'string',
+  })),
 });

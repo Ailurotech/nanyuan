@@ -1,35 +1,42 @@
 import { FaPhone, FaMapMarker, FaEnvelope } from 'react-icons/fa';
 import { sanityClient } from "@/lib/sanityClient";
 import { GetStaticProps } from "next";
-import { LocationInfo } from "@/types";
+import { LocationInfo} from "@/types";
 import { useState, useEffect } from 'react';
 import imageUrlBuilder from '@sanity/image-url';
 import Image from 'next/image';
 
-const builder = imageUrlBuilder(sanityClient);
 
-function urlFor(source: any) {
-  return source?.asset?.url ? source.asset.url : "";
+const builder = imageUrlBuilder(sanityClient);
+const FALLBACK_IMAGE = "/logo.png";
+
+function urlFor(source?: { asset?: { _id: string; url?: string } }) {
+  return source?.asset?.url ? builder.image(source).url() : FALLBACK_IMAGE;
 }
 
 interface LocationInfoProp {
   restaurantInfo: LocationInfo;
+  error?: string; 
+  intervalTime?: number
 }
 
-export default function LocationPage({ restaurantInfo }: LocationInfoProp) {
+export default function LocationPage({ restaurantInfo, error, intervalTime = 5000 }: LocationInfoProp) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const embedUrl = `https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&q=${encodeURIComponent(restaurantInfo.address)}`;
 
   const [formData, setFormData] = useState({ name: "", phone: "", message: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
+    if (isPaused || !restaurantInfo?.images?.length) return;
     const interval = setInterval(() => {
-      setCurrentImageIndex(prev => (prev + 1) % (restaurantInfo.images?.length || 1));
-    }, 5000);
+      setCurrentImageIndex((prev) => (prev + 1) % restaurantInfo.images.length);
+    }, intervalTime);
+
     return () => clearInterval(interval);
-  }, [restaurantInfo.images]);
+  }, [restaurantInfo?.images, isPaused, intervalTime]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -38,6 +45,7 @@ export default function LocationPage({ restaurantInfo }: LocationInfoProp) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setErrorMessage("");
 
     try {
       await sanityClient.create({
@@ -50,19 +58,18 @@ export default function LocationPage({ restaurantInfo }: LocationInfoProp) {
       setSubmitted(true);
       setFormData({ name: "", phone: "", message: "" });
     } catch (error) {
-      console.error("submit failed", error);
+      console.error("Submit failed", error);
+      setErrorMessage("Something went wrong. Please try again later.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-
-  if (!restaurantInfo) return <div className="text-center text-gray-600">Loading...</div>;
+  if (!restaurantInfo) return <div className="text-center text-gray-600">Failed to load data. Please try again later.</div>;
 
   return (
     <div className="min-h-screen bg-black flex flex-col justify-center items-center p-6 pt-44">
       <div className="max-w-6xl w-full bg-white shadow-lg rounded-xl overflow-hidden flex flex-col md:flex-row h-auto md:h-[600px]">
-        
         {restaurantInfo.images?.length > 0 && (
           <div className="md:w-1/2 flex justify-center items-center p-4 relative">
             {restaurantInfo.images.map((img, index) => (
@@ -78,6 +85,12 @@ export default function LocationPage({ restaurantInfo }: LocationInfoProp) {
                 priority
               />
             ))}
+            <button
+              onClick={() => setIsPaused(!isPaused)}
+              className="absolute bottom-4 right-4 bg-gray-800 text-white p-2 rounded-md z-10"
+            >
+              {isPaused ? 'Resume' : 'Pause'}
+            </button>
           </div>
         )}
 
@@ -116,7 +129,8 @@ export default function LocationPage({ restaurantInfo }: LocationInfoProp) {
           <div className="w-full h-64 rounded-lg overflow-hidden h-auto md:h-full">
             {restaurantInfo.address ? (
               <iframe
-                src={embedUrl}
+                title="Restaurant Location"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3269.1121338369776!2d138.58890197600473!3d-34.978855877407206!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6ab0cff8dd2fe379%3A0xf3aaa6ce8f150aa9!2sNan%20Yuan!5e0!3m2!1sen!2sau!4v1740442666990!5m2!1sen!2sau"
                 width="100%"
                 height="100%"
                 style={{ border: '0' }}
@@ -170,8 +184,9 @@ export default function LocationPage({ restaurantInfo }: LocationInfoProp) {
               className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Submitting..." : "Submite"}
+              {isSubmitting ? "Submitting..." : "Submit"}
             </button>
+            {errorMessage && <p className="text-red-500">{errorMessage}</p>}
           </form>
         )}
       </div>
@@ -186,6 +201,7 @@ export const getStaticProps: GetStaticProps<{ restaurantInfo: LocationInfo }> = 
     phone,
     email,
     images[] { 
+      _type,
       asset->{
         _id,
         url
@@ -211,7 +227,8 @@ export const getStaticProps: GetStaticProps<{ restaurantInfo: LocationInfo }> = 
           phone: "",
           email: "",
           images: []
-        }
+        },
+        error: "Failed to load restaurant information.",
       }
     };
   }

@@ -157,7 +157,7 @@ export interface LocationInfo {
     _type: string;
     asset: {
       _id: string;
-      url: string;  // 确保包含 url
+      url: string;  
     };
     alt: string;
   }>;
@@ -166,11 +166,12 @@ export interface LocationInfo {
 export interface SanityImage {
   _type: 'image';
   asset: {
-    _ref: string;
     _type: 'reference';
+    _id: string;
+    url: string;
   };
   alt?: string
-  width?: number; // Add width, make it optional
+  width?: number; 
   height?: number;
   blurDataURL?: string;
 }
