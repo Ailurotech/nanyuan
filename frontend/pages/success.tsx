@@ -14,7 +14,7 @@ const SuccessPage = () => {
             <span className="block">Thank you for ordering! 😊 </span>
           </h1>
         ) : source === 'book-a-table' ? (
-            <h1 className="font-sans font-bold text-[28px] leading-[38.14px] text-black">
+          <h1 className="font-sans font-bold text-[28px] leading-[38.14px] text-black">
             <span className="block">Your table is booked!👍</span>
             <span className="block">Enjoy your meal! 😊</span>
           </h1>
