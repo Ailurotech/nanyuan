@@ -39,6 +39,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
   const [orderList, setOrderList] = useState<OrderItem[]>([]);
   const [totalPrice, setTotalPrice] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
+  const ONLINE_PAYMENT_CHARGE_PERCENTAGE = 0.0499;
 
   useEffect(() => {
     const cart = localStorage.getItem('cart');
@@ -260,7 +261,17 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
               padding="0.6rem"
               onClick={handleSubmit(handlePayOnline)}
             >
-              Pay Online (4.99% charge)
+              <div style={{ display: 'block' }}>
+                Pay Online (4.99% charge)
+                {parseFloat(totalPrice) > 0 && (
+                  <div>
+                    Approx $
+                    {(
+                      parseFloat(totalPrice) * ONLINE_PAYMENT_CHARGE_PERCENTAGE
+                    ).toFixed(2)}
+                  </div>
+                )}
+              </div>
             </Button>
           </HStack>
         </form>
