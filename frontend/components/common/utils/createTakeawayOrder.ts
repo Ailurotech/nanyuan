@@ -18,6 +18,8 @@ export async function CreateTakeAwayOrder(
       paymentMethod: orderData.paymentMethod,
       notes: orderData.notes,
       items: orderData.items,
+      _type: 'order',
+      _id: orderData.orderId,
     };
 
     const response = await axios.post(apiUrl, formattedOrderData, {
