@@ -22,21 +22,23 @@ interface LocationInfoProp {
 
 export default function LocationPage({ restaurantInfo, error, intervalTime = 5000 }: LocationInfoProp) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
   const [formData, setFormData] = useState({ name: "", phone: "", message: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
-    if (isPaused || !restaurantInfo?.images?.length) return;
+    if (!restaurantInfo?.images?.length) return;
     const interval = setInterval(() => {
       setCurrentImageIndex((prev) => (prev + 1) % restaurantInfo.images.length);
     }, intervalTime);
 
     return () => clearInterval(interval);
-  }, [restaurantInfo?.images, isPaused, intervalTime]);
+  }, [restaurantInfo?.images, intervalTime]);
+
+  const handleDotClick = (index:number) =>{
+    setCurrentImageIndex(index)
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -66,18 +68,18 @@ export default function LocationPage({ restaurantInfo, error, intervalTime = 500
   };
 
   if (!restaurantInfo) return <div className="text-center text-gray-600">Failed to load data. Please try again later.</div>;
-
+  // shadow-[15px_10px_4px_rgba(0,0,0,0.25)] rounded-[4rem] h-auto w-full max-w-[1200px] mx-auto mt-[9%] bg-black flex flex-col items-center p-6 pt-44
   return (
-    <div className="min-h-screen bg-black flex flex-col justify-center items-center p-6 pt-44">
-      <div className="max-w-6xl w-full bg-white shadow-lg rounded-xl overflow-hidden flex flex-col md:flex-row h-auto md:h-[600px]">
+    <div className="min-h-screen bg-[#191919] flex flex-col justify-center items-center p-6 pt-44">
+      <div className="max-w-6xl w-full bg-[#e5e7ea] shadow-lg rounded-[4rem] overflow-hidden flex flex-col md:flex-row h-auto md:h-[600px]">
         {restaurantInfo.images?.length > 0 && (
-          <div className="md:w-1/2 flex justify-center items-center p-4 relative">
+          <div className="md:w-1/2 flex justify-center items-center relative">
             {restaurantInfo.images.map((img, index) => (
               <Image
                 key={img.asset._id}
                 src={urlFor(img)}
                 alt={img.alt || `Location Image ${index + 1}`}
-                className={`absolute w-full h-full object-cover rounded-lg transition-opacity duration-1000 ${
+                className={`absolute w-full h-full md:p-[5%] rounded-[4rem] object-cover transition-opacity duration-1000 ${
                   index === currentImageIndex ? 'opacity-100' : 'opacity-0'
                 }`}
                 width={400}
@@ -85,12 +87,16 @@ export default function LocationPage({ restaurantInfo, error, intervalTime = 500
                 priority
               />
             ))}
-            <button
-              onClick={() => setIsPaused(!isPaused)}
-              className="absolute bottom-4 right-4 bg-gray-800 text-white p-2 rounded-md z-10"
-            >
-              {isPaused ? 'Resume' : 'Pause'}
-            </button>
+            <div className='absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2'>
+              {restaurantInfo.images.map((_, index) =>(
+                <button
+                  key = {index}
+                  onClick={() => handleDotClick(index)}
+                  className={`w-3 h-3 rounded-full ${index === currentImageIndex ? 'bg-black' : 'bg-gray-400'
+                  }`}
+                />
+              ))}
+            </div>
           </div>
         )}
 
@@ -101,7 +107,7 @@ export default function LocationPage({ restaurantInfo, error, intervalTime = 500
             <h2 className="text-2xl font-semibold text-gray-800">{restaurantInfo.title}</h2>
             
             <div className="flex items-start">
-              <FaMapMarker className="w-5 h-5 text-orange-600 mr-3 mt-1" />
+              <FaMapMarker className="w-5 h-5 text-yellow-400 mr-3 mt-1" />
               <div>
                 <h3 className="font-medium text-gray-700">Address</h3>
                 <p className="text-gray-600">{restaurantInfo.address}</p>
@@ -109,7 +115,7 @@ export default function LocationPage({ restaurantInfo, error, intervalTime = 500
             </div>
 
             <div className="flex items-center">
-              <FaPhone className="w-5 h-5 text-orange-600 mr-3" />
+              <FaPhone className="w-5 h-5 text-yellow-400 mr-3" />
               <div>
                 <h3 className="font-medium text-gray-700">Phone</h3>
                 <p className="text-gray-600">{restaurantInfo.phone}</p>
@@ -117,7 +123,7 @@ export default function LocationPage({ restaurantInfo, error, intervalTime = 500
             </div>
 
             <div className="flex items-center">
-              <FaEnvelope className="w-5 h-5 text-orange-600 mr-3" />
+              <FaEnvelope className="w-5 h-5 text-yellow-400 mr-3" />
               <div>
                 <h3 className="font-medium text-gray-700">Email</h3>
                 <p className="text-gray-600">{restaurantInfo.email}</p>
@@ -145,13 +151,15 @@ export default function LocationPage({ restaurantInfo, error, intervalTime = 500
       </div>
 
       {/* Contact Us Form */}
-      <div className="max-w-6xl w-full bg-white shadow-lg rounded-xl p-6 mt-32 h-auto">
-        <h3 className="text-2xl font-bold text-gray-800 mb-4">Contact Us</h3>
+      <div className="bg-[#e5e7ea] rounded-lg p-4 mt-32 w-[500px]">
+        <h1 className="text-x1 font-bold ">Contact Us</h1>
+        <h3 className="text-xs pb-4">Please fill your details for contact us</h3>
 
         {submitted ? (
           <p className="text-green-600">Your message has been submitted and we will contact you as soon as possible</p>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
+            <label className='chakra-test css-vcvutv font-bold'>Name</label>
             <input
               type="text"
               name="name"
@@ -161,15 +169,20 @@ export default function LocationPage({ restaurantInfo, error, intervalTime = 500
               className="w-full px-4 py-2 border rounded-md"
               required
             />
-            <input
-              type="text"
-              name="phone"
-              placeholder="Phone"
-              value={formData.phone}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-md"
-              required
-            />
+            <label className='chakra-test css-vcvutv font-bold'>Phone Number</label>
+            <div className="flex border rounded-md overflow-hidden">
+              <span className="bg-gray-100 px-3 flex items-center text-gray-700">+61</span>
+              <input
+                type="tel"
+                name="phone"
+                placeholder="Phone"
+                value={formData.phone}
+                onChange={handleChange}
+                className="w-full flex-1 px-4 py-2 border rounded-md"
+                required
+              />
+            </div>
+            <label className='chakra-test css-vcvutv font-bold'>Message</label>
             <textarea
               name="message"
               placeholder="Message..."
@@ -181,7 +194,7 @@ export default function LocationPage({ restaurantInfo, error, intervalTime = 500
             />
             <button
               type="submit"
-              className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200"
+              className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2 px-4 rounded-lg transition duration-200"
               disabled={isSubmitting}
             >
               {isSubmitting ? "Submitting..." : "Submit"}
