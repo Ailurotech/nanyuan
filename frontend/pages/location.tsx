@@ -1,14 +1,13 @@
 import { FaPhone, FaMapMarker, FaEnvelope } from 'react-icons/fa';
-import { sanityClient } from "@/lib/sanityClient";
-import { GetStaticProps } from "next";
-import { LocationInfo} from "@/types";
+import { sanityClient } from '@/lib/sanityClient';
+import { GetStaticProps } from 'next';
+import { LocationInfo } from '@/types';
 import { useState, useEffect } from 'react';
 import imageUrlBuilder from '@sanity/image-url';
 import Image from 'next/image';
 
-
 const builder = imageUrlBuilder(sanityClient);
-const FALLBACK_IMAGE = "/logo.png";
+const FALLBACK_IMAGE = '/logo.png';
 
 function urlFor(source?: { asset?: { _id: string; url?: string } }) {
   return source?.asset?.url ? builder.image(source).url() : FALLBACK_IMAGE;
@@ -16,16 +15,24 @@ function urlFor(source?: { asset?: { _id: string; url?: string } }) {
 
 interface LocationInfoProp {
   restaurantInfo: LocationInfo;
-  error?: string; 
-  intervalTime?: number
+  error?: string;
+  intervalTime?: number;
 }
 
-export default function LocationPage({ restaurantInfo, error, intervalTime = 5000 }: LocationInfoProp) {
+export default function LocationPage({
+  restaurantInfo,
+  error,
+  intervalTime = 5000,
+}: LocationInfoProp) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [formData, setFormData] = useState({ name: "", phone: "", message: "" });
+  const [formData, setFormData] = useState({
+    name: '',
+    phone: '',
+    message: '',
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     if (!restaurantInfo?.images?.length) return;
@@ -36,38 +43,45 @@ export default function LocationPage({ restaurantInfo, error, intervalTime = 500
     return () => clearInterval(interval);
   }, [restaurantInfo?.images, intervalTime]);
 
-  const handleDotClick = (index:number) =>{
-    setCurrentImageIndex(index)
-  }
+  const handleDotClick = (index: number) => {
+    setCurrentImageIndex(index);
+  };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setErrorMessage("");
+    setErrorMessage('');
 
     try {
       await sanityClient.create({
-        _type: "contact",
+        _type: 'contact',
         name: formData.name,
         phone: formData.phone,
         message: formData.message,
       });
 
       setSubmitted(true);
-      setFormData({ name: "", phone: "", message: "" });
+      setFormData({ name: '', phone: '', message: '' });
     } catch (error) {
-      console.error("Submit failed", error);
-      setErrorMessage("Something went wrong. Please try again later.");
+      console.error('Submit failed', error);
+      setErrorMessage('Something went wrong. Please try again later.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  if (!restaurantInfo) return <div className="text-center text-gray-600">Failed to load data. Please try again later.</div>;
+  if (!restaurantInfo)
+    return (
+      <div className="text-center text-gray-600">
+        Failed to load data. Please try again later.
+      </div>
+    );
   // shadow-[15px_10px_4px_rgba(0,0,0,0.25)] rounded-[4rem] h-auto w-full max-w-[1200px] mx-auto mt-[9%] bg-black flex flex-col items-center p-6 pt-44
   return (
     <div className="min-h-screen bg-[#191919] flex flex-col justify-center items-center p-6 pt-44">
@@ -87,12 +101,13 @@ export default function LocationPage({ restaurantInfo, error, intervalTime = 500
                 priority
               />
             ))}
-            <div className='absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2'>
-              {restaurantInfo.images.map((_, index) =>(
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+              {restaurantInfo.images.map((_, index) => (
                 <button
-                  key = {index}
+                  key={index}
                   onClick={() => handleDotClick(index)}
-                  className={`w-3 h-3 rounded-full ${index === currentImageIndex ? 'bg-black' : 'bg-gray-400'
+                  className={`w-3 h-3 rounded-full ${
+                    index === currentImageIndex ? 'bg-black' : 'bg-gray-400'
                   }`}
                 />
               ))}
@@ -104,8 +119,10 @@ export default function LocationPage({ restaurantInfo, error, intervalTime = 500
         <div className="md:w-1/2 flex flex-col p-6 h-auto md:h-full">
           {/* Basic info */}
           <div className="space-y-4 mb-6">
-            <h2 className="text-2xl font-semibold text-gray-800">{restaurantInfo.title}</h2>
-            
+            <h2 className="text-2xl font-semibold text-gray-800">
+              {restaurantInfo.title}
+            </h2>
+
             <div className="flex items-start">
               <FaMapMarker className="w-5 h-5 text-yellow-400 mr-3 mt-1" />
               <div>
@@ -153,13 +170,18 @@ export default function LocationPage({ restaurantInfo, error, intervalTime = 500
       {/* Contact Us Form */}
       <div className="bg-[#e5e7ea] rounded-lg p-4 mt-32 w-[500px]">
         <h1 className="text-x1 font-bold ">Contact Us</h1>
-        <h3 className="text-xs pb-4">Please fill your details for contact us</h3>
+        <h3 className="text-xs pb-4">
+          Please fill your details for contact us
+        </h3>
 
         {submitted ? (
-          <p className="text-green-600">Your message has been submitted and we will contact you as soon as possible</p>
+          <p className="text-green-600">
+            Your message has been submitted and we will contact you as soon as
+            possible
+          </p>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
-            <label className='chakra-test css-vcvutv font-bold'>Name</label>
+            <label className="chakra-test css-vcvutv font-bold">Name</label>
             <input
               type="text"
               name="name"
@@ -169,9 +191,13 @@ export default function LocationPage({ restaurantInfo, error, intervalTime = 500
               className="w-full px-4 py-2 border rounded-md"
               required
             />
-            <label className='chakra-test css-vcvutv font-bold'>Phone Number</label>
+            <label className="chakra-test css-vcvutv font-bold">
+              Phone Number
+            </label>
             <div className="flex border rounded-md overflow-hidden">
-              <span className="bg-gray-100 px-3 flex items-center text-gray-700">+61</span>
+              <span className="bg-gray-100 px-3 flex items-center text-gray-700">
+                +61
+              </span>
               <input
                 type="tel"
                 name="phone"
@@ -182,7 +208,7 @@ export default function LocationPage({ restaurantInfo, error, intervalTime = 500
                 required
               />
             </div>
-            <label className='chakra-test css-vcvutv font-bold'>Message</label>
+            <label className="chakra-test css-vcvutv font-bold">Message</label>
             <textarea
               name="message"
               placeholder="Message..."
@@ -197,7 +223,7 @@ export default function LocationPage({ restaurantInfo, error, intervalTime = 500
               className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2 px-4 rounded-lg transition duration-200"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Submitting..." : "Submit"}
+              {isSubmitting ? 'Submitting...' : 'Submit'}
             </button>
             {errorMessage && <p className="text-red-500">{errorMessage}</p>}
           </form>
@@ -207,7 +233,9 @@ export default function LocationPage({ restaurantInfo, error, intervalTime = 500
   );
 }
 
-export const getStaticProps: GetStaticProps<{ restaurantInfo: LocationInfo }> = async () => {
+export const getStaticProps: GetStaticProps<{
+  restaurantInfo: LocationInfo;
+}> = async () => {
   const query = `*[_type == "location"][0]{
     title,
     address,
@@ -227,22 +255,22 @@ export const getStaticProps: GetStaticProps<{ restaurantInfo: LocationInfo }> = 
     const restaurantInfo = await sanityClient.fetch<LocationInfo>(query);
     return {
       props: {
-        restaurantInfo: restaurantInfo 
-      }
+        restaurantInfo: restaurantInfo,
+      },
     };
   } catch (error) {
-    console.error("Error fetching data:", error);
+    console.error('Error fetching data:', error);
     return {
       props: {
-        restaurantInfo: { 
-          title: "",
-          address: "",
-          phone: "",
-          email: "",
-          images: []
+        restaurantInfo: {
+          title: '',
+          address: '',
+          phone: '',
+          email: '',
+          images: [],
         },
-        error: "Failed to load restaurant information.",
-      }
+        error: 'Failed to load restaurant information.',
+      },
     };
   }
 };

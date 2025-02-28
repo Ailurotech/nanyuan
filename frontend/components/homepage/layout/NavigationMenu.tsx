@@ -1,5 +1,5 @@
-import Link from "next/link";
-import { NavigationRoute } from "../route";
+import Link from 'next/link';
+import { NavigationRoute } from '../route';
 
 export function NavigationMenu() {
   return Object.values(NavigationRoute).map((route) => (

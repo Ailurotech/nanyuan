@@ -1,12 +1,17 @@
 // types.ts
 export interface MenuItem {
+  quantity: number;
   _id: string;
   name: string;
   description: string;
   price: number;
   image: string;
-  categories: string[]; 
-  isAvailable: boolean; 
+  categories: string[];
+  isAvailable: boolean;
+}
+export interface MenuItemReference {
+  _type: 'reference';
+  _ref: string;
 }
 export interface HeroContent {
   title: string;
@@ -82,12 +87,12 @@ export interface Restaurant {
 }
 
 export interface Duration {
-  start: string; 
-  end: string;   
+  start: string;
+  end: string;
 }
 
 export interface Category {
-  name: string; 
+  name: string;
 }
 
 export interface FooterContent {
@@ -99,9 +104,9 @@ export interface FooterContent {
   insEmbedId: string;
   topImage: {
     asset: {
-      url: string; 
+      url: string;
     };
-  }
+  };
 }
 
 export interface Table {
@@ -114,40 +119,35 @@ export interface ReservationData {
   name: string;
   phone: string;
   email: string;
-  guests: string;  
+  guests: string;
   date: string;
   time: string;
-  preference?: string;  
-  notes?: string;       
+  preference?: string;
+  notes?: string;
   tableId: string;
 }
 
 export interface OrderItem {
-  _id: string;         
-  name: string;        
-  price: number;       
-  quantity: number;    
-  menuItem: {
-    _type: 'reference'; 
-    _ref: string;       
-  };
+  _key: string;
+  price: number;
+  quantity: number;
+  menuItem: MenuItemReference;
+  name: string;
 }
 
 export interface OrderData {
-  name: string;             
-  phone: string;            
-  date: string;             
-  time: string;             
-  email: string;            
-  notes?: string;           
-  items: OrderItem[];    
-  totalPrice: number;       
-  status: 'Offline' | 'Pending'|'Paid'|'Cancelled'; 
-  paymentMethod: 'offline' | 'online'; 
-  orderId: string;           
-  sessionId?: string | null; 
+  name: string;
+  phone: string;
+  date: string;
+  time: string;
+  email: string;
+  notes?: string;
+  items: OrderItem[];
+  totalPrice: number;
+  status: 'Offline' | 'Pending' | 'Paid' | 'Cancelled';
+  paymentMethod: 'offline' | 'online';
+  orderId: string;
 }
-
 export interface LocationInfo {
   title: string;
   address: string;
@@ -157,7 +157,7 @@ export interface LocationInfo {
     _type: string;
     asset: {
       _id: string;
-      url: string;  
+      url: string;
     };
     alt: string;
   }>;
@@ -170,8 +170,8 @@ export interface SanityImage {
     _id: string;
     url: string;
   };
-  alt?: string
-  width?: number; 
+  alt?: string;
+  width?: number;
   height?: number;
   blurDataURL?: string;
 }

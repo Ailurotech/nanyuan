@@ -1,14 +1,14 @@
-import Image from "next/image";
-import logo from "@/public/logo.png";
-import Link from "next/link";
-import { Icon } from "../../common/Icon";
-import { Acme } from "next/font/google";
-import clsx from "clsx";
-import { RoutRoute, SocialRoute } from "../route";
-import { NavigationMenu } from "./NavigationMenu";
-import { NavigationDrawer } from "./navigationDrawer";
+import Image from 'next/image';
+import logo from '@/public/logo.png';
+import Link from 'next/link';
+import { Icon } from '../../common/Icon';
+import { Acme } from 'next/font/google';
+import clsx from 'clsx';
+import { RoutRoute, SocialRoute } from '../route';
+import { NavigationMenu } from './NavigationMenu';
+import { NavigationDrawer } from './navigationDrawer';
 
-const acme = Acme({ weight: "400", subsets: ["latin"] });
+const acme = Acme({ weight: '400', subsets: ['latin'] });
 
 export default function Navigation({
   children,
@@ -17,7 +17,7 @@ export default function Navigation({
 }) {
   return (
     <>
-      <header className={clsx("fixed top-0 z-10", acme.className)}>
+      <header className={clsx('fixed top-0 z-10', acme.className)}>
         <nav className="bg-black/50 w-screen flex items-center justify-evenly py-6">
           <Link href={RoutRoute.Rout.Path}>
             <Image src={logo} alt="logo" width="100" />
