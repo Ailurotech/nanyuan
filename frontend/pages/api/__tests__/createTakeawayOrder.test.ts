@@ -1,11 +1,10 @@
 import createTakeawayOrder from '../createTakeawayOrder';
-import { sanityClient } from '@/lib/sanityClient';
 import { testRequiredFields } from '@/test/requiredFieldsTest';
 import { testValidation } from '@/test/validationTests';
-import { testApiErrorHandling } from '@/test/apiErrorTest';
-import { mockRequestResponse } from '@/test/requestMock';
+import { sanityErrorTest } from '@/test/apiTest/ErrorTest';
 import { DateTime } from 'luxon';
-
+import { successfulTest } from '@/test/apiTest/Successful'
+;
 jest.mock('@/lib/sanityClient', () => ({
   sanityClient: {
     create: jest.fn(),
@@ -30,7 +29,7 @@ const validOrder = {
       menuItem: { _type: 'reference', _ref: 'menu123' },
     },
   ],
-  date: DateTime.local().plus({ days: 1 }).toISO(),
+  date: DateTime.local().plus({ days: 10 }).toISO(),
   status: 'Pending',
   totalPrice: 29.99,
   paymentMethod: 'online',
@@ -88,4 +87,5 @@ const validationCases = [
 
 testRequiredFields(requiredFields, validOrder, createTakeawayOrder);
 testValidation(validationCases, validOrder, createTakeawayOrder);
-testApiErrorHandling(validOrder, createTakeawayOrder);
+sanityErrorTest(validOrder, createTakeawayOrder);
+successfulTest(createTakeawayOrder, validOrder, { message: 'Order created successfully' }, 'sanity');
