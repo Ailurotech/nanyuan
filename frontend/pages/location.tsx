@@ -2,11 +2,12 @@ import { FaPhone, FaMapMarker, FaEnvelope } from 'react-icons/fa';
 import { sanityClient } from '@/lib/sanityClient';
 import { GetStaticProps } from 'next';
 import { LocationInfo } from '@/types';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import imageUrlBuilder from '@sanity/image-url';
 import Image from 'next/image';
 import { debounce } from 'lodash';
 
+// Error logging service
 export function logErrorToService(error: Error) {
   console.error('Logging error to service:', error);
 }
@@ -34,6 +35,7 @@ export default function LocationPage({
   const [submitted, setSubmitted] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
+  // memorized function to get image URL
   const urlFor = useCallback(
     (source?: { asset?: { _id: string; url?: string } }) => {
       return source?.asset?.url ? builder.image(source).url() : FALLBACK_IMAGE;
@@ -41,25 +43,40 @@ export default function LocationPage({
     [],
   );
 
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
   useEffect(() => {
     if (!restaurantInfo?.images?.length) return;
-    const interval = setInterval(() => {
+
+    // Clear any existing interval before setting a new one
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+
+    // Set a new interval to update the image index
+    intervalRef.current = setInterval(() => {
       setCurrentImageIndex((prev) => (prev + 1) % restaurantInfo.images.length);
     }, intervalTime);
 
-    return () => clearInterval(interval);
-  }, [restaurantInfo?.images, intervalTime]);
+    // Cleanup interval on component unmount or when dependencies change
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [restaurantInfo?.images.length, intervalTime]);
 
   const handleDotClick = (index: number) => {
     setCurrentImageIndex(index);
   };
-
+// handle user input change
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // debounced submit function to reduce API calls
   const debouncedSubmit = useCallback(
     debounce(async (data) => {
       try {
@@ -90,13 +107,14 @@ export default function LocationPage({
 
       setSubmitted(true);
       setFormData({ name: '', phone: '', message: '' });
-    } catch (error: unknown) {
+    } catch (error) {
       if (error instanceof Error) {
-        logErrorToService(error);
+        logErrorToService(error); // 记录错误
+        setErrorMessage(error.message || "Something went wrong. Please try again.");
       } else {
-        console.error('An unknown error occurred', error);
+        logErrorToService(new Error("An unknown error occurred"));
+        setErrorMessage("Something went wrong. Please try again.");
       }
-      setErrorMessage('Something went wrong. Please try again later.');
     } finally {
       setIsSubmitting(false);
     }
