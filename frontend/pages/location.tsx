@@ -5,7 +5,7 @@ import { LocationInfo } from '@/types';
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import imageUrlBuilder from '@sanity/image-url';
 import Image from 'next/image';
-import { debounce } from 'lodash';
+import { debouncedSubmit } from '@/utils/debouncedSubmit';
 import * as Sentry from '@sentry/react';
 
 // Error logging service
@@ -82,40 +82,11 @@ export default function LocationPage({
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  /**
-   * debouncedSubmit is a function that delays the execution of the submit logic to avoid
-   * multiple calls to the submit function within a short period. It’s useful for optimizing
-   * performance when submitting forms or handling user input in rapid succession (e.g., typing).
-   * This function makes sure that the submit action is executed only after a specified delay
-   * has passed since the last call.
-   *
-   * @param {Function} submit - The actual function that will be called after the debounce delay.
-   * @param {number} delay - The debounce delay in milliseconds. Default is 500ms.
-   *
-   * Example Usage:
-   * const handleSubmit = debouncedSubmit(submitForm, 500);
-   * handleSubmit(); // Will only trigger submitForm() after 500ms delay.
-   */
-  const debouncedSubmit = useMemo(
-    () =>
-      debounce(async (data) => {
-        try {
-          await sanityClient.create({ _type: 'contact', ...data });
-          setSubmitted(true);
-          setFormData({ name: '', phone: '', message: '' });
-        } catch (error) {
-          setErrorMessage('Something went wrong. Please try again later.');
-        } finally {
-          setIsSubmitting(false);
-        }
-      }, 500),
-    [],
-  );
-
   // Phone number validation
+  const phoneRegex = /^[0-9]{10}$/; // Cached regex pattern
+
   const validatePhoneNumber = (phone: string) => {
-    const phoneRegex = /^[0-9]{10}$/;
-    return phoneRegex.test(phone);
+    return phoneRegex.test(phone); // Using cached regex pattern
   };
 
   const validateFormData = () => {
