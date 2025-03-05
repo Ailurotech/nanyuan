@@ -2,16 +2,17 @@ import { FaPhone, FaMapMarker, FaEnvelope } from 'react-icons/fa';
 import { sanityClient } from '@/lib/sanityClient';
 import { GetStaticProps } from 'next';
 import { LocationInfo } from '@/types';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback} from 'react';
 import imageUrlBuilder from '@sanity/image-url';
 import Image from 'next/image';
+import { debounce } from 'lodash';
+
+export function logErrorToService(error: Error) {
+  console.error("Logging error to service:", error);
+}
 
 const builder = imageUrlBuilder(sanityClient);
-const FALLBACK_IMAGE = '/logo.png';
-
-function urlFor(source?: { asset?: { _id: string; url?: string } }) {
-  return source?.asset?.url ? builder.image(source).url() : FALLBACK_IMAGE;
-}
+const FALLBACK_IMAGE = 'public/logo.png';
 
 interface LocationInfoProp {
   restaurantInfo: LocationInfo;
@@ -21,7 +22,6 @@ interface LocationInfoProp {
 
 export default function LocationPage({
   restaurantInfo,
-  error,
   intervalTime = 5000,
 }: LocationInfoProp) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -33,6 +33,13 @@ export default function LocationPage({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  const urlFor = useCallback(
+    (source?: { asset?: { _id: string; url?: string } }) => {
+      return source?.asset?.url ? builder.image(source).url() : FALLBACK_IMAGE;
+    },
+    []
+  );
 
   useEffect(() => {
     if (!restaurantInfo?.images?.length) return;
@@ -47,11 +54,26 @@ export default function LocationPage({
     setCurrentImageIndex(index);
   };
 
-  const handleChange = (
+  const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+
+  const debouncedSubmit = useCallback(
+    debounce(async (data) => {
+      try {
+        await sanityClient.create({ _type: 'contact', ...data });
+        setSubmitted(true);
+        setFormData({ name: '', phone: '', message: '' });
+      } catch (error) {
+        setErrorMessage('Something went wrong. Please try again later.');
+      } finally {
+        setIsSubmitting(false);
+      }
+    }, 500),
+    []
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,8 +90,12 @@ export default function LocationPage({
 
       setSubmitted(true);
       setFormData({ name: '', phone: '', message: '' });
-    } catch (error) {
-      console.error('Submit failed', error);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        logErrorToService(error);
+      } else {
+        console.error("An unknown error occurred", error);
+      }
       setErrorMessage('Something went wrong. Please try again later.');
     } finally {
       setIsSubmitting(false);
@@ -82,7 +108,7 @@ export default function LocationPage({
         Failed to load data. Please try again later.
       </div>
     );
-  // shadow-[15px_10px_4px_rgba(0,0,0,0.25)] rounded-[4rem] h-auto w-full max-w-[1200px] mx-auto mt-[9%] bg-black flex flex-col items-center p-6 pt-44
+    
   return (
     <div className="min-h-screen bg-[#191919] flex flex-col justify-center items-center p-6 pt-44">
       <div className="max-w-6xl w-full bg-[#e5e7ea] shadow-lg rounded-[4rem] overflow-hidden flex flex-col md:flex-row h-auto md:h-[600px]">
@@ -115,9 +141,7 @@ export default function LocationPage({
           </div>
         )}
 
-        {/* Info & Map */}
         <div className="md:w-1/2 flex flex-col p-6 h-auto md:h-full">
-          {/* Basic info */}
           <div className="space-y-4 mb-6">
             <h2 className="text-2xl font-semibold text-gray-800">
               {restaurantInfo.title}
@@ -148,7 +172,6 @@ export default function LocationPage({
             </div>
           </div>
 
-          {/* Map */}
           <div className="w-full h-64 rounded-lg overflow-hidden h-auto md:h-full">
             {restaurantInfo.address ? (
               <iframe
@@ -167,7 +190,6 @@ export default function LocationPage({
         </div>
       </div>
 
-      {/* Contact Us Form */}
       <div className="bg-[#e5e7ea] rounded-lg p-4 mt-32 w-[500px]">
         <h1 className="text-x1 font-bold ">Contact Us</h1>
         <h3 className="text-xs pb-4">
@@ -187,7 +209,7 @@ export default function LocationPage({
               name="name"
               placeholder="Your Name"
               value={formData.name}
-              onChange={handleChange}
+              onChange={handleInputChange}
               className="w-full px-4 py-2 border rounded-md"
               required
             />
@@ -203,7 +225,7 @@ export default function LocationPage({
                 name="phone"
                 placeholder="Phone"
                 value={formData.phone}
-                onChange={handleChange}
+                onChange={handleInputChange}
                 className="w-full flex-1 px-4 py-2 border rounded-md"
                 required
               />
@@ -213,7 +235,7 @@ export default function LocationPage({
               name="message"
               placeholder="Message..."
               value={formData.message}
-              onChange={handleChange}
+              onChange={handleInputChange}
               className="w-full px-4 py-2 border rounded-md"
               rows={4}
               required
@@ -233,44 +255,12 @@ export default function LocationPage({
   );
 }
 
-export const getStaticProps: GetStaticProps<{
-  restaurantInfo: LocationInfo;
-}> = async () => {
-  const query = `*[_type == "location"][0]{
-    title,
-    address,
-    phone,
-    email,
-    images[] { 
-      _type,
-      asset->{
-        _id,
-        url
-      },
-      alt
-    }
-  }`;
-
+export const getStaticProps: GetStaticProps<{ restaurantInfo: LocationInfo }> = async () => {
+  const query = `*[_type == "location"][0]{title, address, phone, email, images[]{asset->{_id, url}, alt}}`;
   try {
     const restaurantInfo = await sanityClient.fetch<LocationInfo>(query);
-    return {
-      props: {
-        restaurantInfo: restaurantInfo,
-      },
-    };
-  } catch (error) {
-    console.error('Error fetching data:', error);
-    return {
-      props: {
-        restaurantInfo: {
-          title: '',
-          address: '',
-          phone: '',
-          email: '',
-          images: [],
-        },
-        error: 'Failed to load restaurant information.',
-      },
-    };
+    return { props: { restaurantInfo } };
+  } catch {
+    return { props: { restaurantInfo: { title: '', address: '', phone: '', email: '', images: [] } } };
   }
 };
