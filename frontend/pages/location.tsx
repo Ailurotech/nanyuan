@@ -69,7 +69,7 @@ export default function LocationPage({
   const handleDotClick = (index: number) => {
     setCurrentImageIndex(index);
   };
-// handle user input change
+  // handle user input change
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
@@ -110,10 +110,12 @@ export default function LocationPage({
     } catch (error) {
       if (error instanceof Error) {
         logErrorToService(error); // 记录错误
-        setErrorMessage(error.message || "Something went wrong. Please try again.");
+        setErrorMessage(
+          error.message || 'Something went wrong. Please try again.',
+        );
       } else {
-        logErrorToService(new Error("An unknown error occurred"));
-        setErrorMessage("Something went wrong. Please try again.");
+        logErrorToService(new Error('An unknown error occurred'));
+        setErrorMessage('Something went wrong. Please try again.');
       }
     } finally {
       setIsSubmitting(false);
