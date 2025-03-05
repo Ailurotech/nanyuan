@@ -88,10 +88,10 @@ export default function LocationPage({
    * performance when submitting forms or handling user input in rapid succession (e.g., typing).
    * This function makes sure that the submit action is executed only after a specified delay
    * has passed since the last call.
-   * 
+   *
    * @param {Function} submit - The actual function that will be called after the debounce delay.
    * @param {number} delay - The debounce delay in milliseconds. Default is 500ms.
-   * 
+   *
    * Example Usage:
    * const handleSubmit = debouncedSubmit(submitForm, 500);
    * handleSubmit(); // Will only trigger submitForm() after 500ms delay.
