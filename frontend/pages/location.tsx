@@ -2,13 +2,13 @@ import { FaPhone, FaMapMarker, FaEnvelope } from 'react-icons/fa';
 import { sanityClient } from '@/lib/sanityClient';
 import { GetStaticProps } from 'next';
 import { LocationInfo } from '@/types';
-import { useState, useEffect, useCallback} from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import imageUrlBuilder from '@sanity/image-url';
 import Image from 'next/image';
 import { debounce } from 'lodash';
 
 export function logErrorToService(error: Error) {
-  console.error("Logging error to service:", error);
+  console.error('Logging error to service:', error);
 }
 
 const builder = imageUrlBuilder(sanityClient);
@@ -38,7 +38,7 @@ export default function LocationPage({
     (source?: { asset?: { _id: string; url?: string } }) => {
       return source?.asset?.url ? builder.image(source).url() : FALLBACK_IMAGE;
     },
-    []
+    [],
   );
 
   useEffect(() => {
@@ -72,7 +72,7 @@ export default function LocationPage({
         setIsSubmitting(false);
       }
     }, 500),
-    []
+    [],
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -94,7 +94,7 @@ export default function LocationPage({
       if (error instanceof Error) {
         logErrorToService(error);
       } else {
-        console.error("An unknown error occurred", error);
+        console.error('An unknown error occurred', error);
       }
       setErrorMessage('Something went wrong. Please try again later.');
     } finally {
@@ -108,7 +108,7 @@ export default function LocationPage({
         Failed to load data. Please try again later.
       </div>
     );
-    
+
   return (
     <div className="min-h-screen bg-[#191919] flex flex-col justify-center items-center p-6 pt-44">
       <div className="max-w-6xl w-full bg-[#e5e7ea] shadow-lg rounded-[4rem] overflow-hidden flex flex-col md:flex-row h-auto md:h-[600px]">
@@ -255,12 +255,24 @@ export default function LocationPage({
   );
 }
 
-export const getStaticProps: GetStaticProps<{ restaurantInfo: LocationInfo }> = async () => {
+export const getStaticProps: GetStaticProps<{
+  restaurantInfo: LocationInfo;
+}> = async () => {
   const query = `*[_type == "location"][0]{title, address, phone, email, images[]{asset->{_id, url}, alt}}`;
   try {
     const restaurantInfo = await sanityClient.fetch<LocationInfo>(query);
     return { props: { restaurantInfo } };
   } catch {
-    return { props: { restaurantInfo: { title: '', address: '', phone: '', email: '', images: [] } } };
+    return {
+      props: {
+        restaurantInfo: {
+          title: '',
+          address: '',
+          phone: '',
+          email: '',
+          images: [],
+        },
+      },
+    };
   }
 };
