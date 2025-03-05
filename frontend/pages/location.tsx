@@ -82,7 +82,20 @@ export default function LocationPage({
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // debounced submit function to reduce API calls
+  /**
+   * debouncedSubmit is a function that delays the execution of the submit logic to avoid
+   * multiple calls to the submit function within a short period. It’s useful for optimizing
+   * performance when submitting forms or handling user input in rapid succession (e.g., typing).
+   * This function makes sure that the submit action is executed only after a specified delay
+   * has passed since the last call.
+   * 
+   * @param {Function} submit - The actual function that will be called after the debounce delay.
+   * @param {number} delay - The debounce delay in milliseconds. Default is 500ms.
+   * 
+   * Example Usage:
+   * const handleSubmit = debouncedSubmit(submitForm, 500);
+   * handleSubmit(); // Will only trigger submitForm() after 500ms delay.
+   */
   const debouncedSubmit = useMemo(
     () =>
       debounce(async (data) => {
@@ -244,7 +257,7 @@ export default function LocationPage({
           </div>
         </div>
       </div>
-      // pages/location.tsx (or your location page component file)
+
       <div className="bg-[#e5e7ea] rounded-lg p-4 mt-32 w-[500px]">
         <h1 className="text-xl font-bold">Contact Us</h1>{' '}
         <h3 className="text-xs pb-4">
