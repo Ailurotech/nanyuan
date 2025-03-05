@@ -6,14 +6,20 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import imageUrlBuilder from '@sanity/image-url';
 import Image from 'next/image';
 import { debounce } from 'lodash';
+import * as Sentry from '@sentry/react';
 
 // Error logging service
 export function logErrorToService(error: Error) {
-  console.error('Logging error to service:', error);
+  if (process.env.NODE_ENV === 'production') {
+    // Send error to Sentry
+    Sentry.captureException(error);
+  } else {
+    // For local development, log to console
+    console.error('Logging error to service:', error);
+  }
 }
 
 const builder = imageUrlBuilder(sanityClient);
-const FALLBACK_IMAGE = 'public/logo.png';
 
 interface LocationInfoProp {
   restaurantInfo: LocationInfo;
@@ -38,7 +44,7 @@ export default function LocationPage({
   // memorized function to get image URL
   const urlFor = useCallback(
     (source?: { asset?: { _id: string; url?: string } }) => {
-      return source?.asset?.url ? builder.image(source).url() : FALLBACK_IMAGE;
+      return source?.asset?.url ? builder.image(source).url() : 'public/logo.png';
     },
     [],
   );
@@ -96,6 +102,7 @@ export default function LocationPage({
     e.preventDefault();
     setIsSubmitting(true);
     setErrorMessage('');
+    debouncedSubmit(formData);
 
     try {
       await sanityClient.create({
@@ -109,7 +116,7 @@ export default function LocationPage({
       setFormData({ name: '', phone: '', message: '' });
     } catch (error) {
       if (error instanceof Error) {
-        logErrorToService(error); // 记录错误
+        logErrorToService(error); 
         setErrorMessage(
           error.message || 'Something went wrong. Please try again.',
         );
@@ -144,7 +151,7 @@ export default function LocationPage({
                 }`}
                 width={400}
                 height={300}
-                priority
+                priority={index === 0} 
               />
             ))}
             <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
