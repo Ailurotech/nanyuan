@@ -44,7 +44,9 @@ export default function LocationPage({
   // memorized function to get image URL
   const urlFor = useCallback(
     (source?: { asset?: { _id: string; url?: string } }) => {
-      return source?.asset?.url ? builder.image(source).url() : 'public/logo.png';
+      return source?.asset?.url
+        ? builder.image(source).url()
+        : 'public/logo.png';
     },
     [],
   );
@@ -116,7 +118,7 @@ export default function LocationPage({
       setFormData({ name: '', phone: '', message: '' });
     } catch (error) {
       if (error instanceof Error) {
-        logErrorToService(error); 
+        logErrorToService(error);
         setErrorMessage(
           error.message || 'Something went wrong. Please try again.',
         );
@@ -151,7 +153,7 @@ export default function LocationPage({
                 }`}
                 width={400}
                 height={300}
-                priority={index === 0} 
+                priority={index === 0}
               />
             ))}
             <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
