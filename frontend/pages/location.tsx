@@ -19,8 +19,6 @@ export function logErrorToService(error: Error) {
   }
 }
 
-const builder = imageUrlBuilder(sanityClient);
-
 interface LocationInfoProp {
   restaurantInfo: LocationInfo;
   error?: string;
@@ -41,14 +39,14 @@ export default function LocationPage({
   const [submitted, setSubmitted] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  // memorized function to get image URL
+  const builder = useRef(imageUrlBuilder(sanityClient)).current; // Store builder instance in useRef
   const urlFor = useCallback(
     (source?: { asset?: { _id: string; url?: string } }) => {
       return source?.asset?.url
         ? builder.image(source).url()
         : 'public/logo.png';
     },
-    [],
+    [builder], // Only recreate urlFor if builder changes (which in this case should not)
   );
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -100,10 +98,42 @@ export default function LocationPage({
     [],
   );
 
+  // Phone number validation
+  const validatePhoneNumber = (phone: string) => {
+    const phoneRegex = /^[0-9]{10}$/;
+    return phoneRegex.test(phone);
+  };
+
+  // Email validation
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(email);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setErrorMessage('');
+
+    // Validate form data
+    if (!formData.name || !formData.phone || !formData.message) {
+      setErrorMessage('All fields are required.');
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (!validatePhoneNumber(formData.phone)) {
+      setErrorMessage('Invalid phone number format.');
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (!validateEmail(formData.phone)) {
+      setErrorMessage('Invalid email format.');
+      setIsSubmitting(false);
+      return;
+    }
+
     debouncedSubmit(formData);
 
     try {
