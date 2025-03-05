@@ -5,11 +5,8 @@ import apiHandler from '@/lib/apiHandler';
 import { stripe } from '@/lib/stripeClient';
 import { errorMap } from '@/error/errorMap';
 
-
 const checkoutStripe = async (req: NextApiRequest, res: NextApiResponse) => {
-   
   try {
-
     const data = req.body;
     StripeValidator.validateAll(data);
 

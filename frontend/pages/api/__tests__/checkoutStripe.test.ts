@@ -1,11 +1,10 @@
 import { mockRequestResponse } from '@/test/requestMock';
 import checkoutStripe from '@/pages/api/checkoutStripe';
 import { testRequiredFields } from '@/test/requiredFieldsTest';
-import { stripeErrorTest } from '@/test/apiTest/ErrorTest';
+import { stripeErrorTest } from '@/test/apiTest/error';
 import { testValidation } from '@/test/validationTests';
 import { v4 as uuidv4 } from 'uuid';
-import { successfulTest } from '@/test/apiTest/Successful';
-
+import { successfulTest } from '@/test/apiTest/successful';
 
 jest.mock('stripe', () => {
   return jest.fn().mockImplementation(() => ({
@@ -18,7 +17,9 @@ jest.mock('stripe', () => {
 });
 
 import Stripe from 'stripe';
-const stripe = new Stripe('test-secret-key', { apiVersion: '2025-01-27.acacia' });
+const stripe = new Stripe('test-secret-key', {
+  apiVersion: '2025-01-27.acacia',
+});
 
 jest.mock('@/lib/apiHandler', () => () => ({
   post: jest.fn((handler) => handler),
@@ -43,11 +44,23 @@ const validOrder = {
 const requiredFields = ['orderId', 'email', 'items', 'totalPrice'];
 
 const validationCases = [
-  { field: 'email', invalidValue: 'invalid-email', expectedError: 'Format error' },
-  { field: 'phone', invalidValue: '1234567890123456', expectedError: 'Format error' },
+  {
+    field: 'email',
+    invalidValue: 'invalid-email',
+    expectedError: 'Format error',
+  },
+  {
+    field: 'phone',
+    invalidValue: '1234567890123456',
+    expectedError: 'Format error',
+  },
   { field: 'totalPrice', invalidValue: 'forty', expectedError: 'Format error' },
   { field: 'items', invalidValue: [], expectedError: 'Format error' },
-  { field: 'orderId', invalidValue: '1234567890123456789012345678901234567890', expectedError: 'Format error' },
+  {
+    field: 'orderId',
+    invalidValue: '1234567890123456789012345678901234567890',
+    expectedError: 'Format error',
+  },
 ];
 
 describe('✅ API Tests', () => {
@@ -66,5 +79,10 @@ describe('✅ API Tests', () => {
   testRequiredFields(requiredFields, validOrder, checkoutStripe);
   testValidation(validationCases, validOrder, checkoutStripe);
   stripeErrorTest(validOrder, checkoutStripe);
-  successfulTest(checkoutStripe, validOrder, { url: 'https://stripe-success-url.com' }, 'stripe');
+  successfulTest(
+    checkoutStripe,
+    validOrder,
+    { url: 'https://stripe-success-url.com' },
+    'stripe',
+  );
 });

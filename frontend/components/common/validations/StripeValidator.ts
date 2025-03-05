@@ -22,11 +22,22 @@ export const StripeValidator = {
       if (!item.price || typeof item.price !== 'number' || item.price <= 0) {
         throw new ValidationError(`Item ${index + 1} has an invalid price`);
       }
-      if (!item.quantity || typeof item.quantity !== 'number' || item.quantity < 1) {
+      if (
+        !item.quantity ||
+        typeof item.quantity !== 'number' ||
+        item.quantity < 1
+      ) {
         throw new ValidationError(`Item ${index + 1} has an invalid quantity`);
       }
-      if (!item.menuItem || typeof item.menuItem !== 'object' || item.menuItem._type !== 'reference' || typeof item.menuItem._ref !== 'string') {
-        throw new ValidationError(`Item ${index + 1} has an invalid menuItem reference`);
+      if (
+        !item.menuItem ||
+        typeof item.menuItem !== 'object' ||
+        item.menuItem._type !== 'reference' ||
+        typeof item.menuItem._ref !== 'string'
+      ) {
+        throw new ValidationError(
+          `Item ${index + 1} has an invalid menuItem reference`,
+        );
       }
     });
   },
@@ -39,7 +50,7 @@ export const StripeValidator = {
 
   validateStripeOrderId: (orderId: string) => {
     const uuidRegex =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;  
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     if (!uuidRegex.test(orderId)) {
       throw new ValidationError('Order ID must be a valid UUID');
     }

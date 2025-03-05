@@ -1,10 +1,10 @@
 import createTakeawayOrder from '../createTakeawayOrder';
 import { testRequiredFields } from '@/test/requiredFieldsTest';
 import { testValidation } from '@/test/validationTests';
-import { sanityErrorTest } from '@/test/apiTest/ErrorTest';
+import { sanityErrorTest } from '@/test/apiTest/error';
 import { DateTime } from 'luxon';
-import { successfulTest } from '@/test/apiTest/Successful'
-;
+import { successfulTest } from '@/test/apiTest/successful';
+
 jest.mock('@/lib/sanityClient', () => ({
   sanityClient: {
     create: jest.fn(),
@@ -88,4 +88,9 @@ const validationCases = [
 testRequiredFields(requiredFields, validOrder, createTakeawayOrder);
 testValidation(validationCases, validOrder, createTakeawayOrder);
 sanityErrorTest(validOrder, createTakeawayOrder);
-successfulTest(createTakeawayOrder, validOrder, { message: 'Order created successfully' }, 'sanity');
+successfulTest(
+  createTakeawayOrder,
+  validOrder,
+  { message: 'Order created successfully' },
+  'sanity',
+);
