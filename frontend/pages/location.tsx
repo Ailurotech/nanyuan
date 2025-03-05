@@ -2,7 +2,7 @@ import { FaPhone, FaMapMarker, FaEnvelope } from 'react-icons/fa';
 import { sanityClient } from '@/lib/sanityClient';
 import { GetStaticProps } from 'next';
 import { LocationInfo } from '@/types';
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import imageUrlBuilder from '@sanity/image-url';
 import Image from 'next/image';
 import { debounce } from 'lodash';
@@ -83,18 +83,19 @@ export default function LocationPage({
   };
 
   // debounced submit function to reduce API calls
-  const debouncedSubmit = useCallback(
-    debounce(async (data) => {
-      try {
-        await sanityClient.create({ _type: 'contact', ...data });
-        setSubmitted(true);
-        setFormData({ name: '', phone: '', message: '' });
-      } catch (error) {
-        setErrorMessage('Something went wrong. Please try again later.');
-      } finally {
-        setIsSubmitting(false);
-      }
-    }, 500),
+  const debouncedSubmit = useMemo(
+    () =>
+      debounce(async (data) => {
+        try {
+          await sanityClient.create({ _type: 'contact', ...data });
+          setSubmitted(true);
+          setFormData({ name: '', phone: '', message: '' });
+        } catch (error) {
+          setErrorMessage('Something went wrong. Please try again later.');
+        } finally {
+          setIsSubmitting(false);
+        }
+      }, 500),
     [],
   );
 
@@ -104,18 +105,7 @@ export default function LocationPage({
     return phoneRegex.test(phone);
   };
 
-  // Email validation
-  const validateEmail = (email: string) => {
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return emailRegex.test(email);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setErrorMessage('');
-
-    // Validate form data
+  const validateFormData = () => {
     if (!formData.name || !formData.phone || !formData.message) {
       setErrorMessage('All fields are required.');
       setIsSubmitting(false);
@@ -128,24 +118,30 @@ export default function LocationPage({
       return;
     }
 
-    if (!validateEmail(formData.phone)) {
-      setErrorMessage('Invalid email format.');
+    return true;
+  };
+
+  // Handle the actual form submission
+  const handleFormSubmit = async () => {
+    debouncedSubmit(formData);
+  };
+
+  // Main handleSubmit function refactored for clarity and separation of concerns
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setErrorMessage('');
+
+    // Validate the form data
+    const isValid = validateFormData();
+    if (!isValid) {
       setIsSubmitting(false);
       return;
     }
 
-    debouncedSubmit(formData);
-
     try {
-      await sanityClient.create({
-        _type: 'contact',
-        name: formData.name,
-        phone: formData.phone,
-        message: formData.message,
-      });
-
-      setSubmitted(true);
-      setFormData({ name: '', phone: '', message: '' });
+      // Call function to submit the data
+      await handleFormSubmit();
     } catch (error) {
       if (error instanceof Error) {
         logErrorToService(error);
@@ -248,21 +244,22 @@ export default function LocationPage({
           </div>
         </div>
       </div>
-
+      // pages/location.tsx (or your location page component file)
       <div className="bg-[#e5e7ea] rounded-lg p-4 mt-32 w-[500px]">
-        <h1 className="text-x1 font-bold ">Contact Us</h1>
+        <h1 className="text-xl font-bold">Contact Us</h1>{' '}
+        {/* Corrected text-xl */}
         <h3 className="text-xs pb-4">
-          Please fill your details for contact us
+          Please fill in your details to contact us
         </h3>
-
         {submitted ? (
           <p className="text-green-600">
-            Your message has been submitted and we will contact you as soon as
-            possible
+            Your message has been submitted, and we will contact you as soon as
+            possible.
           </p>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
-            <label className="chakra-test css-vcvutv font-bold">Name</label>
+            <label className="font-bold">Name</label>{' '}
+            {/* Consistent class name */}
             <input
               type="text"
               name="name"
@@ -272,9 +269,8 @@ export default function LocationPage({
               className="w-full px-4 py-2 border rounded-md"
               required
             />
-            <label className="chakra-test css-vcvutv font-bold">
-              Phone Number
-            </label>
+            <label className="font-bold">Phone Number</label>{' '}
+            {/* Consistent class name */}
             <div className="flex border rounded-md overflow-hidden">
               <span className="bg-gray-100 px-3 flex items-center text-gray-700">
                 +61
@@ -289,7 +285,8 @@ export default function LocationPage({
                 required
               />
             </div>
-            <label className="chakra-test css-vcvutv font-bold">Message</label>
+            <label className="font-bold">Message</label>{' '}
+            {/* Consistent class name */}
             <textarea
               name="message"
               placeholder="Message..."
@@ -299,14 +296,16 @@ export default function LocationPage({
               rows={4}
               required
             />
+            {errorMessage && <p className="text-red-600">{errorMessage}</p>}
             <button
               type="submit"
-              className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2 px-4 rounded-lg transition duration-200"
+              className={`w-full px-4 py-2 bg-yellow-500 text-white font-bold rounded-md ${
+                isSubmitting ? 'cursor-not-allowed opacity-50' : ''
+              }`}
               disabled={isSubmitting}
             >
               {isSubmitting ? 'Submitting...' : 'Submit'}
             </button>
-            {errorMessage && <p className="text-red-500">{errorMessage}</p>}
           </form>
         )}
       </div>

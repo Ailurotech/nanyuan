@@ -163,15 +163,15 @@ export interface LocationInfo {
   }>;
 }
 
-export interface SanityImage {
-  _type: 'image';
-  asset: {
-    _type: 'reference';
-    _id: string;
-    url: string;
-  };
-  alt?: string;
-  width?: number;
-  height?: number;
-  blurDataURL?: string;
-}
+// export interface SanityImage {
+//   _type: 'image';
+//   asset: {
+//     _type: 'reference';
+//     _id: string;
+//     url: string;
+//   };
+//   alt?: string;
+//   width?: number;
+//   height?: number;
+//   blurDataURL?: string;
+// }
