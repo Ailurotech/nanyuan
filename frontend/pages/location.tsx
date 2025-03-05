@@ -247,7 +247,6 @@ export default function LocationPage({
       // pages/location.tsx (or your location page component file)
       <div className="bg-[#e5e7ea] rounded-lg p-4 mt-32 w-[500px]">
         <h1 className="text-xl font-bold">Contact Us</h1>{' '}
-        {/* Corrected text-xl */}
         <h3 className="text-xs pb-4">
           Please fill in your details to contact us
         </h3>
@@ -259,7 +258,6 @@ export default function LocationPage({
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <label className="font-bold">Name</label>{' '}
-            {/* Consistent class name */}
             <input
               type="text"
               name="name"
@@ -270,7 +268,6 @@ export default function LocationPage({
               required
             />
             <label className="font-bold">Phone Number</label>{' '}
-            {/* Consistent class name */}
             <div className="flex border rounded-md overflow-hidden">
               <span className="bg-gray-100 px-3 flex items-center text-gray-700">
                 +61
@@ -286,7 +283,6 @@ export default function LocationPage({
               />
             </div>
             <label className="font-bold">Message</label>{' '}
-            {/* Consistent class name */}
             <textarea
               name="message"
               placeholder="Message..."
