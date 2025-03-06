@@ -22,7 +22,7 @@ export const WebhookValidator = {
     }
   },
 
-  validateWebhookEventSrequiredField: (event: any) => {
+  validateWebhookEventRequiredField: (event: any) => {
     if (!event || typeof event !== 'object') {
       throw new ValidationError('Invalid webhook payload');
     }
@@ -61,7 +61,7 @@ export const WebhookValidator = {
       signature,
     );
     WebhookValidator.validateRequiredFields(event, ['id', 'type', 'data']);
-    WebhookValidator.validateWebhookEventSrequiredField(event);
+    WebhookValidator.validateWebhookEventRequiredField(event);
     WebhookValidator.validateWebhookSecret(
       process.env.STRIPE_WEBHOOK_SECRET as string,
     );
