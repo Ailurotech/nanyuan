@@ -1,11 +1,11 @@
 import { BaseValidator } from './BaseValidator';
 import { ValidationError } from '@/error/validationError';
-import { OrderItem } from '@/types';
+import { OrderItem, OrderData } from '@/types';
 
 export const StripeValidator = {
   ...BaseValidator,
 
-  validateOrderFields: (data: any) => {
+  validateOrderFields: (data: OrderData) => {
     const requiredFields = ['orderId', 'email', 'items', 'totalPrice'];
     BaseValidator.validateRequiredFields(data, requiredFields);
   },
@@ -14,16 +14,16 @@ export const StripeValidator = {
     if (!Array.isArray(items) || items.length === 0) {
       throw new ValidationError('Order must contain at least one item');
     }
-    items.forEach((item) => {
-      if (
-        typeof item !== 'object' ||
-        !item.name ||
-        !item.price ||
-        !item.quantity
-      ) {
-        throw new ValidationError('Invalid item format');
-      }
+
+    const isValid = items.every((item) => {
+      return (
+        typeof item === 'object' && item.name && item.price && item.quantity
+      );
     });
+
+    if (!isValid) {
+      throw new ValidationError('Invalid item format');
+    }
   },
 
   validateStripeTotalPrice: (totalPrice: number) => {
@@ -40,7 +40,7 @@ export const StripeValidator = {
     }
   },
 
-  validateAll: (data: any) => {
+  validateAll: (data: OrderData) => {
     StripeValidator.validateOrderFields(data);
     StripeValidator.validateEmail(data.email);
     StripeValidator.validateStripeItems(data.items);
