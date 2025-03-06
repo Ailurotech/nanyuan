@@ -29,7 +29,7 @@ const validOrder = {
       menuItem: { _type: 'reference', _ref: 'menu123' },
     },
   ],
-  date: DateTime.local().plus({ days: 10 }).toISO(),
+  date: DateTime.local().plus({ days: 1 }).toISO(),
   status: 'Pending',
   totalPrice: 29.99,
   paymentMethod: 'online',
