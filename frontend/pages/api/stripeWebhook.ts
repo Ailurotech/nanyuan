@@ -60,7 +60,7 @@ export default apiHandler().post(
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ orderId }),
+          body: JSON.stringify({ orderId, type: "TakeAwayOrder" }),
         });
 
         if (!emailResponse.ok) {
