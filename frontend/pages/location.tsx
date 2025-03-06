@@ -40,14 +40,14 @@ export default function LocationPage({
   const [errorMessage, setErrorMessage] = useState('');
 
   const builder = useRef(imageUrlBuilder(sanityClient)).current; // Store builder instance in useRef
-  const urlFor = useCallback(
-    (source?: { asset?: { _id: string; url?: string } }) => {
+
+  const urlFor = useMemo(() => {
+    return (source?: { asset?: { _id: string; url?: string } }) => {
       return source?.asset?.url
         ? builder.image(source).url()
         : 'public/logo.png';
-    },
-    [builder], // Only recreate urlFor if builder changes (which in this case should not)
-  );
+    };
+  }, [builder]); // Memoizing the URL generation function
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -68,6 +68,7 @@ export default function LocationPage({
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
+        intervalRef.current = null;
       }
     };
   }, [restaurantInfo?.images.length, intervalTime]);
@@ -83,7 +84,7 @@ export default function LocationPage({
   };
 
   // Phone number validation
-  const phoneRegex = /^[0-9]{10}$/; // Cached regex pattern
+  const phoneRegex = /^\+?[1-9]\d{1,14}$/; // Cached regex pattern
 
   const validatePhoneNumber = (phone: string) => {
     return phoneRegex.test(phone); // Using cached regex pattern
@@ -107,7 +108,9 @@ export default function LocationPage({
 
   // Handle the actual form submission
   const handleFormSubmit = async () => {
-    debouncedSubmit(formData);
+    debouncedSubmit(formData, async (validatedData) => {
+      await sanityClient.create({ _type: 'contact', ...validatedData });
+    });
   };
 
   // Main handleSubmit function refactored for clarity and separation of concerns
