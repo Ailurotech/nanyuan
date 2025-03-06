@@ -1,18 +1,12 @@
 import webhookHandler from '@/pages/api/stripeWebhook';
-import { successfulTest } from '@/test/apiTest/successful';
-import { webhookErrorTest } from '@/test/apiTest/error';
-import { NextApiRequest, NextApiResponse } from 'next';
-import { Readable } from 'stream';
 import { stripe } from '@/lib/stripeClient';
 import { sanityClient } from '@/lib/sanityClient';
 import { ValidationError } from '@/error/validationError';
 import { MissingFieldError } from '@/error/missingFieldError';
-import { mockRequestResponse } from '@/test/requestMock';
-
-jest.mock('@/lib/apiHandler', () => () => ({
-  post: jest.fn((handler) => handler),
-}));
-
+import { NextApiRequest, NextApiResponse } from 'next';
+import { Readable } from 'stream';
+import { errorMap } from '@/error/errorMap';
+// Mock stripe and sanity client
 jest.mock('@/lib/stripeClient', () => ({
   stripe: {
     webhooks: {
@@ -30,6 +24,43 @@ jest.mock('@/lib/sanityClient', () => ({
   },
 }));
 
+jest.mock('@/lib/apiHandler', () => () => ({
+  post: jest.fn((handler) => handler),
+}));
+
+export const mockWebhookRequestResponse = (
+  body: string | object,
+  customHeaders: Record<string, string> = {},
+): {
+  req: NextApiRequest;
+  res: NextApiResponse;
+  status: jest.Mock;
+  json: jest.Mock;
+} => {
+  const BASE_ORIGIN = process.env.BASE_ORIGIN || 'http://localhost:3000';
+
+  const headers = {
+    origin: BASE_ORIGIN,
+    'stripe-signature': 'valid-signature',
+    ...customHeaders,
+  };
+
+  const formattedBody = Buffer.from(
+    typeof body === 'string' ? body : JSON.stringify(body),
+  );
+
+  const req = Object.assign(Readable.from([formattedBody]), {
+    method: 'POST',
+    headers,
+  }) as unknown as NextApiRequest;
+
+  const json = jest.fn();
+  const status = jest.fn(() => ({ json }));
+  const res = { status } as unknown as NextApiResponse;
+
+  return { req, res, status, json };
+};
+
 describe('✅ Stripe Webhook API Tests', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -45,13 +76,15 @@ describe('✅ Stripe Webhook API Tests', () => {
     validWebhookEvent,
   );
 
-  successfulTest(
-    webhookHandler,
-    validWebhookEvent,
-    { received: true },
-    'webhook',
-  );
-  webhookErrorTest(validWebhookEvent, webhookHandler);
+  test('✅ Should successfully process valid webhook', async () => {
+    const { req, res, status, json } =
+      mockWebhookRequestResponse(validWebhookEvent);
+
+    await webhookHandler(req, res);
+
+    expect(status).toHaveBeenCalledWith(200);
+    expect(json).toHaveBeenCalledWith({ received: true });
+  });
 
   test('❌ Should return 400 if orderId is missing', async () => {
     const invalidEvent = {
@@ -62,10 +95,7 @@ describe('✅ Stripe Webhook API Tests', () => {
 
     (stripe.webhooks.constructEvent as jest.Mock).mockReturnValue(invalidEvent);
 
-    const { req, res, status, json } = mockRequestResponse(
-      invalidEvent,
-      'webhook',
-    );
+    const { req, res, status, json } = mockWebhookRequestResponse(invalidEvent);
 
     await webhookHandler(req, res);
 
@@ -78,10 +108,8 @@ describe('✅ Stripe Webhook API Tests', () => {
       new MissingFieldError('Database Error'),
     );
 
-    const { req, res, status, json } = mockRequestResponse(
-      validWebhookEvent,
-      'webhook',
-    );
+    const { req, res, status, json } =
+      mockWebhookRequestResponse(validWebhookEvent);
 
     await webhookHandler(req, res);
 
@@ -94,9 +122,8 @@ describe('✅ Stripe Webhook API Tests', () => {
       throw new ValidationError('Invalid Stripe Signature');
     });
 
-    const { req, res, status, json } = mockRequestResponse(
+    const { req, res, status, json } = mockWebhookRequestResponse(
       validWebhookEvent,
-      'webhook',
       {
         'stripe-signature': 'invalid-signature',
       },

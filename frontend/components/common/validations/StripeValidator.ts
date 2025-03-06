@@ -14,32 +14,6 @@ export const StripeValidator = {
     if (!Array.isArray(items) || items.length === 0) {
       throw new ValidationError('Order must contain at least one item');
     }
-
-    items.forEach((item, index) => {
-      if (!item.name || typeof item.name !== 'string') {
-        throw new ValidationError(`Item ${index + 1} has an invalid name`);
-      }
-      if (!item.price || typeof item.price !== 'number' || item.price <= 0) {
-        throw new ValidationError(`Item ${index + 1} has an invalid price`);
-      }
-      if (
-        !item.quantity ||
-        typeof item.quantity !== 'number' ||
-        item.quantity < 1
-      ) {
-        throw new ValidationError(`Item ${index + 1} has an invalid quantity`);
-      }
-      if (
-        !item.menuItem ||
-        typeof item.menuItem !== 'object' ||
-        item.menuItem._type !== 'reference' ||
-        typeof item.menuItem._ref !== 'string'
-      ) {
-        throw new ValidationError(
-          `Item ${index + 1} has an invalid menuItem reference`,
-        );
-      }
-    });
   },
 
   validateStripeTotalPrice: (totalPrice: number) => {

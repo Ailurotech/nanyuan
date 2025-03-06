@@ -47,10 +47,7 @@ export const successfulTest = (
     });
 
     it(`✅ should successfully call ${apiType.toUpperCase()} API`, async () => {
-      const { req, res, status, json } = mockRequestResponse(
-        validData,
-        apiType,
-      );
+      const { req, res, status, json } = mockRequestResponse(validData);
       req.headers.origin = 'http://localhost:3000';
 
       await apiHandler(req, res);
