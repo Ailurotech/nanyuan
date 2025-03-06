@@ -7,7 +7,7 @@ import { stripe } from '@/lib/stripeClient';
 import { sanityClient } from '@/lib/sanityClient';
 import { ValidationError } from '@/error/validationError';
 import { MissingFieldError } from '@/error/missingFieldError';
-import { testRequiredFields } from '@/test/requiredFieldsTest';
+import { mockRequestResponse } from '@/test/requestMock';
 
 jest.mock('@/lib/apiHandler', () => () => ({
   post: jest.fn((handler) => handler),
@@ -29,33 +29,6 @@ jest.mock('@/lib/sanityClient', () => ({
     })),
   },
 }));
-
-const createMockRequestResponse = (
-  body: string | object,
-  apiType: 'webhook' | 'default' = 'default',
-  headers: Record<string, string> = {},
-) => {
-  const formattedBody = Buffer.from(
-    typeof body === 'string' ? body : JSON.stringify(body),
-  );
-
-  const req = Object.assign(Readable.from([formattedBody]), {
-    method: 'POST',
-    headers: {
-      origin: 'http://localhost:3000',
-      ...(apiType === 'webhook'
-        ? { 'stripe-signature': 'valid-signature' }
-        : {}),
-      ...headers,
-    },
-  }) as unknown as NextApiRequest;
-
-  const json = jest.fn();
-  const status = jest.fn(() => ({ json }));
-  const res = { status } as unknown as NextApiResponse;
-
-  return { req, res, status, json };
-};
 
 describe('✅ Stripe Webhook API Tests', () => {
   beforeEach(() => {
@@ -89,7 +62,7 @@ describe('✅ Stripe Webhook API Tests', () => {
 
     (stripe.webhooks.constructEvent as jest.Mock).mockReturnValue(invalidEvent);
 
-    const { req, res, status, json } = createMockRequestResponse(
+    const { req, res, status, json } = mockRequestResponse(
       invalidEvent,
       'webhook',
     );
@@ -105,7 +78,7 @@ describe('✅ Stripe Webhook API Tests', () => {
       new MissingFieldError('Database Error'),
     );
 
-    const { req, res, status, json } = createMockRequestResponse(
+    const { req, res, status, json } = mockRequestResponse(
       validWebhookEvent,
       'webhook',
     );
@@ -121,7 +94,7 @@ describe('✅ Stripe Webhook API Tests', () => {
       throw new ValidationError('Invalid Stripe Signature');
     });
 
-    const { req, res, status, json } = createMockRequestResponse(
+    const { req, res, status, json } = mockRequestResponse(
       validWebhookEvent,
       'webhook',
       {
