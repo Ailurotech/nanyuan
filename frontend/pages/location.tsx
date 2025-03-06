@@ -108,9 +108,9 @@ export default function LocationPage({
 
   // Handle the actual form submission
   const handleFormSubmit = async () => {
-    debouncedSubmit(formData, async (validatedData) => {
+    debouncedSubmit(async (validatedData) => {
       await sanityClient.create({ _type: 'contact', ...validatedData });
-    });
+    }, formData);
   };
 
   // Main handleSubmit function refactored for clarity and separation of concerns

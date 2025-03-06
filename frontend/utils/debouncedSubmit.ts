@@ -1,19 +1,22 @@
 import { debounce } from 'lodash';
-import { sanityClient } from '@/lib/sanityClient';
 
 /**
  * debouncedSubmit is a function that delays form submission to prevent multiple
  * rapid submissions. It ensures that the submit action is executed only after a
  * specified delay has passed since the last call.
  *
+ * @param {Function} submitFunction - A function that handles form submission (e.g., API call).
  * @param {Object} data - Form data containing name, phone, and message.
- *
- * Example Usage:
- * const handleSubmit = debouncedSubmit(submitForm, 500);
- * handleSubmit(); // Will only trigger submitForm() after 500ms delay.
  */
 export const debouncedSubmit = debounce(
-  async (data: { name: string; phone: string; message: string }) => {
+  async (
+    submitFunction: (data: {
+      name: string;
+      phone: string;
+      message: string;
+    }) => Promise<void>,
+    data: { name: string; phone: string; message: string },
+  ) => {
     try {
       // Data sanitization (trim spaces, replace multiple spaces with a single space)
       const sanitizedData = {
@@ -36,8 +39,8 @@ export const debouncedSubmit = debounce(
         throw new Error('Invalid phone number format.');
       }
 
-      // Submit to Sanity
-      await sanityClient.create({ _type: 'contact', ...sanitizedData });
+      // Call the provided submission function
+      await submitFunction(sanitizedData);
       console.log('Form submitted successfully!');
     } catch (error: any) {
       console.error('Form submission error:', error.message);
