@@ -1,64 +1,62 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import Stripe from 'stripe';
-import { sanityClient } from '@/lib/sanityClient';
 import { buffer } from 'node:stream/consumers';
 import apiHandler from '@/lib/apiHandler';
-
+import { stripe } from '@/lib/stripeClient';
+import { sanityClient } from '@/lib/sanityClient';
+import { Stripe } from 'stripe';
+import { errorMap } from '@/error/errorMap';
+import { WebhookValidator } from '@/components/common/validations/webhookValidator';
+import { ValidationError } from '@/error/validationError';
 export const config = {
   api: {
     bodyParser: false,
   },
 };
 
-const sessionStatus: { [key: string]: string } = {
+const sessionStatusMap: Record<string, string> = {
   'checkout.session.completed': 'Paid',
   'checkout.session.expired': 'Cancelled',
 };
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: '2025-01-27.acacia',
-});
+const stripeWebhook = async (req: NextApiRequest, res: NextApiResponse) => {
+  try {
+    if (req.method !== 'POST') {
+      return res.status(405).json({ error: 'Method Not Allowed' });
+    }
 
-export default apiHandler().post(
-  async (req: NextApiRequest, res: NextApiResponse) => {
     const sig = req.headers['stripe-signature'];
     const rawBody = await buffer(req);
 
-    try {
-      const event = stripe.webhooks.constructEvent(
-        rawBody,
-        sig as string,
-        process.env.STRIPE_WEBHOOK_SECRET as string,
-      );
+    WebhookValidator.validateAll(rawBody, sig as string);
 
-      console.log(`✅ Webhook received: ${event.type}`);
+    const event = stripe.webhooks.constructEvent(
+      rawBody,
+      sig as string,
+      process.env.STRIPE_WEBHOOK_SECRET as string,
+    );
 
-      if (
-        event.type === 'checkout.session.completed' ||
-        event.type === 'checkout.session.expired'
-      ) {
-        const session = event.data.object as Stripe.Checkout.Session;
-        const orderId = session.metadata?.orderId;
+    const newStatus = sessionStatusMap[event.type];
 
-        if (!orderId) {
-          console.warn('❌ No orderId found in metadata');
-          return res.status(400).json({ error: 'Missing orderId' });
-        }
-
-        await sanityClient
-          .patch(orderId)
-          .set({ status: sessionStatus[event.type] })
-          .commit();
-
-        console.log(
-          `✅ Order ${orderId} updated to "${sessionStatus[event.type]}"`,
-        );
-      }
-
-      res.status(200).json({ received: true });
-    } catch (error) {
-      console.error('❌ Stripe Webhook Error:', error);
-      res.status(400).json({ error: 'Webhook Error' });
+    if (newStatus) {
+      const session = event.data.object as Stripe.Checkout.Session;
+      const orderId = session.metadata?.orderId;
+      await sanityClient
+        .patch(orderId as string)
+        .set({ status: newStatus })
+        .commit();
     }
-  },
-);
+
+    res.status(200).json({ received: true });
+  } catch (error) {
+    if (error instanceof Error) {
+      const errorName = error.name;
+      const errorInfo = errorMap.get(errorName);
+      return res
+        .status(errorInfo?.status || 500)
+        .json({ error: errorInfo?.message || 'Internal server error' });
+    }
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export default apiHandler().post(stripeWebhook);

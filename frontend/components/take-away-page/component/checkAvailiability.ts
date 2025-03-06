@@ -1,3 +1,4 @@
+import { OrderItem } from '@/types';
 import { DateTime } from 'luxon';
 
 interface ValidationResult {
@@ -34,6 +35,16 @@ export const validatePrice = (price: number): ValidationResult => {
     return { success: false, errorMessage: 'Price must be greater than zero.' };
   } else if (price >= 1000) {
     return { success: false, errorMessage: 'Please call us to order.' };
+  }
+  return { success: true };
+};
+
+export const validateOrderItem = (orderItem: OrderItem[]): ValidationResult => {
+  if (orderItem.length === 0) {
+    return {
+      success: false,
+      errorMessage: 'Please add at least one item to your order.',
+    };
   }
   return { success: true };
 };
