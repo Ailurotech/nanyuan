@@ -61,6 +61,7 @@ export const WebhookValidator = {
     switch (event.type) {
       case 'checkout.session.completed':
         WebhookValidator.validateCheckoutSessionCompleted(event);
+      case 'checkout.session.expired':
         break;
       default:
         throw new ValidationError(`Unhandled event type: ${event.type}`);

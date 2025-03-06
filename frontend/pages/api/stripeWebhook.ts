@@ -6,7 +6,7 @@ import { sanityClient } from '@/lib/sanityClient';
 import { Stripe } from 'stripe';
 import { errorMap } from '@/error/errorMap';
 import { WebhookValidator } from '@/components/common/validations/webhookValidator';
-
+import { ValidationError } from '@/error/validationError';
 export const config = {
   api: {
     bodyParser: false,
