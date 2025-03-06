@@ -7,15 +7,15 @@ import sanitizeMiddleware from '@/lib/sanitizeMiddleware';
 import securityHeaders from '@/lib/securityHeaders';
 
 const apiHandler = () => {
-  return nextConnect<NextApiRequest, NextApiResponse>()
-    .use(async (req, res, next) => {
-      await applyRateLimit(req, res);
-      next();
-    })
-    .use(ipFilter)
-    .use(corsMiddleware)
-    .use(sanitizeMiddleware)
-    .use(securityHeaders);
+  return nextConnect<NextApiRequest, NextApiResponse>();
+  //.use(async (req, res, next) => {
+  //  await applyRateLimit(req, res);
+  //  next();
+  // })
+  //.use(ipFilter)
+  //.use(corsMiddleware)
+  // .use(sanitizeMiddleware)
+  //.use(securityHeaders);
 };
 
 export default apiHandler;

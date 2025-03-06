@@ -22,7 +22,7 @@ export const WebhookValidator = {
     }
   },
 
-  validateWebhookEventStructure: (event: any) => {
+  validateWebhookEventSrequiredField: (event: any) => {
     if (!event || typeof event !== 'object') {
       throw new ValidationError('Invalid webhook payload');
     }
@@ -38,11 +38,16 @@ export const WebhookValidator = {
     if (!metadata || typeof metadata !== 'object') {
       throw new MissingFieldError('Missing metadata in event');
     }
+    BaseValidator.validateRequiredFields(metadata, ['orderId']);
   },
 
-  validateCheckoutSessionCompleted: (event: any) => {
-    if (event.type !== 'checkout.session.completed') return;
+  validateWebhookSecret: (secret: string) => {
+    if (!secret) {
+      throw new MissingFieldError('Missing webhook secret');
+    }
+  },
 
+  validateCheckoutSessionCrequiredField: (event: any) => {
     WebhookValidator.validateMetadataExists(event.data.object.metadata);
 
     if (!event.data.object.metadata.orderId) {
@@ -56,11 +61,13 @@ export const WebhookValidator = {
       signature,
     );
     WebhookValidator.validateRequiredFields(event, ['id', 'type', 'data']);
-    WebhookValidator.validateWebhookEventStructure(event);
-
+    WebhookValidator.validateWebhookEventSrequiredField(event);
+    WebhookValidator.validateWebhookSecret(
+      process.env.STRIPE_WEBHOOK_SECRET as string,
+    );
     switch (event.type) {
       case 'checkout.session.completed':
-        WebhookValidator.validateCheckoutSessionCompleted(event);
+        WebhookValidator.validateCheckoutSessionCrequiredField(event);
       case 'checkout.session.expired':
         break;
       default:

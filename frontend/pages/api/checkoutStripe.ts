@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { OrderItem } from '@/types';
+import { OrderItem, OrderData } from '@/types';
 import { StripeValidator } from '@/components/common/validations/StripeValidator';
 import apiHandler from '@/lib/apiHandler';
 import { stripe } from '@/lib/stripeClient';
@@ -7,16 +7,16 @@ import { errorMap } from '@/error/errorMap';
 
 const checkoutStripe = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
-    const data = req.body;
-    StripeValidator.validateAll(data);
+    const orderData = req.body;
+    StripeValidator.validateAll(orderData);
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       mode: 'payment',
       success_url: `${req.headers.origin}/order-success`,
       cancel_url: `${req.headers.origin}/takeaway`,
-      customer_email: data.email,
-      line_items: data.items.map((item: OrderItem) => ({
+      customer_email: orderData.email,
+      line_items: orderData.items.map((item: OrderItem) => ({
         price_data: {
           currency: 'aud',
           product_data: { name: item.name },
@@ -25,10 +25,10 @@ const checkoutStripe = async (req: NextApiRequest, res: NextApiResponse) => {
         quantity: item.quantity,
       })),
       metadata: {
-        orderId: data.orderId,
-        phone: data.phone,
-        name: data.name,
-        email: data.email,
+        orderId: orderData.orderId,
+        phone: orderData.phone,
+        name: orderData.name,
+        email: orderData.email,
       },
     });
     res.status(200).json({ url: session.url });

@@ -27,13 +27,13 @@ const stripeWebhook = async (req: NextApiRequest, res: NextApiResponse) => {
     const sig = req.headers['stripe-signature'];
     const rawBody = await buffer(req);
 
+    WebhookValidator.validateAll(rawBody, sig as string);
+
     const event = stripe.webhooks.constructEvent(
       rawBody,
       sig as string,
       process.env.STRIPE_WEBHOOK_SECRET as string,
     );
-
-    WebhookValidator.validateAll(rawBody, sig as string);
 
     const newStatus = sessionStatusMap[event.type];
 
@@ -48,7 +48,6 @@ const stripeWebhook = async (req: NextApiRequest, res: NextApiResponse) => {
 
     res.status(200).json({ received: true });
   } catch (error) {
-    console.error(error);
     if (error instanceof Error) {
       const errorName = error.name;
       const errorInfo = errorMap.get(errorName);

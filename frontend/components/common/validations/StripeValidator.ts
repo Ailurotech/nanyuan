@@ -14,6 +14,16 @@ export const StripeValidator = {
     if (!Array.isArray(items) || items.length === 0) {
       throw new ValidationError('Order must contain at least one item');
     }
+    items.forEach((item) => {
+      if (
+        typeof item !== 'object' ||
+        !item.name ||
+        !item.price ||
+        !item.quantity
+      ) {
+        throw new ValidationError('Invalid item format');
+      }
+    });
   },
 
   validateStripeTotalPrice: (totalPrice: number) => {
