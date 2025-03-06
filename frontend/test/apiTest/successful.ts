@@ -43,7 +43,7 @@ export const successfulTest = (
     });
 
     afterEach(() => {
-      jest.restoreAllMocks(); // ✅ 清除所有 Mock 避免影响其他测试
+      jest.restoreAllMocks();
     });
 
     it(`✅ should successfully call ${apiType.toUpperCase()} API`, async () => {

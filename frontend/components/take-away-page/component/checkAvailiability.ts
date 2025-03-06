@@ -41,7 +41,10 @@ export const validatePrice = (price: number): ValidationResult => {
 
 export const validateOrderItem = (orderItem: OrderItem[]): ValidationResult => {
   if (orderItem.length === 0) {
-    return { success: false, errorMessage: 'Please add at least one item to your order.' };
+    return {
+      success: false,
+      errorMessage: 'Please add at least one item to your order.',
+    };
   }
   return { success: true };
 };
