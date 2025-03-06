@@ -18,7 +18,7 @@ export const WebhookValidator = {
         process.env.STRIPE_WEBHOOK_SECRET as string,
       );
     } catch (error) {
-      throw new ValidationError('Invalid Stripe Signature111');
+      throw new ValidationError('Invalid Stripe Signature');
     }
   },
 
