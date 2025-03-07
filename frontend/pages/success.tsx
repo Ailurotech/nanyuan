@@ -10,13 +10,13 @@ const SuccessPage = () => {
       <div className="bg-[#e5e7ea] p-4 flex flex-col gap-8 rounded-lg max-w-[500px]">
         {source === 'takeaway' ? (
           <h1 className="font-sans font-bold text-[28px] leading-[38.14px] text-black">
-            <span className="block">Your payment was successful! 👍 </span>
-            <span className="block">Thank you for ordering! 😊 </span>
+            <span className="block">Your payment was successful! </span>
+            <span className="block">Thank you for ordering! </span>
           </h1>
         ) : source === 'book-a-table' ? (
           <h1 className="font-sans font-bold text-[28px] leading-[38.14px] text-black">
-            <span className="block">Your table is booked!👍</span>
-            <span className="block">Enjoy your meal! 😊</span>
+            <span className="block">Your table is booked!</span>
+            <span className="block">Enjoy your meal! </span>
           </h1>
         ) : (
           <h1 className="font-sans font-bold text-[28px] leading-[38.14px] text-black">
