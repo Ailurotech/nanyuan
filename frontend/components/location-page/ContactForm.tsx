@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { contactFormSchema, ContactFormData } from '@/utils/validators';
 import { useState } from 'react';
+import { useDebouncedSubmit } from '@/utils/debouncedSubmit';
 
 export default function ContactForm() {
   const [submitted, setSubmitted] = useState(false);
@@ -16,7 +17,7 @@ export default function ContactForm() {
     resolver: zodResolver(contactFormSchema),
   });
 
-  const onSubmit = async (data: ContactFormData) => {
+  const debouncedSubmit = useDebouncedSubmit(async (data: ContactFormData) => {
     try {
       const response = await fetch('/api/contact', {
         method: 'POST',
@@ -40,6 +41,10 @@ export default function ContactForm() {
       console.error('Error submitting form:', error);
       setErrorMessage('Something went wrong. Please try again.');
     }
+  });
+
+  const onSubmit = async (data: ContactFormData) => {
+    debouncedSubmit(data);
   };
 
   return (

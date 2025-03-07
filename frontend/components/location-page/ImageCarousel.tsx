@@ -13,7 +13,6 @@ export default function ImageSlider({
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // 调试日志：检查传入的 images 数组
   useEffect(() => {
     console.log('Received images:', images);
   }, [images]);
@@ -42,7 +41,6 @@ export default function ImageSlider({
 
   return (
     <div className="flex flex-col items-center w-full max-w-[600px] mx-auto my-8 px-8">
-      {/* 图片容器 */}
       <div className="relative w-full h-[620px] overflow-hidden rounded-[4rem]">
         {images.map((img, index) => (
           <Image
@@ -59,7 +57,6 @@ export default function ImageSlider({
         ))}
       </div>
 
-      {/* 小圆点导航 */}
       <div className="flex space-x-2 mt-4">
         {images.map((_, index) => (
           <button
