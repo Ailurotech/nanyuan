@@ -11,23 +11,32 @@ const createReservation = async (req: NextApiRequest, res: NextApiResponse) => {
 
     ReservationValidator.validateAll(data);
     await sanityClient.create(data);
-    
+
     // Get table type
     const tableId: string = data.table._ref;
     const tableType: string = await sanityClient.fetch(
       `*[_type == "table" && _id == $tableId][0].type`,
-      { tableId }
+      { tableId },
     );
-       
+
     // Send request to api to send confirmation email
-    const emailResponse = await fetch(`${process.env.SERVER_BASE_URL}/api/confirmationEmail`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({...data, table: tableType + "-person Table", type: 'Reservation'}),
-    });
+    const emailResponse = await fetch(
+      `${process.env.SERVER_BASE_URL}/api/confirmationEmail`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...data,
+          table: tableType + '-person Table',
+          type: 'Reservation',
+        }),
+      },
+    );
 
     if (!emailResponse.ok) {
-      return res.status(500).json({ error: 'Failed to send confirmation email' });
+      return res
+        .status(500)
+        .json({ error: 'Failed to send confirmation email' });
     }
 
     return res
