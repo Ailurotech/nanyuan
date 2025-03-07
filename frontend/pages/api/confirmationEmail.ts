@@ -1,10 +1,13 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import apiHandler from "@/lib/apiHandler";
 import { sanityClient } from "@/lib/sanityClient";
-import sgMail from "@sendgrid/mail";
+import mailgun from "mailgun-js";
 
-// Sendgrid API key
-sgMail.setApiKey(process.env.SENDGRID_API_KEY as string);
+// Configuration for Mailgun
+const mailgunClient = mailgun({
+  apiKey: process.env.MAILGUN_API_KEY as string,
+  domain: process.env.MAILGUN_DOMAIN as string,
+});
 
 // type for orderDetails
 interface OrderDetails {
@@ -35,6 +38,14 @@ interface ReservationInfo {
   notes: string;
 }
 
+// type for EmailContent
+interface EmailContent {
+  from: string;
+  to: string;
+  subject: string;
+  html: string;
+}
+
 export default apiHandler().post(async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     const { type }: { type: "TakeAwayOrder" | "Reservation" } = req.body;
@@ -43,12 +54,14 @@ export default apiHandler().post(async (req: NextApiRequest, res: NextApiRespons
       return res.status(400).json({ error: "Missing required field: type" });
     }
 
+    let emailContent: EmailContent | null = null;
+
     if (type === "TakeAwayOrder") {
       const { orderId }: { orderId: string } = req.body;
       
       // Validate the required fields
       if (!orderId) {
-        return res.status(400).json({ error: "Missing required field orderId" });
+        return res.status(400).json({ error: "Missing required field: orderId" });
       }
 
       // Fetch order items
@@ -74,8 +87,8 @@ export default apiHandler().post(async (req: NextApiRequest, res: NextApiRespons
       );    
       
       // Define the email content
-      const emailContent = {
-        from: `${process.env.SENDGRID_SENDER_EMAIL}`,
+      emailContent = {
+        from: `Nanyuan restaurant <${process.env.SENDER_EMAIL}>`,
         to: orderDetails.email,
         subject: 'Order Confirmation',
         html: `
@@ -120,18 +133,13 @@ export default apiHandler().post(async (req: NextApiRequest, res: NextApiRespons
             <p>The Nan Yuan Restaurant</p>
           </div>
         `,
-      };
-
-      // Send the email
-      await sgMail.send(emailContent);
-
-      return res.status(200).json({ message: 'Email sent successfully.' });
+      };      
     } else if (type === "Reservation") {
       const reservationInfo: ReservationInfo = req.body;
 
       // Define email content
-      const emailContent = {
-        from: `${process.env.SENDGRID_SENDER_EMAIL}`,
+      emailContent = {
+        from: `Nanyuan restaurant <${process.env.SENDER_EMAIL}>`,
         to: reservationInfo.email,
         subject: 'Reservation Confirmation',
         html: `
@@ -158,13 +166,17 @@ export default apiHandler().post(async (req: NextApiRequest, res: NextApiRespons
           </div>
         `,
       };
-
-      // Send the email
-      await sgMail.send(emailContent);
-
-      return res.status(200).json({ message: 'Email sent successfully.' });
     }
-  } catch (error) {
+    
+    // Check if the email content is defined
+    if (!emailContent) {
+      return res.status(400).json({ error: 'Email content is missing.' });
+    }
+
+    // Send the email
+    await mailgunClient.messages().send(emailContent);
+    return res.status(200).json({ message: 'Email sent successfully.' });
+  } catch (error: unknown) {
     return res.status(500).json({ error: 'Failed to send email.' });
   }
 });
