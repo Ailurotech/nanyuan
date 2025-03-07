@@ -35,7 +35,6 @@ type FormData = {
 };
 
 export function BooktablePage({ restaurant, table }: BooktablePageProps) {
-
   const {
     SendOtp,
     handleVerifyOtp,
@@ -110,21 +109,33 @@ export function BooktablePage({ restaurant, table }: BooktablePageProps) {
       const validationResult = await runValidations([
         () => validateInitialConditions(verifyOtp, data.guests, table),
         () => validateReservationTime(data.date, data.time),
-        () => validateTableAvailabilityAndConflicts(table, data.guests, data.date, data.time),
+        () =>
+          validateTableAvailabilityAndConflicts(
+            table,
+            data.guests,
+            data.date,
+            data.time,
+          ),
       ]);
-  
-      const apiUrl = process.env.NEXT_PUBLIC_CREATE_RESERVATION_URL || '';
-      if (!apiUrl) throw new Error('API URL is missing');
-      const { data: result } = await axios.post(apiUrl, {
-        data,
-        tableId: validationResult.tableId, 
-      });
 
+      const createReservationData = {
+        _type: 'reservation',
+        time: `${data.date}T${data.time}`,
+        table: { _type: 'reference', _ref: validationResult.tableId },
+        name: data.name,
+        phone: data.phone,
+        email: data.email,
+        guests: data.guests,
+        preference: data.preference,
+        notes: data.notes,
+      };
+
+      await axios.post('/api/createReservations', createReservationData);
     } catch (error) {
       console.error('Error during reservation:', error);
     }
   };
-  
+
   const phoneClickHandler = async () => {
     const result = await trigger('phone');
     const phone = getValues('phone');

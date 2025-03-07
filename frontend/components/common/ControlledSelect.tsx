@@ -11,24 +11,26 @@ interface Option {
   label: string;
 }
 
-interface ControlledSelectProps<TFieldValues extends FieldValues = FieldValues> {
+interface ControlledSelectProps<
+  TFieldValues extends FieldValues = FieldValues,
+> {
   label: string;
   name: FieldPath<TFieldValues>;
   control: Control<TFieldValues>;
-  options: Option[]; 
+  options: Option[];
 }
 
 export function ControlledSelect<TFieldValues extends FieldValues>({
   label,
   name,
   control,
-  options, 
+  options,
 }: ControlledSelectProps<TFieldValues>) {
   const {
     field,
     fieldState: { error },
-  } = useController({ 
-    name, 
+  } = useController({
+    name,
     control,
   });
 

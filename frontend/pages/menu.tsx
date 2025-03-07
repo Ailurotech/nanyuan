@@ -1,11 +1,17 @@
 import { GetStaticProps } from 'next';
 import { MenuItem, ShoppingCartItem, Category } from '../types';
 import MenuCard from '../components/menupage/MenuCard';
-import { fetchMenuItems, fetchTotalCount, fetchCategories, fetchPageSize } from '@/components/menupage/menuService';
+import {
+  fetchMenuItems,
+  fetchTotalCount,
+  fetchCategories,
+  fetchPageSize,
+} from '@/components/menupage/menuService';
 import { useState, useEffect } from 'react';
 import { RiShoppingBagLine } from 'react-icons/ri';
 import Link from 'next/link';
 import { ShoppingCart } from '@/components/homepage/route';
+import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 
 interface MenuProps {
   initialMenuItems: MenuItem[];
@@ -15,27 +21,55 @@ interface MenuProps {
   pageSize: number;
 }
 
-const MenuPage = ({ initialMenuItems, initialCategories, totalCount, totalPages, pageSize }: MenuProps) => {
+const MenuPage = ({
+  initialMenuItems,
+  initialCategories,
+  totalCount,
+  totalPages,
+  pageSize,
+}: MenuProps) => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>(initialMenuItems);
   const [cart, setCart] = useState<ShoppingCartItem[]>([]);
   const [cartCount, setCartCount] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [loadingError, setLoadingError] = useState<string | null>(null); // State for loading error
 
-  const categories = ['All', ...Array.from(new Set(initialCategories.map((cat) => cat.name)))];
+  const categories = [
+    'All',
+    ...Array.from(new Set(initialCategories.map((cat) => cat.name))),
+  ];
 
   useEffect(() => {
-    const cartData = localStorage.getItem('cart');
-    if (cartData) {
-      const parsedCart = JSON.parse(cartData);
-      setCart(parsedCart);
-      setCartCount(
-        parsedCart.reduce(
-          (total: number, item: ShoppingCartItem) => total + item.quantity,
-          0,
-        ),
-      );
+    try {
+      const cartData = localStorage.getItem('cart');
+      if (cartData) {
+        const parsedCart = JSON.parse(cartData);
+
+        // Check if the parsed cart is an array
+        if (Array.isArray(parsedCart)) {
+          setCart(parsedCart);
+          setCartCount(
+            parsedCart.reduce(
+              (total: number, item: ShoppingCartItem) => total + item.quantity,
+              0,
+            ),
+          );
+        } else {
+          // If the parsed cart is not an array, set it as an empty array
+          setCart([]);
+          setCartCount(0);
+        }
+      } else {
+        // If cart data is not found, set it as an empty array
+        setCart([]);
+        setCartCount(0);
+      }
+    } catch (error) {
+      // Set cart to an empty array
+      setCart([]);
+      setCartCount(0);
     }
   }, []);
 
@@ -54,7 +88,24 @@ const MenuPage = ({ initialMenuItems, initialCategories, totalCount, totalPages,
     localStorage.setItem('cart', JSON.stringify(updatedCart));
   };
 
+  const removeFromCart = (item: MenuItem) => {
+    const updatedCart = cart
+      .map((cartItem) =>
+        cartItem._id === item._id
+          ? { ...cartItem, quantity: cartItem.quantity - 1 }
+          : cartItem,
+      )
+      .filter((cartItem) => cartItem.quantity > 0);
+
+    setCart(updatedCart);
+    setCartCount(
+      updatedCart.reduce((total, cartItem) => total + cartItem.quantity, 0),
+    );
+    localStorage.setItem('cart', JSON.stringify(updatedCart));
+  };
+
   const handleCategoryClick = async (category: string) => {
+    setLoadingError(null);
     setSelectedCategory(category);
     setIsLoading(true);
     try {
@@ -62,11 +113,10 @@ const MenuPage = ({ initialMenuItems, initialCategories, totalCount, totalPages,
         category === 'All'
           ? await fetchMenuItems(category, 0, pageSize)
           : await fetchMenuItems(category);
-
       setMenuItems(fetchedMenuItems);
       setCurrentPage(category === 'All' ? 1 : currentPage);
     } catch (error) {
-      console.error('Error fetching menu items:', error);
+      setLoadingError('Failed to load menu items. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -74,20 +124,23 @@ const MenuPage = ({ initialMenuItems, initialCategories, totalCount, totalPages,
 
   const handlePageChange = async (page: number) => {
     if (selectedCategory !== 'All') return;
-  
+
     setIsLoading(true);
     try {
-      const offset = (page - 1) * pageSize; 
-      const fetchedMenuItems = await fetchMenuItems(selectedCategory, offset, pageSize);
+      const offset = (page - 1) * pageSize;
+      const fetchedMenuItems = await fetchMenuItems(
+        selectedCategory,
+        offset,
+        pageSize,
+      );
       setMenuItems(fetchedMenuItems);
-      setCurrentPage(page); 
+      setCurrentPage(page);
     } catch (error) {
-      console.error('Error fetching paginated menu items:', error);
+      setLoadingError('Failed to load menu items. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
-  
 
   return (
     <div className="bg-black min-h-screen py-12 pt-40">
@@ -98,6 +151,8 @@ const MenuPage = ({ initialMenuItems, initialCategories, totalCount, totalPages,
         <Link
           href={ShoppingCart.Path}
           className="text-white absolute right-0 md:mr-12 mr-2 mb-8 hover:text-yellow-400"
+          aria-label="View shopping cart"
+          title="View shopping cart"
         >
           <div className="relative">
             <RiShoppingBagLine className="w-7 h-7" />
@@ -121,16 +176,43 @@ const MenuPage = ({ initialMenuItems, initialCategories, totalCount, totalPages,
             }`}
             onClick={() => handleCategoryClick(category)}
             disabled={isLoading && selectedCategory === category}
+            aria-disabled={isLoading && selectedCategory === category}
+            aria-label={`Filter by ${category}`}
+            style={
+              isLoading && selectedCategory === category
+                ? { opacity: 0.5, cursor: 'not-allowed' }
+                : {}
+            }
           >
-            {isLoading && selectedCategory === category ? 'Loading...' : category}
+            {category}
           </button>
         ))}
       </div>
 
       <div className="container mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10 px-5 justify-items-center">
-        {menuItems.map((item) => (
-          <MenuCard key={item._id} menuItems={item} addToCart={addToCart} />
-        ))}
+        {isLoading ? (
+          <LoadingSpinner />
+        ) : loadingError ? (
+          <div
+            className="flex justify-center items-center col-span-full"
+            role="alert"
+            aria-live="assertive"
+            aria-describedby="error-message"
+          >
+            <p id="error-message" className="text-center text-red-500 mb-4">
+              {loadingError}
+            </p>
+          </div>
+        ) : (
+          menuItems.map((item) => (
+            <MenuCard
+              key={item._id}
+              menuItems={item}
+              addToCart={addToCart}
+              removeFromCart={removeFromCart}
+            />
+          ))
+        )}
       </div>
 
       {selectedCategory === 'All' && totalPages > 1 && (
@@ -145,6 +227,8 @@ const MenuPage = ({ initialMenuItems, initialCategories, totalCount, totalPages,
               }`}
               onClick={() => handlePageChange(page)}
               disabled={isLoading}
+              aria-label={`Go to page ${page}`}
+              aria-current={currentPage === page ? 'page' : undefined}
             >
               {page}
             </button>

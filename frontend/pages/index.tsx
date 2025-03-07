@@ -1,13 +1,13 @@
-import HomePage from "../components/homepage/HomePage";
-import TestmonialAndOpeningHours from "../components/homepage/component/TestmonialAndOpeningHours";
-import { GetStaticProps } from "next";
-import { sanityClient } from "@/lib/sanityClient";
-import { GalleryContent, HeroContent, OpeningHoursContent } from "@/types";
-import { Content } from "@/components/homepage/component/Content";
-import { GalleryWidget } from "@/components/homepage/component/GalleryWidget";
-import Footer from "@/components/homepage/footer/Footer";
-import axios from "axios";
-import { FooterContent } from "@/types";
+import HomePage from '../components/homepage/HomePage';
+import TestmonialAndOpeningHours from '../components/homepage/component/TestmonialAndOpeningHours';
+import { GetStaticProps } from 'next';
+import { sanityClient } from '@/lib/sanityClient';
+import { GalleryContent, HeroContent, OpeningHoursContent } from '@/types';
+import { Content } from '@/components/homepage/component/Content';
+import { GalleryWidget } from '@/components/homepage/component/GalleryWidget';
+import Footer from '@/components/homepage/footer/Footer';
+import axios from 'axios';
+import { FooterContent } from '@/types';
 interface IndexProps {
   heroContent: HeroContent;
   galleryContent: GalleryContent;
@@ -15,8 +15,12 @@ interface IndexProps {
   footerContent: FooterContent;
 }
 
-export default function Index({ heroContent, galleryContent, openingHourContent, footerContent}: IndexProps) {
- 
+export default function Index({
+  heroContent,
+  galleryContent,
+  openingHourContent,
+  footerContent,
+}: IndexProps) {
   return (
     <>
       <HomePage homePageContent={heroContent} />
@@ -87,15 +91,16 @@ export const getStaticProps: GetStaticProps = async () => {
       }
     }
   `;
-  const apiKey = process.env.GOOGLE_API_KEY; 
-  const placeId = "ChIJeeMv3fjPsGoRqQoVj86mqvM"; 
+  const apiKey = process.env.GOOGLE_API_KEY;
+  const placeId = 'ChIJeeMv3fjPsGoRqQoVj86mqvM';
   const mapsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=opening_hours&key=${apiKey}`;
 
   try {
     const data = await sanityClient.fetch(sanityQuery);
 
     const googleResponse = await axios.get(mapsUrl);
-    const openingHours = googleResponse.data.result?.opening_hours?.weekday_text || [""];
+    const openingHours = googleResponse.data.result?.opening_hours
+      ?.weekday_text || [''];
 
     return {
       props: {
@@ -117,7 +122,7 @@ export const getStaticProps: GetStaticProps = async () => {
           testimonials: data[0].testimonials,
           openingHours,
         },
-        footerContent: data[0].footer, 
+        footerContent: data[0].footer,
       },
     };
   } catch (e) {
@@ -127,7 +132,7 @@ export const getStaticProps: GetStaticProps = async () => {
         heroContent: null,
         galleryContent: null,
         openingHourContent: null,
-        footerContent: null, 
+        footerContent: null,
       },
     };
   }
