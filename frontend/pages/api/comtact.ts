@@ -35,11 +35,9 @@ export default async function handler(
       .json({ message: 'Form submitted successfully', data: result });
   } catch (error) {
     console.error('Error submitting form:', error);
-    res
-      .status(400)
-      .json({
-        message: 'Error processing the form',
-        error: 'Internal server error',
-      });
+    res.status(400).json({
+      message: 'Error processing the form',
+      error: 'Internal server error',
+    });
   }
 }
