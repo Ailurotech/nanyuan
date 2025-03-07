@@ -148,3 +148,17 @@ export interface OrderData {
   paymentMethod: 'offline' | 'online';
   orderId: string;
 }
+export interface LocationInfo {
+  title: string;
+  address: string;
+  phone: string;
+  email: string;
+  images: Array<{
+    _type: string;
+    asset: {
+      _id: string;
+      url: string;
+    };
+    alt: string;
+  }>;
+}

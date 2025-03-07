@@ -3,11 +3,13 @@ import order from './order';
 import booking from './booking';
 import homepage from './homepage';  
 import category from './category';
+import Location from './Location';
 import { durationType } from './duration/durationType'; 
 import { timeValueType } from './duration/timeValueType'; 
 import { restaurant } from './restaurant'; 
 import reservation from './reservation';
 import table from './table';
+import contact from './contact';
 
 export const schemaTypes = [
   menu,
@@ -20,4 +22,6 @@ export const schemaTypes = [
   reservation,
   durationType, 
   timeValueType,
+  Location,
+  contact
 ];
