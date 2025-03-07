@@ -1,7 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { contactFormSchema, ContactFormData } from '@/utils/validators'; // Update the import path
-import { sanityClient } from '@/lib/sanityClient';
+import { contactFormSchema, ContactFormData } from '@/utils/validators';
 import { useState } from 'react';
 
 export default function ContactForm() {
@@ -19,9 +18,24 @@ export default function ContactForm() {
 
   const onSubmit = async (data: ContactFormData) => {
     try {
-      await sanityClient.create({ _type: 'contact', ...data });
-      setSubmitted(true);
-      reset();
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setSubmitted(true);
+        reset();
+      } else {
+        setErrorMessage(
+          result.message || 'Something went wrong. Please try again.',
+        );
+      }
     } catch (error) {
       console.error('Error submitting form:', error);
       setErrorMessage('Something went wrong. Please try again.');

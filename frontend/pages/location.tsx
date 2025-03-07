@@ -11,6 +11,7 @@ interface LocationPageProps {
 }
 
 export default function LocationPage({ restaurantInfo }: LocationPageProps) {
+  console.log(restaurantInfo);
   if (!restaurantInfo) {
     return (
       <div className="text-center text-gray-600">

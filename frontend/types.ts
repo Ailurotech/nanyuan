@@ -149,10 +149,10 @@ export interface OrderData {
   orderId: string;
 }
 export interface LocationInfo {
-  title: string; // Name of the restaurant or location
-  address: string; // Full address of the restaurant
-  phone: string; // Contact phone number of the restaurant
-  email: string; // Email address for contact
+  title: string;
+  address: string;
+  phone: string;
+  email: string;
   images: Array<{
     _type: string;
     asset: {
