@@ -48,7 +48,7 @@ export default function ContactForm() {
   };
 
   return (
-    <div className="bg-[#e5e7ea] rounded-lg p-4 mt-32 w-[500px]">
+    <div className="bg-[#e5e7ea] rounded-lg p-4 mt-32 w-[500px] ">
       <h1 className="text-xl font-bold">Contact Us</h1>
       <h3 className="text-xs pb-4">
         Please fill in your details to contact us
@@ -60,34 +60,42 @@ export default function ContactForm() {
         </p>
       ) : (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <label className="font-bold">Name</label>
-          <input
-            {...register('name')}
-            placeholder="Your Name"
-            className="w-full px-4 py-2 border rounded-md"
-          />
-          {errors.name && <p className="text-red-600">{errors.name.message}</p>}
+          <div className="mb-4">
+            <label className="font-bold block mb-4">Name</label>
+            <input
+              {...register('name')}
+              placeholder="Your Name"
+              className="w-full px-4 py-2 border rounded-md"
+            />
+            {errors.name && (
+              <p className="text-red-600">{errors.name.message}</p>
+            )}
+          </div>
 
-          <label className="font-bold">Phone Number</label>
-          <input
-            {...register('phone')}
-            placeholder="Phone"
-            className="w-full px-4 py-2 border rounded-md"
-          />
-          {errors.phone && (
-            <p className="text-red-600">{errors.phone.message}</p>
-          )}
+          <div className="mb-4">
+            <label className="font-bold block mb-4">Phone Number</label>
+            <input
+              {...register('phone')}
+              placeholder="Phone"
+              className="w-full px-4 py-2 border rounded-md"
+            />
+            {errors.phone && (
+              <p className="text-red-600">{errors.phone.message}</p>
+            )}
+          </div>
 
-          <label className="font-bold">Message</label>
-          <textarea
-            {...register('message')}
-            placeholder="Message..."
-            className="w-full px-4 py-2 border rounded-md"
-            rows={4}
-          />
-          {errors.message && (
-            <p className="text-red-600">{errors.message.message}</p>
-          )}
+          <div className="mb-4">
+            <label className="font-bold block mb-4">Message</label>
+            <textarea
+              {...register('message')}
+              placeholder="Message..."
+              className="w-full px-4 py-2 border rounded-md"
+              rows={4}
+            />
+            {errors.message && (
+              <p className="text-red-600">{errors.message.message}</p>
+            )}
+          </div>
 
           {errorMessage && <p className="text-red-600">{errorMessage}</p>}
 

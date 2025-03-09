@@ -1,6 +1,31 @@
 import { debounce } from 'lodash';
 import { useCallback } from 'react';
 
+const validateName = (name: string) => {
+  const sanitizedName = name.trim().replace(/\s+/g, ' ');
+  if (!sanitizedName) {
+    throw new Error('Name is required.');
+  }
+  return sanitizedName;
+};
+
+const validateMessage = (message: string) => {
+  const sanitizedMessage = message.trim().replace(/\s+/g, ' ');
+  if (!sanitizedMessage) {
+    throw new Error('Message cannot be empty.');
+  }
+  return sanitizedMessage;
+};
+
+const validatePhone = (phone: string) => {
+  const sanitizedPhone = phone.trim();
+  const phoneRegex = /^\+?[1-9]\d{1,14}$/;
+  if (!phoneRegex.test(sanitizedPhone)) {
+    throw new Error('Invalid phone number format.');
+  }
+  return sanitizedPhone;
+};
+
 /**
  * debouncedSubmit is a function that delays form submission to prevent multiple
  * rapid submissions. It ensures that the submit action is executed only after a
@@ -20,25 +45,17 @@ export const useDebouncedSubmit = (
     debounce(async (data: { name: string; phone: string; message: string }) => {
       try {
         const sanitizedData = {
-          name: data.name.trim().replace(/\s+/g, ' '),
-          phone: data.phone.trim(),
-          message: data.message.trim().replace(/\s+/g, ' '),
+          name: validateName(data.name),
+          phone: validatePhone(data.phone),
+          message: validateMessage(data.message),
         };
 
-        const phoneRegex = /^\+?[1-9]\d{1,14}$/;
-
-        if (!sanitizedData.name) {
-          throw new Error('Name is required.');
-        }
-        if (!sanitizedData.message) {
-          throw new Error('Message cannot be empty.');
-        }
-        if (!phoneRegex.test(sanitizedData.phone)) {
-          throw new Error('Invalid phone number format.');
-        }
-
         await submitFunction(sanitizedData);
-        console.log('Form submitted successfully!');
+
+        // Only log in development mode
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Form submitted successfully!');
+        }
       } catch (error: any) {
         console.error('Form submission error:', error.message);
         throw new Error('Something went wrong. Please try again later.');

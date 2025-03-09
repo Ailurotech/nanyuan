@@ -8,9 +8,13 @@ import LocationHeader from '@/components/location-page/LocationDetails';
 
 interface LocationPageProps {
   restaurantInfo: LocationInfo;
+  mapUrl: string | null;
 }
 
-export default function LocationPage({ restaurantInfo }: LocationPageProps) {
+export default function LocationPage({
+  restaurantInfo,
+  mapUrl,
+}: LocationPageProps) {
   console.log(restaurantInfo);
   if (!restaurantInfo) {
     return (
@@ -26,7 +30,7 @@ export default function LocationPage({ restaurantInfo }: LocationPageProps) {
         <ImageSlider images={restaurantInfo.images} />
         <div className="md:w-1/2 flex flex-col p-6 h-auto md:h-full">
           <LocationHeader restaurantInfo={restaurantInfo} />
-          <LocationMap />
+          <LocationMap mapUrl={mapUrl} />
         </div>
       </div>
       <ContactForm />
@@ -36,8 +40,29 @@ export default function LocationPage({ restaurantInfo }: LocationPageProps) {
 
 export const getStaticProps: GetStaticProps<{
   restaurantInfo: LocationInfo;
+  mapUrl: string | null;
 }> = async () => {
-  const query = `*[_type == "location"][0]{title, address, phone, email, images[]{asset->{_id, url}, alt}}`;
-  const restaurantInfo = await sanityClient.fetch<LocationInfo>(query);
-  return { props: { restaurantInfo } };
+  try {
+    const locationQuery = `*[_type == "location"][0]{title, address, phone, email, images[]{asset->{_id, url}, alt}}`;
+    const homepageQuery = `*[_type == "HomePage"][0]{mapEmbedUrl}`;
+
+    const [restaurantInfo, homepage] = await Promise.all([
+      sanityClient.fetch<LocationInfo | null>(locationQuery),
+      sanityClient.fetch<{ mapEmbedUrl?: string }>(homepageQuery),
+    ]);
+
+    if (!restaurantInfo) {
+      return { notFound: true };
+    }
+
+    return {
+      props: {
+        restaurantInfo,
+        mapUrl: homepage?.mapEmbedUrl ?? null,
+      },
+    };
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    return { notFound: true };
+  }
 };

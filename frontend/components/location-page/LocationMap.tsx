@@ -1,40 +1,10 @@
-import { useState, useEffect } from 'react';
+import { GetStaticProps } from 'next';
 import { sanityClient } from '@/lib/sanityClient';
 
-const LocationMap = () => {
-  const [mapUrl, setMapUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const query = `*[_type == "HomePage"][0] { mapEmbedUrl }`;
-
-    sanityClient
-      .fetch(query)
-      .then((data) => {
-        if (data && data.mapEmbedUrl) {
-          setMapUrl(data.mapEmbedUrl);
-          setError(null);
-        } else {
-          setError('Map URL not found in the data');
-        }
-      })
-      .catch(() => {
-        setError('Failed to fetch map URL');
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, []);
-
-  if (loading) {
-    return <div className="text-center text-gray-500">Loading map...</div>;
-  }
-
-  if (error) {
-    return <div className="text-center text-red-600">{error}</div>;
-  }
-
+interface LocationProps {
+  mapUrl: string | null;
+}
+export default function LocationMap({ mapUrl }: LocationProps) {
   return (
     <div className="relative mx-auto w-full h-80 rounded-lg overflow-hidden">
       {mapUrl ? (
@@ -52,6 +22,31 @@ const LocationMap = () => {
       )}
     </div>
   );
-};
+}
 
-export default LocationMap;
+export const getStaticProps: GetStaticProps = async () => {
+  try {
+    const query = `*[_type == "HomePage"][0] { mapEmbedUrl }`;
+    const data = await sanityClient.fetch(query);
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Fetched Map URL:', data?.mapEmbedUrl);
+    }
+
+    return {
+      props: {
+        mapUrl: data?.mapEmbedUrl || null,
+      },
+    };
+  } catch (error) {
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error fetching map URL:', error);
+    }
+
+    return {
+      props: {
+        mapUrl: null,
+      },
+    };
+  }
+};
