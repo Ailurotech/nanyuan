@@ -1,6 +1,6 @@
 import { ControlledInput } from '@/components/common/ControlledInput';
 import { ControlledTestArea } from '@/components/common/ControlledTestArea';
-import { Button, HStack } from '@chakra-ui/react';
+import { Button, HStack, Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalFooter } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { InputsContainer } from './InputsContainer';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -21,6 +21,7 @@ import { CreateTakeAwayOrder } from '@/components/common/utils/createTakeawayOrd
 import { OrderData, OrderItem } from '@/types';
 import { isValidTime } from '@/components/book-table-page/timeUtils';
 import { checkoutStripe } from '@/components/common/utils/checkoutStripe';
+import { CustomModal } from './SuccessModal'; 
 
 interface TakeawayProps {
   restaurant: Restaurant;
@@ -30,15 +31,19 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
   const {
     SendOtp,
     handleVerifyOtp,
-    verifyOtp,
     setIsModalOpen,
+    verifyOtp,
     isModalOpen,
     timeLeft,
     isRunning,
   } = useSMS();
+
   const [orderList, setOrderList] = useState<OrderItem[]>([]);
   const [totalPrice, setTotalPrice] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
+
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
     const cart = localStorage.getItem('cart');
@@ -62,7 +67,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
     setTotalPrice(
       parsedList
         .reduce((acc, item) => acc + item.price * item.quantity, 0)
-        .toFixed(2),
+        .toFixed(2)
     );
     setLoading(false);
   }, []);
@@ -82,7 +87,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
         data.date,
         data.time,
         restaurant.Weekdaytime,
-        restaurant.Weekandtime,
+        restaurant.Weekandtime
       );
 
       if (!isTimeValid) {
@@ -120,6 +125,8 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
       resolver: zodResolver(FormDataSchema),
     });
 
+  const selectedDate = watch('date');
+
   const handleOrderSubmission = async (
     data: OrderData,
     paymentMethod: 'offline' | 'online',
@@ -140,24 +147,28 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
         status: status,
         paymentMethod: paymentMethod,
       };
+
       await CreateTakeAwayOrder(orderData);
+
+      if (paymentMethod === 'offline') {
+        setSuccessMessage(
+          `Order detail: Date: ${data.date}, Time: ${data.time}, Total: $${totalPrice}`
+        );
+        setIsSuccessModalOpen(true);
+      }
       if (paymentMethod === 'online') {
         await checkoutStripe(orderData);
       }
     } catch (error) {
       console.error(
         `${paymentMethod === 'online' ? 'Online payment' : 'Order submission'} failed:`,
-        error,
+        error
       );
     }
   };
 
-  const onSubmit = (data: OrderData) =>
-    handleOrderSubmission(data, 'offline', 'Offline');
-  const handlePayOnline = (data: OrderData) =>
-    handleOrderSubmission(data, 'online', 'Pending');
-
-  const selectedDate = watch('date');
+  const onSubmit = (data: OrderData) => handleOrderSubmission(data, 'offline', 'Offline');
+  const handlePayOnline = (data: OrderData) => handleOrderSubmission(data, 'online', 'Pending');
 
   const phoneClickHandler = async () => {
     const result = await trigger('phone');
@@ -199,12 +210,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
             </span>
           </InputsContainer>
           <InputsContainer>
-            <ControlledInput
-              label="Date"
-              control={control}
-              name="date"
-              type="date"
-            />
+            <ControlledInput label="Date" control={control} name="date" type="date" />
             <ControlledInput
               label="Time"
               control={control}
@@ -217,13 +223,9 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
           <div className="flex flex-col gap-2">
             <h4 className="text-sm">Ordered Dishes</h4>
             <ul className="text-base space-y-1 list-disc px-4">
-              {orderList.length === 0 && (
-                <li className="font-bold">No Order Yet!</li>
-              )}
+              {orderList.length === 0 && <li className="font-bold">No Order Yet!</li>}
               {orderList.map((order, index) => (
-                <li
-                  key={index}
-                >{`${order.name} - $${order.price} X${order.quantity}`}</li>
+                <li key={index}>{`${order.name} - $${order.price} X${order.quantity}`}</li>
               ))}
             </ul>
             <h4 className="font-bold">{`Total Price: $${totalPrice}`}</h4>
@@ -265,11 +267,29 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
           </HStack>
         </form>
         {isModalOpen && (
-          <VerifyOtpModal
-            onVerify={handleVerifyOtp}
-            onClose={() => setIsModalOpen(false)}
-          />
+          <VerifyOtpModal onVerify={handleVerifyOtp} onClose={() => setIsModalOpen(false)} />
         )}
+        <Button
+          marginTop="1rem"
+          colorScheme="blue"
+          variant="outline"
+          onClick={() => {
+            const currentData = getValues();
+            const testDate = currentData.date || 'N/A';
+            const testTime = currentData.time || 'N/A';
+            setSuccessMessage(
+              `Order detaill: Date: ${testDate}, Time: ${testTime}, Total Price: $${totalPrice}`
+            );
+            setIsSuccessModalOpen(true);
+          }}
+        >
+          Test Modal
+        </Button>
+        <CustomModal
+          isOpen={isSuccessModalOpen}
+          onClose={() => setIsSuccessModalOpen(false)}
+          message={successMessage}
+        />
       </section>
     )
   );

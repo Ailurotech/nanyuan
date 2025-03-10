@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { ControlledInput } from '@/components/common/ControlledInput';
 import { ControlledTestArea } from '@/components/common/ControlledTestArea';
 import { ControlledSelect } from '@/components/common/ControlledSelect';
@@ -17,22 +18,12 @@ import { validateTableAvailabilityAndConflicts } from './checkAvailability';
 import { validateInitialConditions } from './checkAvailability';
 import axios from 'axios';
 import { ReservationData } from '@/types';
+import { CustomModal } from './SuccessModal';
 
 interface BooktablePageProps {
   restaurant: Restaurant;
   table: Table[];
 }
-
-type FormData = {
-  name: string;
-  phone: string;
-  time: string;
-  guests: string;
-  preference: string;
-  notes: string;
-  email: string;
-  date: string;
-};
 
 export function BooktablePage({ restaurant, table }: BooktablePageProps) {
   const {
@@ -104,6 +95,9 @@ export function BooktablePage({ restaurant, table }: BooktablePageProps) {
 
   const selectedDate = watch('date');
 
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+
   const onSubmit = async (data: ReservationData) => {
     try {
       const validationResult = await runValidations([
@@ -124,6 +118,9 @@ export function BooktablePage({ restaurant, table }: BooktablePageProps) {
         data,
         tableId: validationResult.tableId,
       });
+
+      setSuccessMessage(`Your table is booked on ${data.date} at ${data.time}. Enjoy your meal!`);
+      setIsSuccessModalOpen(true);
     } catch (error) {
       console.error('Error during reservation:', error);
     }
@@ -228,6 +225,17 @@ export function BooktablePage({ restaurant, table }: BooktablePageProps) {
           >
             Book a table
           </Button>
+          <Button
+            marginTop="1rem"
+            colorScheme="blue"
+            variant="outline"
+            onClick={() => {
+              setSuccessMessage('Test: Your table is booked!');
+              setIsSuccessModalOpen(true);
+            }}
+          >
+            Test Modal
+          </Button>
         </form>
         {isModalOpen && (
           <VerifyOtpModal
@@ -236,6 +244,11 @@ export function BooktablePage({ restaurant, table }: BooktablePageProps) {
           />
         )}
       </div>
+      <CustomModal
+        isOpen={isSuccessModalOpen}
+        onClose={() => setIsSuccessModalOpen(false)}
+        message={successMessage}
+      />
     </section>
   );
 }
