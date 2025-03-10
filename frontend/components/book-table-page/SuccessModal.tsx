@@ -7,7 +7,7 @@ interface CustomModalProps {
   message: string;
 }
 
-export function CustomModal({ isOpen, onClose, message }: CustomModalProps) {
+export function SuccessModal({ isOpen, onClose, message }: CustomModalProps) {
   if (!isOpen) return null;
 
   return ReactDOM.createPortal(
@@ -40,8 +40,8 @@ export function CustomModal({ isOpen, onClose, message }: CustomModalProps) {
           <button
             onClick={onClose}
             style={{
-              backgroundColor: '#facc16', 
-              color: 'black',             
+              backgroundColor: '#facc16',
+              color: 'black',
               padding: '0.6rem 1rem',
               border: 'none',
               borderRadius: '5px',
@@ -53,6 +53,6 @@ export function CustomModal({ isOpen, onClose, message }: CustomModalProps) {
         </div>
       </div>
     </div>,
-    document.body
+    document.body,
   );
 }
