@@ -1,8 +1,9 @@
 import createReservations from '../createReservations';
 import { testRequiredFields } from '@/test/requiredFieldsTest';
 import { testValidation } from '@/test/validationTests';
-import { testApiErrorHandling } from '@/test/apiErrorTest';
+import { sanityErrorTest } from '@/test/apiTest/error';
 import { DateTime } from 'luxon';
+import { successfulTest } from '@/test/apiTest/successful';
 
 jest.mock('@/lib/sanityClient', () => ({
   sanityClient: {
@@ -47,4 +48,10 @@ const validationCases = [
 
 testRequiredFields(requiredFields, validReservation, createReservations);
 testValidation(validationCases, validReservation, createReservations);
-testApiErrorHandling(validReservation, createReservations);
+sanityErrorTest(validReservation, createReservations);
+successfulTest(
+  createReservations,
+  validReservation,
+  { message: 'Reservation created successfully' },
+  'sanity',
+);
