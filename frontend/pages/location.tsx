@@ -15,7 +15,6 @@ export default function LocationPage({
   restaurantInfo,
   mapUrl,
 }: LocationPageProps) {
-  console.log(restaurantInfo);
   if (!restaurantInfo) {
     return (
       <div className="text-center text-gray-600">

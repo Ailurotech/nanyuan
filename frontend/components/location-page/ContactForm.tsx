@@ -1,115 +1,90 @@
+import { ControlledInput } from '@/components/common/ControlledInput';
+import { ControlledTestArea } from '@/components/common/ControlledTestArea';
+import { Button, Text } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import clsx from 'clsx';
 import { contactFormSchema, ContactFormData } from '@/utils/validators';
 import { useState } from 'react';
-import { useDebouncedSubmit } from '@/utils/debouncedSubmit';
 
 export default function ContactForm() {
-  const [submitted, setSubmitted] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
   const {
-    register,
+    control,
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
   } = useForm<ContactFormData>({
     resolver: zodResolver(contactFormSchema),
+    defaultValues: {
+      name: '',
+      phone: '',
+      message: '',
+    },
   });
 
-  const debouncedSubmit = useDebouncedSubmit(async (data: ContactFormData) => {
-    try {
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        setSubmitted(true);
-        reset();
-      } else {
-        setErrorMessage(
-          result.message || 'Something went wrong. Please try again.',
-        );
-      }
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      setErrorMessage('Something went wrong. Please try again.');
-    }
-  });
+  const [formError, setFormError] = useState<string | null>(null);
 
   const onSubmit = async (data: ContactFormData) => {
-    debouncedSubmit(data);
+    try {
+      if (!data.name || !data.phone || !data.message) {
+        throw new Error('All fields are required.');
+      }
+      reset();
+      setFormError(null);
+    } catch (error) {
+      if (error instanceof Error) {
+        setFormError(error.message);
+      } else {
+        setFormError('An unexpected error occurred');
+      }
+    }
   };
 
   return (
-    <div className="bg-[#e5e7ea] rounded-lg p-4 mt-32 w-[500px] ">
-      <h1 className="text-xl font-bold">Contact Us</h1>
-      <h3 className="text-xs pb-4">
-        Please fill in your details to contact us
-      </h3>
-
-      {submitted ? (
-        <p className="text-green-600">
-          Your message has been submitted successfully!
-        </p>
-      ) : (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="mb-4">
-            <label className="font-bold block mb-4">Name</label>
-            <input
-              {...register('name')}
-              placeholder="Your Name"
-              className="w-full px-4 py-2 border rounded-md"
-            />
-            {errors.name && (
-              <p className="text-red-600">{errors.name.message}</p>
-            )}
-          </div>
-
-          <div className="mb-4">
-            <label className="font-bold block mb-4">Phone Number</label>
-            <input
-              {...register('phone')}
-              placeholder="Phone"
-              className="w-full px-4 py-2 border rounded-md"
-            />
-            {errors.phone && (
-              <p className="text-red-600">{errors.phone.message}</p>
-            )}
-          </div>
-
-          <div className="mb-4">
-            <label className="font-bold block mb-4">Message</label>
-            <textarea
-              {...register('message')}
-              placeholder="Message..."
-              className="w-full px-4 py-2 border rounded-md"
-              rows={4}
-            />
-            {errors.message && (
-              <p className="text-red-600">{errors.message.message}</p>
-            )}
-          </div>
-
-          {errorMessage && <p className="text-red-600">{errorMessage}</p>}
-
-          <button
-            type="submit"
-            className={`w-full px-4 py-2 bg-yellow-500 text-white font-bold rounded-md ${
-              isSubmitting ? 'cursor-not-allowed opacity-50' : ''
-            }`}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? 'Submitting...' : 'Submit'}
-          </button>
-        </form>
+    <section className="bg-[#e5e7ea] rounded-lg p-4 mt-32 w-[500px]">
+      <div className="flex flex-col space-y-1 mb-6">
+        <Text fontSize="xl" fontWeight="bold">
+          Contact Us
+        </Text>
+        <Text fontSize="xs">Please fill in your details to contact us</Text>
+      </div>
+      {formError && (
+        <Text color="red.500" fontSize="sm">
+          {formError}
+        </Text>
       )}
-    </div>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+        <ControlledInput label="Name" control={control} name="name" />
+
+        <ControlledInput label="Phone Number" control={control} name="phone" />
+
+        <ControlledTestArea
+          label="Message"
+          control={control}
+          name="message"
+          rows={4}
+          placeholder="Enter your message here..."
+        />
+
+        <Button
+          marginTop="2rem"
+          colorScheme="orange"
+          variant="solid"
+          type="submit"
+          backgroundColor="#facc16"
+          padding="0.6rem"
+          borderRadius={5}
+          fontSize="small"
+          fontWeight="600"
+          className={clsx({
+            'opacity-50 cursor-not-allowed': isSubmitting,
+          })}
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? 'Submitting...' : 'Submit'}
+        </Button>
+      </form>
+    </section>
   );
 }

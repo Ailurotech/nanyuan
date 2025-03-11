@@ -29,20 +29,12 @@ export const getStaticProps: GetStaticProps = async () => {
     const query = `*[_type == "HomePage"][0] { mapEmbedUrl }`;
     const data = await sanityClient.fetch(query);
 
-    if (process.env.NODE_ENV === 'development') {
-      console.log('Fetched Map URL:', data?.mapEmbedUrl);
-    }
-
     return {
       props: {
         mapUrl: data?.mapEmbedUrl || null,
       },
     };
-  } catch (error) {
-    if (process.env.NODE_ENV === 'development') {
-      console.error('Error fetching map URL:', error);
-    }
-
+  } catch {
     return {
       props: {
         mapUrl: null,
