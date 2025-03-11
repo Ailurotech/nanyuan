@@ -1,5 +1,5 @@
 import { BaseValidator } from './BaseValidator';
-import { OrderItem } from '@/types';
+import { OrderItem, OrderData } from '@/types';
 import { ValidationError } from '@/error/validationError';
 
 export const OrderValidator = {
@@ -34,7 +34,7 @@ export const OrderValidator = {
       throw new ValidationError('Invalid payment method');
   },
 
-  validateAll: (data: any) => {
+  validateAll: (data: OrderData) => {
     OrderValidator.validateRequiredFields(data, [
       'orderId',
       'customerName',
@@ -53,6 +53,6 @@ export const OrderValidator = {
     OrderValidator.validateItemsArray(data.items);
     OrderValidator.validateTotalPrice(data.totalPrice);
     OrderValidator.validatePaymentMethod(data.paymentMethod);
-    OrderValidator.validateNotesLength(data.notes);
+    if (data.notes) OrderValidator.validateNotesLength(data.notes);
   },
 };
