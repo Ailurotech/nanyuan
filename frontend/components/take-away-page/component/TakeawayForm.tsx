@@ -11,6 +11,7 @@ import {
   validatePrice,
   validatePickUpTime,
   validateOTP,
+  validateOrderItem,
 } from '@/components/take-away-page/component/checkAvailiability';
 import { Restaurant } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
@@ -130,6 +131,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
         () => validateOTP(verifyOtp),
         () => validatePickUpTime(data.date, data.time),
         () => validatePrice(data.totalPrice),
+        () => validateOrderItem(orderList),
       ]);
 
       const orderData: OrderData = {
