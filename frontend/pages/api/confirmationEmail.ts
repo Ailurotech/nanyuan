@@ -181,6 +181,8 @@ export default apiHandler().post(
           </div>
           `,
         };
+      } else {
+        return res.status(400).json({ error: 'Invalid type provided.' });
       }
 
       // Check if the email content is defined
@@ -189,8 +191,17 @@ export default apiHandler().post(
       }
 
       // Add logo image as Attachment
+      let logoBuffer: Buffer;
+      try {
+        logoBuffer = fs.readFileSync(logoImgPath);
+      } catch {
+        return res
+          .status(500)
+          .json({ error: 'Failed to read logo image file.' });
+      }
+
       const logoImg: Attachment = new mailgunClient.Attachment({
-        data: fs.readFileSync(logoImgPath),
+        data: logoBuffer,
         filename: 'logo.png',
       });
 
@@ -201,7 +212,6 @@ export default apiHandler().post(
       await mailgunClient.messages().send(emailContent);
       return res.status(200).json({ message: 'Email sent successfully.' });
     } catch (error: unknown) {
-      console.error(error);
       return res.status(500).json({ error: 'Failed to send email.' });
     }
   },

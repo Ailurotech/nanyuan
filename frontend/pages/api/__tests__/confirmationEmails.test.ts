@@ -1,6 +1,7 @@
 import { NextApiResponse, NextApiRequest } from 'next';
 import handler from '@/pages/api/confirmationEmail';
 import { sanityClient } from '@/lib/sanityClient';
+import fs from 'fs';
 
 // Helper function to generate mock request and response objects
 const mockRequestResponse = (method: string, body: any) => {
@@ -24,8 +25,14 @@ jest.mock('mailgun-js', () => {
     messages: () => ({
       send: sendMock,
     }),
+    Attachment: jest.fn(),
   }));
 });
+
+// Mock fs.readFileSync to always return a dummy buffer
+jest.mock('fs', () => ({
+  readFileSync: jest.fn(() => Buffer.from('dummy-logo')),
+}));
 
 // Mock Sanity Client fetch
 jest.mock('@/lib/sanityClient', () => ({
@@ -116,16 +123,14 @@ describe('ConfirmationEmails API', () => {
     });
   });
 
-  it('should return 400 if email content is missing even with a valid type (simulated)', async () => {
-    // Although "ReservationX" isn't handled at runtime, we cast it as "Reservation"
-    // to satisfy the TypeScript union ("TakeAwayOrder" | "Reservation").
+  it('should return 400 if an invalid type is provided', async () => {
     const { req, res } = mockRequestResponse('POST', {
-      type: 'ReservationX' as 'Reservation',
+      type: 'invalidType',
     });
     await handler(req, res);
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith({
-      error: 'Email content is missing.',
+      error: 'Invalid type provided.',
     });
   });
 
@@ -154,5 +159,36 @@ describe('ConfirmationEmails API', () => {
 
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({ error: 'Failed to send email.' });
+  });
+
+  it('should return 500 if reading the logo image file fails', async () => {
+    // Simulate fs.readFileSync throwing an error
+    (fs.readFileSync as jest.Mock).mockImplementationOnce(() => {
+      throw new Error('Read file failed');
+    });
+
+    const reservationInfo = {
+      name: 'Alice',
+      phone: '111222333',
+      email: 'alice@example.com',
+      time: '2025-05-07T21:03:00Z',
+      guests: '6',
+      table: '10',
+      preference: 'No preference',
+      notes: 'test notes',
+    };
+
+    const { req, res } = mockRequestResponse('POST', {
+      ...reservationInfo,
+      type: 'Reservation',
+    });
+
+    await handler(req, res);
+
+    expect(fs.readFileSync).toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({
+      error: 'Failed to read logo image file.',
+    });
   });
 });

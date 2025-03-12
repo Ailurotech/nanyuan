@@ -44,6 +44,24 @@ const stripeWebhook = async (req: NextApiRequest, res: NextApiResponse) => {
         .patch(orderId as string)
         .set({ status: newStatus })
         .commit();
+
+      // Send request to api to send confirmation email
+      const emailResponse = await fetch(
+        `${process.env.CLIENT_BASE_URL}/api/confirmationEmail`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ orderId, type: 'TakeAwayOrder' }),
+        },
+      );
+
+      if (!emailResponse.ok) {
+        return res.status(500).json({
+          error: 'Failed to send confirmation email',
+        });
+      }
     }
 
     res.status(200).json({ received: true });
