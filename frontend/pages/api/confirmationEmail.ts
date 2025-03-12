@@ -1,7 +1,9 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import apiHandler from '@/lib/apiHandler';
 import { sanityClient } from '@/lib/sanityClient';
-import mailgun from 'mailgun-js';
+import mailgun, { Attachment } from 'mailgun-js';
+import fs from 'fs';
+import path from 'path';
 
 // Configuration for Mailgun
 const mailgunClient = mailgun({
@@ -44,7 +46,10 @@ interface EmailContent {
   to: string;
   subject: string;
   html: string;
+  inline?: Attachment;
 }
+
+const logoImgPath: string = path.join(process.cwd(), 'public', 'logo.png');
 
 export default apiHandler().post(
   async (req: NextApiRequest, res: NextApiResponse) => {
@@ -95,51 +100,52 @@ export default apiHandler().post(
           to: orderDetails.email,
           subject: 'Order Confirmation',
           html: `
-          <div style="font-family: Arial, sans-serif; background-color: #f2f2f2; padding: 20px;">
-            <h1 style="color: #333;">Order Confirmation</h1>
-            <p>Dear ${orderDetails.customerName},</p>
-            <p>Thank you for your order. Your order has been successfully placed.</p>
-            <p><strong>Order ID: ${orderId}</strong></p>
-            <p>Phone Number: ${orderDetails.phone}</p>
-            <p>Email: ${orderDetails.email}</p>
-            <p>Pickup Date: ${orderDetails.date.replace('T', ' ')}</p>
-            <p>Order Items:</p>
-            <table style="border-collapse: collapse; width: 100%; margin: 1em 0;">
-              <thead>
-                <tr>
-                  <th style="border: 1px solid #ccc; padding: 8px; text-align: left;">Item</th>
-                  <th style="border: 1px solid #ccc; padding: 8px; text-align: left;">Quantity</th>
-                  <th style="border: 1px solid #ccc; padding: 8px; text-align: left;">Unit Price</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${orderDetails.items
-                  .map(
-                    (item: {
-                      menuItemName: string;
-                      quantity: number;
-                      price: number;
-                    }) =>
-                      `<tr>
-                        <td style="border: 1px solid #ccc; padding: 8px; text-align: left;">${item.menuItemName}</td>
-                        <td style="border: 1px solid #ccc; padding: 8px; text-align: left;">${item.quantity}</td>
-                        <td style="border: 1px solid #ccc; padding: 8px; text-align: left;">$${item.price}</td>
-                      </tr>`,
-                  )
-                  .join('')}
-              </tbody>
-            </table>
-            ${orderDetails.notes !== '' ? `<p>Special Requests or Notes: ${orderDetails.notes}</p>` : ''}
-            <p>Payment Method: ${orderDetails.paymentMethod}</p>
-            <br>
-            <p>Total Price: $${orderDetails.totalPrice}</p>
-            <br>
-            <br>
+          <div style="background-color: #1E1E1E; padding:20px;">
+            <div style="max-width:600px; margin:0 auto; background-color: black; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1); padding:20px; font-family:Arial, sans-serif; color: #E4E4E4;">
+              <div style="text-align:center;">
+                <img src="cid:logo.png" alt="Nan Yuan Restaurant Logo" style="width:150px; margin-bottom:10px;">
+              </div>
+              <h1 style="text-align:center; color: #2E86C1; margin-bottom:10px;">Order Confirmation</h1>
+              <p style="line-height:1.4;color:#E4E4E4;">Dear ${orderDetails.customerName},</p>
+              <p style="line-height:1.4;color:#E4E4E4;">Thank you for your order. We're excited to get your food ready!</p>
+              <h2 style="color:#2E86C1; padding-bottom:5px; margin-top:10px;">Order Details</h2>
 
-            <p>Best regards,</p>
-            <p>The Nan Yuan Restaurant</p>
+              <p style="line-height:1.2; color:#E4E4E4;"><strong>Order ID:</strong> ${orderId}</p>
+              <p style="line-height:1.2; color:#E4E4E4;"><strong>Phone:</strong> ${orderDetails.phone}</p>
+              <p style="line-height:1.2; color:#E4E4E4;"><strong>Email:</strong> ${orderDetails.email}</p>
+              <p style="line-height:1.2; color:#E4E4E4;"><strong>Pickup Date:</strong> ${orderDetails.date.replace('T', ' ')}</p>
+              
+              <table style="width:100%; border-collapse:collapse; margin-top:15px; background-color:#1E1E1E; border-radius:5px; overflow:hidden;">
+                <thead>
+                  <tr style="background-color: black; color: #E4E4E4;">
+                    <th style="padding:10px; border:2px solid #E4E4E4; text-align:left; color:#ffff66">Item</th>
+                    <th style="padding:10px; border:2px solid #E4E4E4; text-align:left; color:#e76868">Quantity</th>
+                    <th style="padding:10px; border:2px solid #E4E4E4; text-align:left; color:#9fc5e8">Unit Price</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${orderDetails.items
+                    .map(
+                      (item, index) =>
+                        `<tr style="background-color: ${index % 2 === 0 ? '#1E1E1E' : 'black'};">
+                          <td style="padding:10px; border:2px solid #E4E4E4; color:#E4E4E4;">${item.menuItemName}</td>
+                          <td style="padding:10px; border:2px solid #E4E4E4; color:#E4E4E4;">${item.quantity}</td>
+                          <td style="padding:10px; border:2px solid #E4E4E4; color:#E4E4E4;">${item.price}</td>
+                        </tr>`,
+                    )
+                    .join('')}
+                </tbody>
+              </table>
+              
+              ${orderDetails.notes ? `<p style="line-height:1.2; margin-top:15px; color:#E4E4E4;"><strong>Special Requests/Notes:</strong> ${orderDetails.notes}</p>` : ''}
+
+              <p style="line-height:1.2; color:#E4E4E4;"><strong>Payment Method:</strong> ${orderDetails.paymentMethod}</p>
+              <p style="line-height:1.2; font-size:18px; margin-top:20px; color:#E4E4E4;"><strong>Total Price: $${orderDetails.totalPrice}</strong></p>
+              
+              <p style="margin-top:20px; color:#E4E4E4;">Best regards,<br/>The Nan Yuan Restaurant</p>
+            </div>
           </div>
-        `,
+          `,
         };
       } else if (type === 'Reservation') {
         const reservationInfo: ReservationInfo = req.body;
@@ -150,28 +156,30 @@ export default apiHandler().post(
           to: reservationInfo.email,
           subject: 'Reservation Confirmation',
           html: `
-          <div style="font-family: Arial, sans-serif; background-color: #f2f2f2; padding: 20px;">
-            <h1 style="color: #333;">Reservation Confirmation</h1>
-            <p>Dear ${reservationInfo.name},</p>
-            <p>Thank you for your reservation. Your reservation has been successfully placed.</p>
-            <p>Reservation Details:</p>
-            <ul>
-              <li>Name: ${reservationInfo.name}</li>
-              <li>Phone Number: ${reservationInfo.phone}</li>
-              <li>Email: ${reservationInfo.email}</li>
-              <li>Time: ${reservationInfo.time.replace('T', ' ')}</li>
-              <li>Guests: ${reservationInfo.guests}</li>
-              <li>The type of table assigned to this reservation: ${reservationInfo.table}</li>
-              <li>Preference: ${reservationInfo.preference}</li>
-              ${reservationInfo.notes ? `<li>Special Requests or Notes: ${reservationInfo.notes}</li>` : ''}
-            </ul>
-            <br>
-            <br>
-
-            <p>Best regards,</p>
-            <p>The Nan Yuan Restaurant</p>
+          <div style="background-color:#1E1E1E; padding:20px;">
+            <div style="max-width:600px; margin:0 auto; background-color:black; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.1); padding:20px; font-family:Arial, sans-serif; color:#E4E4E4;">
+              <div style="text-align:center;">
+                <img src="cid:logo.png" alt="Nan Yuan Restaurant Logo" style="width:150px; margin-bottom:10px;">
+              </div>
+              <h1 style="text-align:center; color:#2E86C1; margin-bottom:10px;">Reservation Confirmation</h1>
+              <p style="line-height:1.6; color: #E4E4E4;">Dear ${reservationInfo.name},</p>
+              <p style="line-height:1.6; color: #E4E4E4;">Thank you for choosing to dine with us! Your reservation has been confirmed.</p>
+              
+              <h2 style="color:#2E86C1; padding-bottom:10px; margin-top:20px;">Reservation Details</h2>
+              <ul style="list-style:none; padding:0; margin:15px 0; background-color:#1E1E1E; padding:15px; border:2px solid #E4E4E4; border-radius:5px;">
+                <li style="line-height:1.6; color:#E4E4E4;"><strong>Name:</strong> ${reservationInfo.name}</li>
+                <li style="line-height:1.6; color:#E4E4E4;"><strong>Phone:</strong> ${reservationInfo.phone}</li>
+                <li style="line-height:1.6; color:#E4E4E4;"><strong>Email:</strong> ${reservationInfo.email}</li>
+                <li style="line-height:1.6; color:#E4E4E4;"><strong>Time:</strong> ${reservationInfo.time.replace('T', ' ')}</li>
+                <li style="line-height:1.6; color:#E4E4E4;"><strong>Guests:</strong> ${reservationInfo.guests}</li>
+                <li style="line-height:1.6; color:#E4E4E4;"><strong>Table Type:</strong> ${reservationInfo.table}</li>
+                <li style="line-height:1.6; color:#E4E4E4;"><strong>Preference:</strong> ${reservationInfo.preference}</li>
+                ${reservationInfo.notes ? `<li style="line-height:1.6; color:#E4E4E4;"><strong>Special Requests/Notes:</strong> ${reservationInfo.notes}</li>` : ''}
+              </ul>
+              <p style="margin-top:30px; color:#E4E4E4;">We look forward to hosting you.<br/><br/>Best regards,<br/>The Nan Yuan Restaurant</p>
+            </div>
           </div>
-        `,
+          `,
         };
       }
 
@@ -180,10 +188,20 @@ export default apiHandler().post(
         return res.status(400).json({ error: 'Email content is missing.' });
       }
 
+      // Add logo image as Attachment
+      const logoImg: Attachment = new mailgunClient.Attachment({
+        data: fs.readFileSync(logoImgPath),
+        filename: 'logo.png',
+      });
+
+      // Add logo image to email content
+      emailContent.inline = logoImg;
+
       // Send the email
       await mailgunClient.messages().send(emailContent);
       return res.status(200).json({ message: 'Email sent successfully.' });
     } catch (error: unknown) {
+      console.error(error);
       return res.status(500).json({ error: 'Failed to send email.' });
     }
   },

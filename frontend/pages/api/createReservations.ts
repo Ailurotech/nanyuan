@@ -21,7 +21,7 @@ const createReservation = async (req: NextApiRequest, res: NextApiResponse) => {
 
     // Send request to api to send confirmation email
     const emailResponse = await fetch(
-      `${process.env.SERVER_BASE_URL}/api/confirmationEmail`,
+      `${process.env.CLIENT_BASE_URL}/api/confirmationEmail`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
