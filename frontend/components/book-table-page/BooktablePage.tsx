@@ -227,17 +227,7 @@ export function BooktablePage({ restaurant, table }: BooktablePageProps) {
           >
             Book a table
           </Button>
-          <Button
-            marginTop="1rem"
-            colorScheme="blue"
-            variant="outline"
-            onClick={() => {
-              setSuccessMessage('Test: Your table is booked!');
-              setIsSuccessModalOpen(true);
-            }}
-          >
-            Test Modal
-          </Button>
+
         </form>
         {isModalOpen && (
           <VerifyOtpModal

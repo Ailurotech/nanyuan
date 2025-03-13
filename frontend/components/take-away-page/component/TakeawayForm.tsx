@@ -292,22 +292,6 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
             onClose={() => setIsModalOpen(false)}
           />
         )}
-        <Button
-          marginTop="1rem"
-          colorScheme="blue"
-          variant="outline"
-          onClick={() => {
-            const currentData = getValues();
-            const testDate = currentData.date || 'N/A';
-            const testTime = currentData.time || 'N/A';
-            setSuccessMessage(
-              `Order detaill: Date: ${testDate}, Time: ${testTime}, Total Price: $${totalPrice}`,
-            );
-            setIsSuccessModalOpen(true);
-          }}
-        >
-          Test Modal
-        </Button>
         <SuccessModal
           isOpen={isSuccessModalOpen}
           onClose={() => setIsSuccessModalOpen(false)}
