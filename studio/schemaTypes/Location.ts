@@ -6,9 +6,9 @@ export default defineType({
   type: 'document',
   fields: [
     {
-      name: 'title', // Field for the title
+      name: 'title', 
       type: 'string',
-      title: 'Restaurant Name' // Human-readable label
+      title: 'Restaurant Name'
     },
     {
       name: 'images',
@@ -17,16 +17,16 @@ export default defineType({
       of: [
         {
           type: 'image',
-          options: { // Add options to the image type
-            hotspot: true // If you want to use hotspots
+          options: { 
+            hotspot: true 
           },
-          fields: [ // Add fields to the image type
+          fields: [ 
             {
               name: 'alt',
               type: 'string',
               title: 'Alternative Text',
               description: 'Describe the image for accessibility and SEO',
-              validation: (Rule) => Rule.required() // Alt text is usually required
+              validation: (Rule) => Rule.required() 
             }
           ]
         }
