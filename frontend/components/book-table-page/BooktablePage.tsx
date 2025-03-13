@@ -129,6 +129,7 @@ export function BooktablePage({ restaurant, table }: BooktablePageProps) {
         `Your table is booked on ${data.date} at ${data.time}. Enjoy your meal!`,
       );
       setIsSuccessModalOpen(true);
+
     } catch (error) {
       console.error('Error during reservation:', error);
     }
