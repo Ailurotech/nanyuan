@@ -112,13 +112,19 @@ export function BooktablePage({ restaurant, table }: BooktablePageProps) {
           ),
       ]);
 
-      const apiUrl = process.env.NEXT_PUBLIC_CREATE_RESERVATION_URL || '';
-      if (!apiUrl) throw new Error('API URL is missing');
-      const { data: result } = await axios.post(apiUrl, {
-        data,
-        tableId: validationResult.tableId,
-      });
+      const createReservationData = {
+        _type: 'reservation',
+        time: `${data.date}T${data.time}`,
+        table: { _type: 'reference', _ref: validationResult.tableId },
+        name: data.name,
+        phone: data.phone,
+        email: data.email,
+        guests: data.guests,
+        preference: data.preference,
+        notes: data.notes,
+      };
 
+      await axios.post('/api/createReservations', createReservationData);
       setSuccessMessage(
         `Your table is booked on ${data.date} at ${data.time}. Enjoy your meal!`,
       );
