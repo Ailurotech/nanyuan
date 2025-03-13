@@ -18,7 +18,7 @@ import { validateTableAvailabilityAndConflicts } from './checkAvailability';
 import { validateInitialConditions } from './checkAvailability';
 import axios from 'axios';
 import { ReservationData } from '@/types';
-import { SuccessModal } from './SuccessModal';
+import { SuccessModal } from '@/components/common/SuccessModal';
 
 interface BooktablePageProps {
   restaurant: Restaurant;
@@ -129,7 +129,6 @@ export function BooktablePage({ restaurant, table }: BooktablePageProps) {
         `Your table is booked on ${data.date} at ${data.time}. Enjoy your meal!`,
       );
       setIsSuccessModalOpen(true);
-
     } catch (error) {
       console.error('Error during reservation:', error);
     }

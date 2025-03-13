@@ -31,7 +31,7 @@ import { CreateTakeAwayOrder } from '@/components/common/utils/createTakeawayOrd
 import { OrderData, OrderItem } from '@/types';
 import { isValidTime } from '@/components/book-table-page/timeUtils';
 import { checkoutStripe } from '@/components/common/utils/checkoutStripe';
-import { SuccessModal } from './SuccessModal';
+import { SuccessModal } from '@/components/common/SuccessModal';
 
 interface TakeawayProps {
   restaurant: Restaurant;
@@ -163,7 +163,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
 
       if (paymentMethod === 'offline') {
         setSuccessMessage(
-          `Order detail: Date: ${data.date}, Time: ${data.time}, Total: $${totalPrice}`,
+          `Your Order detail: Date: ${data.date}, Time: ${data.time}, Total: $${totalPrice}`,
         );
         setIsSuccessModalOpen(true);
       }

@@ -1,0 +1,10 @@
+.modalContent {
+    background-color: #f7f7f7;
+    border-radius: 8px;
+  }
+  
+  .successMessage {
+    font-size: 1rem;
+    color: #333;
+  }
+  
