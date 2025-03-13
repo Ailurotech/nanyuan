@@ -227,7 +227,6 @@ export function BooktablePage({ restaurant, table }: BooktablePageProps) {
           >
             Book a table
           </Button>
-
         </form>
         {isModalOpen && (
           <VerifyOtpModal
