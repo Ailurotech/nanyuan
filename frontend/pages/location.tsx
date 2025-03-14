@@ -32,7 +32,7 @@ export default function LocationPage({
           <LocationMap mapUrl={mapUrl} />
         </div>
       </div>
-      <ContactForm />
+      {/* <ContactForm /> */}
     </div>
   );
 }
