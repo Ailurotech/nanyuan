@@ -19,21 +19,21 @@ export default function ImageSlider({
   }
 
   return (
-    <div className="w-full max-w-[600px] mx-auto my-8 px-8">
+    <div className="w-full max-w-[800px] mx-auto my-0 px-4">
       <Swiper
         modules={[Autoplay, Pagination]}
         autoplay={{ delay: intervalTime, disableOnInteraction: false }}
         pagination={{ clickable: true }}
         loop
-        className="rounded-[4rem]"
+        className="rounded-[2rem]"
       >
         {images.map((img) => (
           <SwiperSlide key={img.asset._id}>
-            <div className="relative w-full h-[540px]">
+            <div className="relative w-full aspect-[4/3] md:h-[540px] flex justify-center items-center">
               <Image
                 src={img.asset.url}
                 alt={img.alt || 'Location Image'}
-                className="object-cover rounded-[4rem]"
+                className="object-cover rounded-[2rem]"
                 fill
                 priority
               />
