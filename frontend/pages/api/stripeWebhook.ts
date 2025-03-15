@@ -7,6 +7,7 @@ import { Stripe } from 'stripe';
 import { errorMap } from '@/error/errorMap';
 import { WebhookValidator } from '@/components/common/validations/webhookValidator';
 import { ValidationError } from '@/error/validationError';
+import axios from 'axios';
 export const config = {
   api: {
     bodyParser: false,
@@ -45,22 +46,14 @@ const stripeWebhook = async (req: NextApiRequest, res: NextApiResponse) => {
         .set({ status: newStatus })
         .commit();
 
-      // Send request to api to send confirmation email
-      const emailResponse = await fetch(
-        `${process.env.CLIENT_BASE_URL}/api/confirmationEmail`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ orderId, type: 'TakeAwayOrder' }),
-        },
-      );
-
-      if (!emailResponse.ok) {
-        return res.status(500).json({
-          error: 'Failed to send confirmation email',
-        });
+      // Send request to api to send confirmation email for takeaway order
+      try {
+        await axios.post(
+          `${process.env.CLIENT_BASE_URL}/api/takeawayOrderEmail`,
+          { orderId },
+        );
+      } catch {
+        return res.status(500).json({ error: 'Failed to send email' });
       }
     }
 

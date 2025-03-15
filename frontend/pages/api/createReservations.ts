@@ -4,6 +4,7 @@ import { ReservationValidator } from '@/components/common/validations/Reservatio
 import { errorMap } from '@/error/errorMap';
 
 import apiHandler from '@/lib/apiHandler';
+import axios from 'axios';
 
 const createReservation = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
@@ -19,21 +20,13 @@ const createReservation = async (req: NextApiRequest, res: NextApiResponse) => {
       { tableId },
     );
 
-    // Send request to api to send confirmation email
-    const emailResponse = await fetch(
-      `${process.env.CLIENT_BASE_URL}/api/confirmationEmail`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...data,
-          table: tableType + '-person Table',
-          type: 'Reservation',
-        }),
-      },
-    );
-
-    if (!emailResponse.ok) {
+    // Send request to api to send confirmation email for reservation
+    try {
+      await axios.post(`${process.env.CLIENT_BASE_URL}/api/reservationEmail`, {
+        ...data,
+        table: tableType + '-person Table',
+      });
+    } catch {
       return res
         .status(500)
         .json({ error: 'Failed to send confirmation email' });
