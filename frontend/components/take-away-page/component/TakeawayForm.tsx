@@ -22,6 +22,7 @@ import { CreateTakeAwayOrder } from '@/components/common/utils/createTakeawayOrd
 import { OrderData, OrderItem } from '@/types';
 import { isValidTime } from '@/components/book-table-page/timeUtils';
 import { checkoutStripe } from '@/components/common/utils/checkoutStripe';
+import { submitCashOrderToYinbao } from '@/components/common/utils/submitCashOrderToYinbao';
 
 interface TakeawayProps {
   restaurant: Restaurant;
@@ -58,6 +59,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
         _ref: item._id,
       },
       menuItemName: item.name,
+      yinbaoId: item.yinbaoId,
     }));
     setOrderList(parsedList);
     setTotalPrice(
@@ -128,7 +130,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
   ) => {
     try {
       await runValidations([
-        () => validateOTP(verifyOtp),
+        //() => validateOTP(verifyOtp),
         () => validatePickUpTime(data.date, data.time),
         () => validatePrice(data.totalPrice),
         () => validateOrderItem(orderList),
@@ -142,9 +144,13 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
         status: status,
         paymentMethod: paymentMethod,
       };
-      await CreateTakeAwayOrder(orderData);
-      if (paymentMethod === 'online') {
-        await checkoutStripe(orderData);
+      // await CreateTakeAwayOrder(orderData);
+      switch (paymentMethod) {
+        case 'offline':
+          await submitCashOrderToYinbao(orderData);
+          break;
+        case 'online':
+          await checkoutStripe(orderData);
       }
     } catch (error) {
       console.error(

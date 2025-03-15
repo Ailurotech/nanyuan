@@ -2,6 +2,7 @@
 export interface MenuItem {
   quantity: number;
   _id: string;
+  yinbaoId: number;
   name: string;
   description: string;
   price: number;
@@ -71,6 +72,7 @@ export interface ShoppingCartItem {
   price: number;
   image: string;
   quantity: number;
+  yinbaoId: number;
 }
 
 export interface CartCardProps {
@@ -133,6 +135,7 @@ export interface OrderItem {
   quantity: number;
   menuItem: MenuItemReference;
   name: string;
+  yinbaoId: number;
 }
 
 export interface OrderData {
@@ -148,3 +151,19 @@ export interface OrderData {
   paymentMethod: 'offline' | 'online';
   orderId: string;
 }
+
+export interface yinbaoOrderItem {
+  productUid: number;
+  comment: string;  
+  quantity: number;    
+};
+
+export interface yinbaoOrderData {
+  payMethod: "Wxpay" | "Cash"; 
+  orderDateTime: string;  
+  reservationTime: string; 
+  contactAddress: string;  
+  contactName: string;     
+  contactTel: string;      
+  items: yinbaoOrderItem[]; 
+};

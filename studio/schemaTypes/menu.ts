@@ -6,6 +6,11 @@ export default defineType({
   type: 'document',
   fields: [
     {
+      name: 'yinbaoId',
+      title: '银豹ID',
+      type: 'number',
+    },
+    {
       name: 'name',
       title: 'Dish Name',
       type: 'string',
