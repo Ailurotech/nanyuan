@@ -1,19 +1,4 @@
-// type for orderDetails
-export interface OrderDetails {
-  customerName: string;
-  email: string;
-  phone: string;
-  date: string;
-  totalPrice: number;
-  paymentMethod: string;
-  status: string;
-  notes: string;
-  items: {
-    menuItemName: string;
-    price: number;
-    quantity: number;
-  }[];
-}
+import type { OrderDetails } from '@/types';
 
 export const generateTakeawayOrderEmail = (
   orderDetails: OrderDetails,

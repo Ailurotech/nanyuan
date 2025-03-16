@@ -42,4 +42,9 @@ export const BaseValidator = {
   validateNotesLength: (notes: string) => {
     if (notes.length > 1000) throw new ValidationError('Invalid notes length');
   },
+
+  validateOrderId: (orderId: string) => {
+    if (!validator.isUUID(orderId, 4))
+      throw new ValidationError('Invalid orderId');
+  },
 };

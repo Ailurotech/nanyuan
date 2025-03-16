@@ -1,28 +1,13 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import apiHandler from '@/lib/apiHandler';
 import { sanityClient } from '@/lib/sanityClient';
-import mailgun, { Attachment } from 'mailgun-js';
+import { Attachment } from 'mailgun-js';
 import { readFile } from 'fs/promises';
 import path from 'path';
-import {
-  generateTakeawayOrderEmail,
-  OrderDetails,
-} from '@/lib/emailTemplates/generateTakeawayOrderEmail';
-
-// Configuration for Mailgun
-const mailgunClient = mailgun({
-  apiKey: process.env.MAILGUN_API_KEY as string,
-  domain: process.env.MAILGUN_DOMAIN as string,
-});
-
-// type for EmailContent
-interface EmailContent {
-  from: string;
-  to: string;
-  subject: string;
-  html: string;
-  inline?: Attachment;
-}
+import { generateTakeawayOrderEmail } from '@/lib/emailTemplates/generateTakeawayOrderEmail';
+import type { EmailContent, OrderDetails } from '@/types';
+import { mailgunClient } from '@/lib/mailgunClient';
+import { BaseValidator } from '@/components/common/validations/BaseValidator';
 
 const logoImgPath: string = path.join(process.cwd(), 'public', 'logo.png');
 
@@ -32,42 +17,58 @@ export default apiHandler().post(
       const { orderId }: { orderId: string } = req.body;
 
       // Validate the required fields
-      if (!orderId) {
-        return res
-          .status(400)
-          .json({ error: 'Missing required field: orderId' });
-      }
+      BaseValidator.validateRequiredFields(req.body, ['orderId']);
+      BaseValidator.validateOrderId(orderId);
 
       // Fetch order items
-      const orderDetails: OrderDetails = await sanityClient.fetch(
-        `
-        *[_type == "order" && orderId == $orderId][0] {
-          customerName,
-          email,
-          phone,
-          date,
-          totalPrice,
-          paymentMethod,
-          status,
-          notes,
-          items[] {
-            menuItemName,
-            price,
-            quantity
-          },
-        }
-      `,
-        { orderId },
-      );
+      let orderDetails: OrderDetails;
+      try {
+        orderDetails = await sanityClient.fetch(
+          `
+            *[_type == "order" && orderId == $orderId][0] {
+              customerName,
+              email,
+              phone,
+              date,
+              totalPrice,
+              paymentMethod,
+              status,
+              notes,
+              items[] {
+                menuItemName,
+                price,
+                quantity
+              },
+            }
+          `,
+          { orderId },
+        );
+      } catch (error: unknown) {
+        return res
+          .status(500)
+          .json({
+            message: 'Failed to fetch order details.',
+            error: (error as Error).message,
+          });
+      }
+
+      if (!orderDetails) {
+        return res
+          .status(404)
+          .json({ message: 'Order not found.', error: 'Order not found.' });
+      }
 
       // Read logo image asynchronously
       let logoBuffer: Buffer;
       try {
         logoBuffer = await readFile(logoImgPath);
-      } catch {
+      } catch (error: unknown) {
         return res
           .status(500)
-          .json({ error: 'Failed to read logo image file.' });
+          .json({
+            message: 'Failed to read logo image file.',
+            error: (error as Error).message,
+          });
       }
 
       // Create logo image as attachment and use cid to embed image in html
@@ -89,7 +90,12 @@ export default apiHandler().post(
       await mailgunClient.messages().send(emailContent);
       return res.status(200).json({ message: 'Email sent successfully.' });
     } catch (error: unknown) {
-      return res.status(500).json({ error: 'Failed to send email.' });
+      return res
+        .status(500)
+        .json({
+          message: 'Failed to send email.',
+          error: (error as Error).message,
+        });
     }
   },
 );

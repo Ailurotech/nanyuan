@@ -1,14 +1,4 @@
-// type for reservationInfo
-export interface ReservationInfo {
-  name: string;
-  phone: string;
-  email: string;
-  time: string;
-  guests: string;
-  table: string;
-  preference: string;
-  notes: string;
-}
+import type { ReservationInfo } from '@/types';
 
 export const generateReservationEmail = (
   reservationInfo: ReservationInfo,

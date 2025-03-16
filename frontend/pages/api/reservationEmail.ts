@@ -1,27 +1,11 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import apiHandler from '@/lib/apiHandler';
-import mailgun, { Attachment } from 'mailgun-js';
+import { Attachment } from 'mailgun-js';
 import { readFile } from 'fs/promises';
 import path from 'path';
-import {
-  generateReservationEmail,
-  ReservationInfo,
-} from '@/lib/emailTemplates/generateReservationEmail';
-
-// Configuration for Mailgun
-const mailgunClient = mailgun({
-  apiKey: process.env.MAILGUN_API_KEY as string,
-  domain: process.env.MAILGUN_DOMAIN as string,
-});
-
-// type for EmailContent
-interface EmailContent {
-  from: string;
-  to: string;
-  subject: string;
-  html: string;
-  inline?: Attachment;
-}
+import { generateReservationEmail } from '@/lib/emailTemplates/generateReservationEmail';
+import type { EmailContent, ReservationInfo } from '@/types';
+import { mailgunClient } from '@/lib/mailgunClient';
 
 const logoImgPath: string = path.join(process.cwd(), 'public', 'logo.png');
 
@@ -34,10 +18,13 @@ export default apiHandler().post(
       let logoBuffer: Buffer;
       try {
         logoBuffer = await readFile(logoImgPath);
-      } catch {
+      } catch (error: unknown) {
         return res
           .status(500)
-          .json({ error: 'Failed to read logo image file.' });
+          .json({
+            message: 'Failed to read logo image file.',
+            error: (error as Error).message,
+          });
       }
 
       // Create logo image as attachment and use cid to embed image in html
@@ -59,7 +46,12 @@ export default apiHandler().post(
       await mailgunClient.messages().send(emailContent);
       return res.status(200).json({ message: 'Email sent successfully.' });
     } catch (error: unknown) {
-      return res.status(500).json({ error: 'Failed to send email.' });
+      return res
+        .status(500)
+        .json({
+          message: 'Failed to send email.',
+          error: (error as Error).message,
+        });
     }
   },
 );

@@ -1,3 +1,5 @@
+import { Attachment } from 'mailgun-js';
+
 // types.ts
 export interface MenuItem {
   quantity: number;
@@ -147,4 +149,39 @@ export interface OrderData {
   status: 'Offline' | 'Pending' | 'Paid' | 'Cancelled';
   paymentMethod: 'offline' | 'online';
   orderId: string;
+}
+
+export interface EmailContent {
+  from: string;
+  to: string;
+  subject: string;
+  html: string;
+  inline?: Attachment;
+}
+
+export interface OrderDetails {
+  customerName: string;
+  email: string;
+  phone: string;
+  date: string;
+  totalPrice: number;
+  paymentMethod: string;
+  status: string;
+  notes: string;
+  items: {
+    menuItemName: string;
+    price: number;
+    quantity: number;
+  }[];
+}
+
+export interface ReservationInfo {
+  name: string;
+  phone: string;
+  email: string;
+  time: string;
+  guests: string;
+  table: string;
+  preference: string;
+  notes: string;
 }
