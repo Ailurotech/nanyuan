@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ControlledInput } from '@/components/common/ControlledInput';
 import { ControlledTestArea } from '@/components/common/ControlledTestArea';
 import { ControlledSelect } from '@/components/common/ControlledSelect';
-import { Button } from '@chakra-ui/react';
+import { Button, useDisclosure } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { InputsContainer } from '@/components/take-away-page/component/InputsContainer';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -18,7 +18,8 @@ import { validateTableAvailabilityAndConflicts } from './checkAvailability';
 import { validateInitialConditions } from './checkAvailability';
 import axios from 'axios';
 import { ReservationData } from '@/types';
-import { SuccessModal } from '@/components/common/SuccessModal';
+import { SuccessModal } from '@/components/common/SuccessModal'; // 新的 CustomModal 实现
+import { useRouter } from 'next/router';
 
 interface BooktablePageProps {
   restaurant: Restaurant;
@@ -26,6 +27,9 @@ interface BooktablePageProps {
 }
 
 export function BooktablePage({ restaurant, table }: BooktablePageProps) {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const router = useRouter();
+
   const {
     SendOtp,
     handleVerifyOtp,
@@ -35,6 +39,7 @@ export function BooktablePage({ restaurant, table }: BooktablePageProps) {
     timeLeft,
     isRunning,
   } = useSMS();
+
   const requiredField = zod.string().min(1, { message: 'Required Field' });
   const phoneSchema = zod
     .string()
@@ -59,7 +64,6 @@ export function BooktablePage({ restaurant, table }: BooktablePageProps) {
         restaurant.Weekdaytime,
         restaurant.Weekandtime,
       );
-
       if (!isTimeValid) {
         context.addIssue({
           code: zod.ZodIssueCode.custom,
@@ -67,7 +71,6 @@ export function BooktablePage({ restaurant, table }: BooktablePageProps) {
           path: ['time'],
         });
       }
-
       if (restaurant.blacklist.includes(data.phone)) {
         context.addIssue({
           code: zod.ZodIssueCode.custom,
@@ -94,10 +97,7 @@ export function BooktablePage({ restaurant, table }: BooktablePageProps) {
     });
 
   const selectedDate = watch('date');
-
-  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
-
   const onSubmit = async (data: ReservationData) => {
     try {
       const validationResult = await runValidations([
@@ -128,7 +128,7 @@ export function BooktablePage({ restaurant, table }: BooktablePageProps) {
       setSuccessMessage(
         `Your table is booked on ${data.date} at ${data.time}. Enjoy your meal!`,
       );
-      setIsSuccessModalOpen(true);
+      onOpen();
     } catch (error) {
       console.error('Error during reservation:', error);
     }
@@ -141,6 +141,12 @@ export function BooktablePage({ restaurant, table }: BooktablePageProps) {
       SendOtp(phone);
     }
   };
+
+  useEffect(() => {
+    if (router.query.success === 'true') {
+      onOpen();
+    }
+  }, [router.query.success, onOpen]);
 
   return (
     <section className="bg-[#191919] min-h-screen pt-[200px] flex flex-col items-center">
@@ -242,8 +248,8 @@ export function BooktablePage({ restaurant, table }: BooktablePageProps) {
         )}
       </div>
       <SuccessModal
-        isOpen={isSuccessModalOpen}
-        onClose={() => setIsSuccessModalOpen(false)}
+        isOpen={isOpen}
+        onClose={onClose}
         message={successMessage}
       />
     </section>

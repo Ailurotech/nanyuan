@@ -1,15 +1,7 @@
+import { useState, useEffect } from 'react';
 import { ControlledInput } from '@/components/common/ControlledInput';
 import { ControlledTestArea } from '@/components/common/ControlledTestArea';
-import {
-  Button,
-  HStack,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-} from '@chakra-ui/react';
+import { Button, HStack, useDisclosure } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { InputsContainer } from './InputsContainer';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -25,7 +17,7 @@ import {
 import { Restaurant } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
 import clsx from 'clsx';
-import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import * as zod from 'zod';
 import { CreateTakeAwayOrder } from '@/components/common/utils/createTakeawayOrder';
 import { OrderData, OrderItem } from '@/types';
@@ -38,6 +30,7 @@ interface TakeawayProps {
 }
 
 export function TakeawayForm({ restaurant }: TakeawayProps) {
+  const router = useRouter();
   const {
     SendOtp,
     handleVerifyOtp,
@@ -52,8 +45,19 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
   const [totalPrice, setTotalPrice] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
 
-  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const {
+    isOpen: isSuccessOpen,
+    onOpen: openSuccess,
+    onClose: closeSuccess,
+  } = useDisclosure();
   const [successMessage, setSuccessMessage] = useState('');
+
+  useEffect(() => {
+    if (router.query.success === 'true') {
+      setSuccessMessage('Your payment was successful!');
+      openSuccess();
+    }
+  }, [router.query.success, openSuccess]);
 
   useEffect(() => {
     const cart = localStorage.getItem('cart');
@@ -144,7 +148,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
   ) => {
     try {
       await runValidations([
-        () => validateOTP(verifyOtp),
+        // () => validateOTP(verifyOtp),
         () => validatePickUpTime(data.date, data.time),
         () => validatePrice(data.totalPrice),
         () => validateOrderItem(orderList),
@@ -165,7 +169,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
         setSuccessMessage(
           `Your Order detail: Date: ${data.date}, Time: ${data.time}, Total: $${totalPrice}`,
         );
-        setIsSuccessModalOpen(true);
+        openSuccess();
       }
       if (paymentMethod === 'online') {
         await checkoutStripe(orderData);
@@ -295,8 +299,8 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
           />
         )}
         <SuccessModal
-          isOpen={isSuccessModalOpen}
-          onClose={() => setIsSuccessModalOpen(false)}
+          isOpen={isSuccessOpen}
+          onClose={closeSuccess}
           message={successMessage}
         />
       </section>
