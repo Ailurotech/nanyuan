@@ -58,20 +58,16 @@ const stripeWebhook = async (req: NextApiRequest, res: NextApiResponse) => {
               'Send reservation email error:',
               emailError.response.data,
             );
-            return res
-              .status(201)
-              .json({
-                message: 'Failed to send email',
-                error: emailError.response.data,
-              });
+            return res.status(201).json({
+              message: 'Failed to send email',
+              error: emailError.response.data,
+            });
           } else {
             console.error('Send reservation email error:', emailError.message);
-            return res
-              .status(201)
-              .json({
-                message: 'Failed to send email due to network error',
-                error: emailError.message,
-              });
+            return res.status(201).json({
+              message: 'Failed to send email due to network error',
+              error: emailError.message,
+            });
           }
         } else {
           console.error(
