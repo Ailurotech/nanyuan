@@ -262,14 +262,16 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
               onClick={handleSubmit(handlePayOnline)}
             >
               <div style={{ display: 'block' }}>
-                Pay Online (4.99% charge)
-                {parseFloat(totalPrice) > 0 && (
-                  <div>
-                    Approx $
+                {parseFloat(totalPrice) > 0 ? (
+                  <>
+                    Pay Online ($
                     {(
                       parseFloat(totalPrice) * ONLINE_PAYMENT_CHARGE_PERCENTAGE
-                    ).toFixed(2)}
-                  </div>
+                    ).toFixed(2)}{' '}
+                    surcharge)
+                  </>
+                ) : (
+                  <>Pay Online (4.99% surcharge)</>
                 )}
               </div>
             </Button>
