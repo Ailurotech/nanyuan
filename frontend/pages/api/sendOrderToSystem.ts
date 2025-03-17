@@ -30,6 +30,7 @@ const fetchUidsByBarcodes = async (barcodes: string[]): Promise<Record<string, s
                 return JSONbig.parse(data);
             }]
         });
+        
         if (data.status !== "success") {
             throw new Error(`Failed to fetch UIDs: ${JSON.stringify(data.messages)}`);
         }
@@ -52,22 +53,17 @@ const sendOrderToSystem = async (req: NextApiRequest, res: NextApiResponse) => {
         const timestamp = Date.now().toString();
         let orderData: yinbaoOrderData = req.body;
 
-        const barcodes = Array.from(new Set(orderData.items
-            .map((item: yinbaoOrderItem) => item.barcode)
-            .filter((barcode): barcode is string => barcode !== undefined)
-        ));
-        const barcodeToUid = await fetchUidsByBarcodes(barcodes);;
+        const barcodes = [...new Set(orderData.items.map(item => item.barcode).filter(Boolean))] as string[];
+        const barcodeToUid = await fetchUidsByBarcodes(barcodes);
+        
+
         orderData.items = orderData.items.map(({ barcode, ...item }: yinbaoOrderItem) => ({
             ...item,
-            productUid: barcode && barcodeToUid[barcode] 
-                ? BigInt(barcodeToUid[barcode]).toString()
-                : "0"
+            productUid: barcodeToUid[barcode!].toString()
         }));
-        console.log(orderData);
-        const requestBody = JSON.stringify(orderData);
         
-    
 
+        const requestBody = JSON.stringify(orderData);
         const dataSignatureV3 = generatev2Signature(APP_ID, APP_KEY, timestamp, requestBody);
 
         const { data } = await axios.post(SEND_ORDER_API_HOST, orderData, {
@@ -78,14 +74,13 @@ const sendOrderToSystem = async (req: NextApiRequest, res: NextApiResponse) => {
                 "time-stamp": timestamp,
                 "data-signature-v3": dataSignatureV3,
                 "accept-encoding": "gzip,deflate",
-            },
+            }
         });
-        console.log(data);
-
+        
         res.status(200).json({ success: true, data });
 
     } catch (error: any) {
-        console.error("Order submission error:", error.response?.data || error.message);
+        console.error("Error sending order to system:", error.response?.data || error.message);
         res.status(500).json({ success: false, message: error.response?.data || error.message });
     }
 };
