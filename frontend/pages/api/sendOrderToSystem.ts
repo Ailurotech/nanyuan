@@ -4,7 +4,7 @@ import { yinbaoOrderData, yinbaoOrderItem } from "@/types";
 import apiHandler from "@/lib/apiHandler";
 import { generatev2Signature, generatev1Signature } from "@/components/common/utils/generateSignature";
 import JSONbig from "json-bigint";
-import { fetchUidsByBarcodes } from "@/service/barcodeService";
+
 
 
 const GET_UID_API_HOST = process.env.GET_UID_API_HOST as string;
@@ -18,17 +18,7 @@ const sendOrderToSystem = async (req: NextApiRequest, res: NextApiResponse) => {
         const timestamp = Date.now().toString();
         let orderData: yinbaoOrderData = req.body;
 
-        const barcodes = [...new Set(orderData.items.map(item => item.barcode).filter(Boolean))] as string[];
-        const barcodeToUid = await fetchUidsByBarcodes(barcodes, GET_UID_API_HOST, APP_ID, APP_KEY);
-        
-
-        orderData.items = orderData.items.map(({ barcode, ...item }: yinbaoOrderItem) => ({
-            ...item,
-            productUid: barcodeToUid[barcode!].toString()
-        }));
-        
         const dataSignatureV3 = generatev2Signature(APP_ID, APP_KEY, timestamp, JSON.stringify(orderData));
-        
         const { data } = await axios.post(SEND_ORDER_API_HOST, orderData, {
             headers: {
                 "appId": APP_ID,
@@ -39,6 +29,7 @@ const sendOrderToSystem = async (req: NextApiRequest, res: NextApiResponse) => {
                 "accept-encoding": "gzip,deflate",
             }
         });
+        console.log(data);
         
         res.status(200).json({ success: true, data });
 

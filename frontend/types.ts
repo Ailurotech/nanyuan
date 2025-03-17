@@ -136,6 +136,7 @@ export interface OrderItem {
   menuItem: MenuItemReference;
   name: string;
   barcode: number;
+  productUid?: bigint | string;
 }
 
 export interface OrderData {

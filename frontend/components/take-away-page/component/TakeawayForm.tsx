@@ -23,6 +23,8 @@ import { OrderData, OrderItem } from '@/types';
 import { isValidTime } from '@/components/book-table-page/timeUtils';
 import { checkoutStripe } from '@/components/common/utils/checkoutStripe';
 import { submitCashOrderToYinbao } from '@/components/common/utils/submitCashOrderToYinbao';
+import getProductUid from '@/pages/api/getProductUid';
+import axios from 'axios';
 
 interface TakeawayProps {
   restaurant: Restaurant;
@@ -135,16 +137,29 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
         () => validatePrice(data.totalPrice),
         () => validateOrderItem(orderList),
       ]);
+      const barcodes = orderList.map((item) => item.barcode.toString()); // 确保 barcode 是 string
 
+      const response = await axios.post("/api/getProductUid", {
+        barcodes,
+      });
+      const { success, data: barcodeToUid } = response.data;
+      if (!success) {
+        throw new Error('Failed to fetch product UIDs');
+      }
       const orderData: OrderData = {
         ...data,
-        items: orderList,
+        items: orderList.map(item => ({
+            ...item,
+            productUid: barcodeToUid[item.barcode.toString()],
+        })),
         totalPrice: parseFloat(totalPrice),
         orderId: uuidv4(),
         status: status,
         paymentMethod: paymentMethod,
-      };
-      // await CreateTakeAwayOrder(orderData);
+    };
+    
+
+      //await CreateTakeAwayOrder(orderData);
       switch (paymentMethod) {
         case 'offline':
           await submitCashOrderToYinbao(orderData);
