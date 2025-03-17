@@ -12,8 +12,8 @@ export async function submitCashOrderToYinbao(orderData: OrderData): Promise<any
       contactName: orderData.name,
       contactTel: orderData.phone,
       items: orderData.items.map(item => ({
-        barcode: item.barcode, 
-        comment:  "", 
+        barcode: item.barcode?.toString() || "", 
+        comment:  "No special request", 
         quantity: item.quantity
       }))
     };

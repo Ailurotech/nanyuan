@@ -153,10 +153,11 @@ export interface OrderData {
 }
 
 export interface yinbaoOrderItem {
-  barcode: number;
-  comment: string;  
-  quantity: number;    
-};
+  barcode?: string;
+  comment: string;
+  quantity: number;
+  productUid?: bigint | string;
+}
 
 export interface yinbaoOrderData {
   payMethod: "Wxpay" | "Cash"; 

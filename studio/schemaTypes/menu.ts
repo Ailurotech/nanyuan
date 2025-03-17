@@ -8,7 +8,7 @@ export default defineType({
     {
       name: 'barcode',
       title: 'Barcode',
-      type: 'number',
+      type: 'string',
     },
     {
       name: 'name',
