@@ -18,7 +18,7 @@ import { validateTableAvailabilityAndConflicts } from './checkAvailability';
 import { validateInitialConditions } from './checkAvailability';
 import axios from 'axios';
 import { ReservationData } from '@/types';
-import { SuccessModal } from '@/components/common/SuccessModal'; // 新的 CustomModal 实现
+import { SuccessModal } from '@/components/common/SuccessModal';
 import { useRouter } from 'next/router';
 
 interface BooktablePageProps {
@@ -142,11 +142,13 @@ export function BooktablePage({ restaurant, table }: BooktablePageProps) {
     }
   };
 
+  const { success } = router.query;
+
   useEffect(() => {
-    if (router.query.success === 'true') {
+    if (success === 'true') {
       onOpen();
     }
-  }, [router.query.success, onOpen]);
+  }, [success, onOpen]);
 
   return (
     <section className="bg-[#191919] min-h-screen pt-[200px] flex flex-col items-center">

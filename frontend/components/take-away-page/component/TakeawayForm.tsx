@@ -52,12 +52,14 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
   } = useDisclosure();
   const [successMessage, setSuccessMessage] = useState('');
 
+  const { success } = router.query;
+
   useEffect(() => {
-    if (router.query.success === 'true') {
+    if (success === 'true') {
       setSuccessMessage('Your payment was successful!');
       openSuccess();
     }
-  }, [router.query.success, openSuccess]);
+  }, [success, openSuccess]);
 
   useEffect(() => {
     const cart = localStorage.getItem('cart');
