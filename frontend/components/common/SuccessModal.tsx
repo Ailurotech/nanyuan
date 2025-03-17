@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import '@/components/common/SuccessModal.css';
+import '@/components/styles/SuccessModal.module.css';
 
 interface CustomModalProps {
   isOpen: boolean;
