@@ -2,7 +2,7 @@
 export interface MenuItem {
   quantity: number;
   _id: string;
-  yinbaoId: number;
+  barcode: number;
   name: string;
   description: string;
   price: number;
@@ -72,7 +72,7 @@ export interface ShoppingCartItem {
   price: number;
   image: string;
   quantity: number;
-  yinbaoId: number;
+  barcode: number;
 }
 
 export interface CartCardProps {
@@ -135,7 +135,7 @@ export interface OrderItem {
   quantity: number;
   menuItem: MenuItemReference;
   name: string;
-  yinbaoId: number;
+  barcode: number;
 }
 
 export interface OrderData {
@@ -153,7 +153,7 @@ export interface OrderData {
 }
 
 export interface yinbaoOrderItem {
-  productUid: number;
+  barcode: number;
   comment: string;  
   quantity: number;    
 };

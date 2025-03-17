@@ -6,8 +6,8 @@ export default defineType({
   type: 'document',
   fields: [
     {
-      name: 'yinbaoId',
-      title: '银豹ID',
+      name: 'barcode',
+      title: 'Barcode',
       type: 'number',
     },
     {

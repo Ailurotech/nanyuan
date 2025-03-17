@@ -1,25 +1,25 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import axios from "axios";
-import crypto from "crypto";
 import { yinbaoOrderData } from "@/types";
 import apiHandler from "@/lib/apiHandler";
+import { generateSignature } from "@/components/common/utils/generateSignature";
 
-const API_HOST = "https://openapi75.pospal.cn/openinterface/orderOpenApi/addOnLineOrder";
-const APP_ID = "C56D0B097D16F7DD4A5EDD88AEDE2FF5";
-const APP_KEY = "42985553326968941";
 
 const sendOrderToSystem = async (req: NextApiRequest, res: NextApiResponse) => {
   
     try {
         const timestamp = Date.now().toString();
         const orderData: yinbaoOrderData = req.body;
-        console.log(orderData);
         const requestBody = JSON.stringify(orderData);
-        const dataSignatureV3 = generateSignature(APP_ID, APP_KEY, timestamp, requestBody);
 
-        const { data } = await axios.post(API_HOST, orderData, {
+
+        
+        const dataSignatureV3 = generateSignature(process.env.SEND_ORDER_APP_ID as string, process.env.SEND_ORDER_APP_KEY as string, timestamp, requestBody);
+
+
+        const { data } = await axios.post(process.env.SEND_ORDER_API_HOST as string, orderData, {
             headers: {
-                "appId": APP_ID,
+                "appId": process.env.SEND_ORDER_APP_ID as string,
                 "User-Agent": "openApi",
                 "Content-Type": "application/json",
                 "time-stamp": timestamp,
@@ -42,7 +42,3 @@ const sendOrderToSystem = async (req: NextApiRequest, res: NextApiResponse) => {
 
 export default apiHandler().post(sendOrderToSystem);
 
-function generateSignature(appId: string, appKey: string, timestamp: string, requestBody: string): string {
-    const rawString = appId + appKey + timestamp + requestBody;
-    return crypto.createHash("md5").update(rawString, "utf8").digest("hex").toUpperCase();
-}

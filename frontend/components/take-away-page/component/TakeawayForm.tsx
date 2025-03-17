@@ -59,7 +59,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
         _ref: item._id,
       },
       menuItemName: item.name,
-      yinbaoId: item.yinbaoId,
+      barcode: item.barcode,
     }));
     setOrderList(parsedList);
     setTotalPrice(

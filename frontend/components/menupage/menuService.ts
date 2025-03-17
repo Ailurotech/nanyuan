@@ -21,7 +21,7 @@ export const fetchMenuItems = async (
       *[_type == "menu" && isAvailable == true ${categoryFilter}]
       | order(_id asc) ${rangeQuery} {
         _id,
-        yinbaoId,
+        barcode,
         name,
         description,
         price,
