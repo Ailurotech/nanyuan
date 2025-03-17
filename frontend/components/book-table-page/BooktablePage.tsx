@@ -130,7 +130,24 @@ export function BooktablePage({ restaurant, table }: BooktablePageProps) {
       );
       onOpen();
     } catch (error) {
-      console.error('Error during reservation:', error);
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          console.error(
+            `Reservation error (${error.response.status}):`,
+            error.response.data,
+          );
+          alert('Reservation failed, please try again later.');
+        } else if (error.request) {
+          console.error('No response received:', error.request);
+          alert('Network error, please check your internet connection.');
+        } else {
+          console.error('Error in request setup:', error.message);
+          alert('Request failed, please try again later.');
+        }
+      } else {
+        console.error('Unexpected error:', error);
+        alert('An unknown error occurred, please try again later.');
+      }
     }
   };
 
