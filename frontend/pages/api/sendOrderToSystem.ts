@@ -16,7 +16,7 @@ const fetchUidsByBarcodes = async (barcodes: string[]): Promise<Record<string, s
 
     const timestamp = Date.now().toString();
     const requestBody = JSON.stringify({ appId: APP_ID, barcodes });
-    const dataSignature = generatev1Signature(APP_KEY, requestBody);
+    const dataSignaturev1 = generatev1Signature(APP_KEY, requestBody);
     try {
         const { data } = await axios.post(GET_UID_API_HOST, { appId: APP_ID, barcodes }, {
             headers: {
@@ -24,13 +24,12 @@ const fetchUidsByBarcodes = async (barcodes: string[]): Promise<Record<string, s
                 "Content-Type": "application/json; charset=utf-8",
                 "accept-encoding": "gzip,deflate",
                 "time-stamp": timestamp,
-                "data-signature": dataSignature,
+                "data-signature": dataSignaturev1,
             },
             transformResponse: [(data) => {
                 return JSONbig.parse(data);
             }]
         });
-        console.log(data);
         if (data.status !== "success") {
             throw new Error(`Failed to fetch UIDs: ${JSON.stringify(data.messages)}`);
         }
@@ -61,6 +60,8 @@ const sendOrderToSystem = async (req: NextApiRequest, res: NextApiResponse) => {
         orderData.items = orderData.items.map(({ barcode, ...item }: yinbaoOrderItem) => ({
             ...item,
             productUid: barcode && barcodeToUid[barcode] 
+                ? BigInt(barcodeToUid[barcode]).toString()
+                : "0"
         }));
         console.log(orderData);
         const requestBody = JSON.stringify(orderData);

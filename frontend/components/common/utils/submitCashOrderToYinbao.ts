@@ -5,7 +5,9 @@ import dayjs from "dayjs";
 export async function submitCashOrderToYinbao(orderData: OrderData): Promise<any> {
   try {
     const yinbaoOrder: yinbaoOrderData = {
-      payMethod: "Cash", 
+      payMethod: "Wxpay",
+      payOnLine: "1",
+      orderRemark: "pay on counter!"+orderData.notes,
       orderDateTime: dayjs().format('YYYY-MM-DD HH:mm:ss'),  
       reservationTime: dayjs(orderData.date).format('YYYY-MM-DD HH:mm:ss'), 
       contactAddress: "N/A", 

@@ -160,11 +160,13 @@ export interface yinbaoOrderItem {
 }
 
 export interface yinbaoOrderData {
-  payMethod: "Wxpay" | "Cash"; 
+  payMethod: "Wxpay"; 
+  payOnLine: string;
   orderDateTime: string;  
   reservationTime: string; 
   contactAddress: string;  
   contactName: string;     
-  contactTel: string;      
+  contactTel: string; 
+  orderRemark:string;     
   items: yinbaoOrderItem[]; 
 };
