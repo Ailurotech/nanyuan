@@ -7,6 +7,9 @@ import { Stripe } from 'stripe';
 import { errorMap } from '@/error/errorMap';
 import { WebhookValidator } from '@/components/common/validations/webhookValidator';
 import { ValidationError } from '@/error/validationError';
+import { OrderData } from '@/types';
+
+
 export const config = {
   api: {
     bodyParser: false,
@@ -36,15 +39,21 @@ const stripeWebhook = async (req: NextApiRequest, res: NextApiResponse) => {
     );
 
     const newStatus = sessionStatusMap[event.type];
+    const session = event.data.object as Stripe.Checkout.Session;
+    const orderId = session.metadata?.orderId;
+    await sanityClient
+      .patch(orderId as string)
+      .set({ status: newStatus })
+      .commit()
+      
+    const order:OrderData = await sanityClient.fetch(`
+        *[_type == "order" && orderId == $orderId][0]
+      `, { orderId });
+    console.log(order);
+    
 
-    if (newStatus) {
-      const session = event.data.object as Stripe.Checkout.Session;
-      const orderId = session.metadata?.orderId;
-      await sanityClient
-        .patch(orderId as string)
-        .set({ status: newStatus })
-        .commit();
-    }
+    
+
 
     res.status(200).json({ received: true });
   } catch (error) {
