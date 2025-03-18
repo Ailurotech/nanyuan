@@ -24,13 +24,13 @@ export default function LocationPage({
   }
 
   return (
-    <div className="min-h-screen bg-[#191919] flex flex-col justify-center items-center p-0 pt-44">
-      <div className="max-w-6xl w-full bg-[#e5e7ea] shadow-lg rounded-[2rem] overflow-hidden flex flex-col md:flex-row h-auto md:h-[600px]">
-        <div className="md:w-3/5 flex justify-center items-center my-2">
+    <div className="min-h-screen bg-[#191919] flex flex-col justify-center items-center p-5 pt-44">
+      <div className="w-full max-w-[90vw] sm:max-w-[85vw] md:max-w-[80vw] lg:max-w-6xl bg-[#e5e7ea] shadow-lg rounded-[2rem] overflow-hidden flex flex-col md:flex-row h-auto p-5">
+        <div className="w-full md:w-1/2 lg:w-3/5 flex justify-center items-center my-2">
           <ImageSlider images={restaurantInfo.images} />
         </div>
 
-        <div className="flex flex-col p-6 h-auto md:h-full flex-1 justify-center items-center">
+        <div className="flex flex-col p-6 h-auto flex-1 justify-center items-start w-full">
           <LocationHeader restaurantInfo={restaurantInfo} />
           <LocationMap mapUrl={mapUrl} />
         </div>
