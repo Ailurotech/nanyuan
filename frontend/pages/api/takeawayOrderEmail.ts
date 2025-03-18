@@ -7,7 +7,9 @@ import path from 'path';
 import { generateTakeawayOrderEmail } from '@/lib/emailTemplates/generateTakeawayOrderEmail';
 import type { EmailContent, OrderDetails } from '@/types';
 import { mailgunClient } from '@/lib/mailgunClient';
-import { BaseValidator } from '@/components/common/validations/BaseValidator';
+import { errorMap } from '@/error/errorMap';
+import { SanityError } from '@/error/sanityError';
+import { ReadFileError } from '@/error/readFileError';
 
 const logoImgPath: string = path.join(process.cwd(), 'public', 'logo.png');
 
@@ -16,14 +18,8 @@ export default apiHandler().post(
     try {
       const { orderId }: { orderId: string } = req.body;
 
-      // Validate the required fields
-      BaseValidator.validateRequiredFields(req.body, ['orderId']);
-      BaseValidator.validateOrderId(orderId);
-
-      // Fetch order items
-      let orderDetails: OrderDetails;
-      try {
-        orderDetails = await sanityClient.fetch(
+      const orderDetails: OrderDetails = await sanityClient
+        .fetch(
           `
             *[_type == "order" && orderId == $orderId][0] {
               customerName,
@@ -42,46 +38,20 @@ export default apiHandler().post(
             }
           `,
           { orderId },
-        );
-      } catch (error: unknown) {
-        console.error(
-          'Failed to send takeaway order email due to failing to fetch order.',
-          (error as Error).message,
-        );
-        return res.status(500).json({
-          message: 'Failed to fetch order details.',
-          error: (error as Error).message,
+        )
+        .catch(() => {
+          throw new SanityError('Failed to fetch order details');
         });
-      }
 
-      if (!orderDetails) {
-        return res
-          .status(404)
-          .json({ message: 'Order not found.', error: 'Order not found.' });
-      }
+      const logoBuffer: Buffer = await readFile(logoImgPath).catch(() => {
+        throw new ReadFileError('Failed to read logo image file');
+      });
 
-      // Read logo image asynchronously
-      let logoBuffer: Buffer;
-      try {
-        logoBuffer = await readFile(logoImgPath);
-      } catch (error: unknown) {
-        console.error(
-          'Failed to send takeaway order email due to failing to read logo image file.',
-          (error as Error).message,
-        );
-        return res.status(500).json({
-          message: 'Failed to read logo image file.',
-          error: (error as Error).message,
-        });
-      }
-
-      // Create logo image as attachment and use cid to embed image in html
       const logoImg: Attachment = new mailgunClient.Attachment({
         data: logoBuffer,
         filename: 'logo.png',
       });
 
-      // Define the email content
       const emailContent: EmailContent = {
         from: `Nanyuan restaurant <${process.env.SENDER_EMAIL}>`,
         to: orderDetails.email,
@@ -90,18 +60,23 @@ export default apiHandler().post(
         inline: logoImg,
       };
 
-      // Send the email
       await mailgunClient.messages().send(emailContent);
-      return res.status(200).json({ message: 'Email sent successfully.' });
+      return res.status(200).json({ message: 'Email sent successfully' });
     } catch (error: unknown) {
       console.error(
         'Failed to send takeaway order email.',
         (error as Error).message,
       );
-      return res.status(500).json({
-        message: 'Failed to send email.',
-        error: (error as Error).message,
-      });
+      if (error instanceof Error) {
+        const errorName = error.name;
+        const errorInfo = errorMap.get(errorName);
+        return res.status(errorInfo?.status || 500).json({
+          error: errorInfo?.message || 'Failed to send takeaway order email',
+        });
+      }
+      return res
+        .status(500)
+        .json({ error: 'Failed to send takeaway order email' });
     }
   },
 );

@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 
-// Mock request and response
 const mockRequestResponse = (method: string, body: any) => {
   const req = {
     method,
@@ -15,7 +14,6 @@ const mockRequestResponse = (method: string, body: any) => {
   return { req, res };
 };
 
-// Mock Mailgun Client
 const sendMock = jest.fn();
 jest.mock('mailgun-js', () => {
   return jest.fn(() => ({
@@ -26,7 +24,6 @@ jest.mock('mailgun-js', () => {
   }));
 });
 
-// Mock the generateReservationEmail function to return a dummy HTML string.
 jest.mock('@/lib/emailTemplates/generateReservationEmail', () => ({
   generateReservationEmail: jest.fn(
     (reservationInfo) => '<html>Test Email Content</html>',
@@ -37,7 +34,6 @@ import handler from '@/pages/api/reservationEmail';
 import { generateReservationEmail } from '@/lib/emailTemplates/generateReservationEmail';
 
 describe('Reservation Email API', () => {
-  // Dummy reservation info for testing
   const reservationInfo = {
     name: 'Alice',
     phone: '111222333',
@@ -55,23 +51,21 @@ describe('Reservation Email API', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     fsPromises = require('fs/promises');
-    readFileSpy = jest.spyOn(fsPromises, 'readFile'); // Mock readFile
+    readFileSpy = jest.spyOn(fsPromises, 'readFile');
   });
 
   it('should return 500 if reading the logo image fails', async () => {
-    // Simulate a failure in reading the logo image
     readFileSpy.mockRejectedValue(new Error('Read file error.'));
 
     const { req, res } = mockRequestResponse('POST', reservationInfo);
 
     await handler(req, res);
-    await new Promise((resolve) => setImmediate(resolve)); // Wait all async tasks to be completed
+    await new Promise((resolve) => setImmediate(resolve));
 
     expect(readFileSpy).toHaveBeenCalled();
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({
-      message: 'Failed to read logo image file.',
-      error: 'Read file error.',
+      error: 'Failed to read logo image file',
     });
   });
 
@@ -79,21 +73,19 @@ describe('Reservation Email API', () => {
     const mockBuffer = Buffer.from('dummy-logo');
     readFileSpy.mockResolvedValue(mockBuffer);
 
-    // Simulate a failure in sending the email
     sendMock.mockRejectedValue(new Error('Mailgun error.'));
 
     const { req, res } = mockRequestResponse('POST', reservationInfo);
 
     await handler(req, res);
-    await new Promise((resolve) => setImmediate(resolve)); // Wait all async tasks to be completed
+    await new Promise((resolve) => setImmediate(resolve));
 
     expect(readFileSpy).toHaveBeenCalled();
     expect(generateReservationEmail).toHaveBeenCalledWith(reservationInfo);
     expect(sendMock).toHaveBeenCalled();
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({
-      message: 'Failed to send email.',
-      error: 'Mailgun error.',
+      error: 'Failed to send reservation email',
     });
   });
 
@@ -101,20 +93,19 @@ describe('Reservation Email API', () => {
     const mockBuffer = Buffer.from('dummy-logo');
     readFileSpy.mockResolvedValue(mockBuffer);
 
-    // Mock Mailgun send success
     sendMock.mockResolvedValue({});
 
     const { req, res } = mockRequestResponse('POST', reservationInfo);
 
     await handler(req, res);
-    await new Promise((resolve) => setImmediate(resolve)); // Wait all async tasks to be completed
+    await new Promise((resolve) => setImmediate(resolve));
 
     expect(readFileSpy).toHaveBeenCalled();
     expect(generateReservationEmail).toHaveBeenCalledWith(reservationInfo);
     expect(sendMock).toHaveBeenCalled();
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({
-      message: 'Email sent successfully.',
+      message: 'Email sent successfully',
     });
   });
 });

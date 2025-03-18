@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { sanityClient } from '@/lib/sanityClient';
 import { ReservationValidator } from '@/components/common/validations/ReservationValidator';
 import { errorMap } from '@/error/errorMap';
+import { EmailError } from '@/error/emailError';
 
 import apiHandler from '@/lib/apiHandler';
 import axios from 'axios';
@@ -13,7 +14,6 @@ const createReservation = async (req: NextApiRequest, res: NextApiResponse) => {
     ReservationValidator.validateAll(data);
     await sanityClient.create(data);
 
-    // Get table type
     const tableId: string = data.table._ref;
     const tableType: string = await sanityClient.fetch(
       `*[_type == "table" && _id == $tableId][0].type`,
@@ -25,10 +25,8 @@ const createReservation = async (req: NextApiRequest, res: NextApiResponse) => {
         ...data,
         table: tableType + '-person Table',
       })
-      .catch((error: unknown) => {
-        const EmailError = new Error('Failed to send email');
-        EmailError.name = 'EmailError';
-        throw EmailError;
+      .catch(() => {
+        throw new EmailError('Failed to send email');
       });
 
     return res

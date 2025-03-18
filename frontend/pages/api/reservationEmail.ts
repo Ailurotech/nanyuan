@@ -6,6 +6,8 @@ import path from 'path';
 import { generateReservationEmail } from '@/lib/emailTemplates/generateReservationEmail';
 import type { EmailContent, ReservationInfo } from '@/types';
 import { mailgunClient } from '@/lib/mailgunClient';
+import { errorMap } from '@/error/errorMap';
+import { ReadFileError } from '@/error/readFileError';
 
 const logoImgPath: string = path.join(process.cwd(), 'public', 'logo.png');
 
@@ -14,28 +16,15 @@ export default apiHandler().post(
     try {
       const reservationInfo: ReservationInfo = req.body;
 
-      // Read logo image asynchronously
-      let logoBuffer: Buffer;
-      try {
-        logoBuffer = await readFile(logoImgPath);
-      } catch (error: unknown) {
-        console.error(
-          'Failed to send reservation email due to failing to read logo image file.',
-          (error as Error).message,
-        );
-        return res.status(500).json({
-          message: 'Failed to read logo image file.',
-          error: (error as Error).message,
-        });
-      }
+      const logoBuffer: Buffer = await readFile(logoImgPath).catch(() => {
+        throw new ReadFileError('Failed to read logo image file');
+      });
 
-      // Create logo image as attachment and use cid to embed image in html
       const logoImg: Attachment = new mailgunClient.Attachment({
         data: logoBuffer,
         filename: 'logo.png',
       });
 
-      // Define email content
       const emailContent: EmailContent = {
         from: `Nanyuan restaurant <${process.env.SENDER_EMAIL}>`,
         to: reservationInfo.email,
@@ -44,18 +33,23 @@ export default apiHandler().post(
         inline: logoImg,
       };
 
-      // Send the email
       await mailgunClient.messages().send(emailContent);
-      return res.status(200).json({ message: 'Email sent successfully.' });
+      return res.status(200).json({ message: 'Email sent successfully' });
     } catch (error: unknown) {
       console.error(
         'Failed to send reservation email.',
         (error as Error).message,
       );
-      return res.status(500).json({
-        message: 'Failed to send email.',
-        error: (error as Error).message,
-      });
+      if (error instanceof Error) {
+        const errorName = error.name;
+        const errorInfo = errorMap.get(errorName);
+        return res.status(errorInfo?.status || 500).json({
+          error: errorInfo?.message || 'Failed to send reservation email',
+        });
+      }
+      return res
+        .status(500)
+        .json({ error: 'Failed to send reservation email' });
     }
   },
 );

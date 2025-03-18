@@ -6,7 +6,7 @@ import { sanityClient } from '@/lib/sanityClient';
 import { Stripe } from 'stripe';
 import { errorMap } from '@/error/errorMap';
 import { WebhookValidator } from '@/components/common/validations/webhookValidator';
-import { ValidationError } from '@/error/validationError';
+import { EmailError } from '@/error/emailError';
 import axios from 'axios';
 export const config = {
   api: {
@@ -50,10 +50,8 @@ const stripeWebhook = async (req: NextApiRequest, res: NextApiResponse) => {
         .post(`${process.env.CLIENT_BASE_URL}/api/takeawayOrderEmail`, {
           orderId,
         })
-        .catch((error: unknown) => {
-          const EmailError = new Error('Failed to send email');
-          EmailError.name = 'EmailError';
-          throw EmailError;
+        .catch(() => {
+          throw new EmailError('Failed to send email');
         });
     }
 

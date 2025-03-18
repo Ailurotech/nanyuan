@@ -9,4 +9,6 @@ export const errorMap = new Map<string, { status: number; message: string }>([
       message: 'Failed to send email, but the order has been created',
     },
   ],
+  ['ReadFileError', { status: 500, message: 'Failed to read logo image file' }],
+  ['SanityError', { status: 500, message: 'Failed to fetch order details' }],
 ]);
