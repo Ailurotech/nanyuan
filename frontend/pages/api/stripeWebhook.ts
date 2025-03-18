@@ -46,39 +46,15 @@ const stripeWebhook = async (req: NextApiRequest, res: NextApiResponse) => {
         .set({ status: newStatus })
         .commit();
 
-      try {
-        await axios.post(
-          `${process.env.CLIENT_BASE_URL}/api/takeawayOrderEmail`,
-          { orderId },
-        );
-      } catch (emailError: unknown) {
-        if (axios.isAxiosError(emailError)) {
-          if (emailError.response) {
-            console.error(
-              'Send reservation email error:',
-              emailError.response.data,
-            );
-            return res.status(201).json({
-              message: 'Failed to send email',
-              error: emailError.response.data,
-            });
-          } else {
-            console.error('Send reservation email error:', emailError.message);
-            return res.status(201).json({
-              message: 'Failed to send email due to network error',
-              error: emailError.message,
-            });
-          }
-        } else {
-          console.error(
-            'Unexpected error when sending servation email:',
-            emailError,
-          );
-          return res
-            .status(201)
-            .json({ message: 'Failed to send email', error: emailError });
-        }
-      }
+      await axios
+        .post(`${process.env.CLIENT_BASE_URL}/api/takeawayOrderEmail`, {
+          orderId,
+        })
+        .catch((error: unknown) => {
+          const EmailError = new Error('Failed to send email');
+          EmailError.name = 'EmailError';
+          throw EmailError;
+        });
     }
 
     res.status(200).json({ received: true });

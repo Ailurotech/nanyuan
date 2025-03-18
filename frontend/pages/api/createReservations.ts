@@ -20,39 +20,16 @@ const createReservation = async (req: NextApiRequest, res: NextApiResponse) => {
       { tableId },
     );
 
-    try {
-      await axios.post(`${process.env.CLIENT_BASE_URL}/api/reservationEmail`, {
+    await axios
+      .post(`${process.env.CLIENT_BASE_URL}/api/reservationEmail`, {
         ...data,
         table: tableType + '-person Table',
+      })
+      .catch((error: unknown) => {
+        const EmailError = new Error('Failed to send email');
+        EmailError.name = 'EmailError';
+        throw EmailError;
       });
-    } catch (emailError: unknown) {
-      if (axios.isAxiosError(emailError)) {
-        if (emailError.response) {
-          console.error(
-            'Send reservation email error:',
-            emailError.response.data,
-          );
-          return res.status(201).json({
-            message: 'Failed to send email',
-            error: emailError.response.data,
-          });
-        } else {
-          console.error('Send reservation email error:', emailError.message);
-          return res.status(201).json({
-            message: 'Failed to send email due to network error',
-            error: emailError.message,
-          });
-        }
-      } else {
-        console.error(
-          'Unexpected error when sending servation email:',
-          emailError,
-        );
-        return res
-          .status(201)
-          .json({ message: 'Failed to send email', error: emailError });
-      }
-    }
 
     return res
       .status(200)

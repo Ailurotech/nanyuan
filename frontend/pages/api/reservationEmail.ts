@@ -19,6 +19,10 @@ export default apiHandler().post(
       try {
         logoBuffer = await readFile(logoImgPath);
       } catch (error: unknown) {
+        console.error(
+          'Failed to send reservation email due to failing to read logo image file.',
+          (error as Error).message,
+        );
         return res.status(500).json({
           message: 'Failed to read logo image file.',
           error: (error as Error).message,
@@ -44,6 +48,10 @@ export default apiHandler().post(
       await mailgunClient.messages().send(emailContent);
       return res.status(200).json({ message: 'Email sent successfully.' });
     } catch (error: unknown) {
+      console.error(
+        'Failed to send reservation email.',
+        (error as Error).message,
+      );
       return res.status(500).json({
         message: 'Failed to send email.',
         error: (error as Error).message,
