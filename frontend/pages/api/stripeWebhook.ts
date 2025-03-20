@@ -6,9 +6,8 @@ import { sanityClient } from '@/lib/sanityClient';
 import { Stripe } from 'stripe';
 import { errorMap } from '@/error/errorMap';
 import { WebhookValidator } from '@/components/common/validations/webhookValidator';
-import { ValidationError } from '@/error/validationError';
 import { OrderData } from '@/types';
-
+import { submitCashOrderToYinbao } from '@/components/common/utils/submitCashOrderToYinbao';
 
 export const config = {
   api: {
@@ -44,16 +43,20 @@ const stripeWebhook = async (req: NextApiRequest, res: NextApiResponse) => {
     await sanityClient
       .patch(orderId as string)
       .set({ status: newStatus })
-      .commit()
-      
-    const order:OrderData = await sanityClient.fetch(`
+      .commit();
+
+    const order = await sanityClient.fetch(
+      `
         *[_type == "order" && orderId == $orderId][0]
-      `, { orderId });
-    console.log(order);
-    
+      `,
+      { orderId },
+    );
 
-    
-
+    const formattedOrder: OrderData = {
+      ...order,
+      name: String(order.customerName),
+    };
+    await submitCashOrderToYinbao(formattedOrder, true);
 
     res.status(200).json({ received: true });
   } catch (error) {

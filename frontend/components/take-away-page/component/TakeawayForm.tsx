@@ -132,14 +132,14 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
   ) => {
     try {
       await runValidations([
-        //() => validateOTP(verifyOtp),
+        () => validateOTP(verifyOtp),
         () => validatePickUpTime(data.date, data.time),
         () => validatePrice(data.totalPrice),
         () => validateOrderItem(orderList),
       ]);
-      const barcodes = orderList.map((item) => item.barcode.toString()); // 确保 barcode 是 string
+      const barcodes = orderList.map((item) => item.barcode.toString());
 
-      const response = await axios.post("/api/getProductUid", {
+      const response = await axios.post('/api/getProductUid', {
         barcodes,
       });
       const { success, data: barcodeToUid } = response.data;
@@ -148,18 +148,17 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
       }
       const orderData: OrderData = {
         ...data,
-        items: orderList.map(item => ({
-            ...item,
-            productUid: barcodeToUid[item.barcode.toString()],
+        items: orderList.map((item) => ({
+          ...item,
+          productUid: barcodeToUid[item.barcode.toString()],
         })),
         totalPrice: parseFloat(totalPrice),
         orderId: uuidv4(),
         status: status,
         paymentMethod: paymentMethod,
-    };
-    
+      };
 
-      //await CreateTakeAwayOrder(orderData);
+      await CreateTakeAwayOrder(orderData);
       switch (paymentMethod) {
         case 'offline':
           await submitCashOrderToYinbao(orderData);
