@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 
-export function generatev2Signature(
+export function generateSignatureV2(
   appId: string,
   appKey: string,
   timestamp: string,
@@ -14,7 +14,7 @@ export function generatev2Signature(
     .toUpperCase();
 }
 
-export function generatev1Signature(
+export function generateSignatureV1(
   appKey: string,
   requestBody: string,
 ): string {

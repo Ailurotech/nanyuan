@@ -160,7 +160,7 @@ export interface yinbaoOrderItem {
   productUid?: bigint | string;
 }
 
-export interface yinbaoOrderData {
+export interface YinbaoOrderPayload {
   payMethod: 'Wxpay';
   payOnLine: string;
   orderDateTime: string;

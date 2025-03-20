@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios';
 import JSONbig from 'json-bigint';
-import { generatev1Signature } from '@/components/common/utils/generateSignature';
+import { generateSignatureV1 } from '@/components/common/utils/generateSignature';
 import { errorMap } from '@/error/errorMap';
 import { ValidationError } from '@/error/validationError';
 
@@ -19,26 +19,26 @@ const getProductUid = async (req: NextApiRequest, res: NextApiResponse) => {
 
     const timestamp = Date.now().toString();
     const requestBody = JSON.stringify({ appId: APP_ID, barcodes });
-    const dataSignature = generatev1Signature(APP_KEY, requestBody);
+    const dataSignature = generateSignatureV1(APP_KEY, requestBody);
 
-    const { data } = await axios.post(
-      GET_UID_API_HOST,
-      { appId: APP_ID, barcodes },
-      {
-        headers: {
-          'User-Agent': 'openApi',
-          'Content-Type': 'application/json; charset=utf-8',
-          'time-stamp': timestamp,
-          'data-signature': dataSignature,
-          'accept-encoding': 'gzip,deflate',
+    const { data } = await axios
+      .post(
+        GET_UID_API_HOST,
+        { appId: APP_ID, barcodes },
+        {
+          headers: {
+            'User-Agent': 'openApi',
+            'Content-Type': 'application/json; charset=utf-8',
+            'time-stamp': timestamp,
+            'data-signature': dataSignature,
+            'accept-encoding': 'gzip,deflate',
+          },
+          transformResponse: [(data) => JSONbig.parse(data)],
         },
-        transformResponse: [(data) => JSONbig.parse(data)],
-      },
-    );
-
-    if (data.status !== 'success') {
-      throw new Error(`Failed to fetch UIDs: ${JSON.stringify(data.messages)}`);
-    }
+      )
+      .catch((err) => {
+        throw new Error(`Failed to fetch UIDs: ${JSON.stringify(err)}`);
+      });
 
     const barcodeToUid = data.data.reduce(
       (

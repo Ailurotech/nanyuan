@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { OrderData, yinbaoOrderData } from '@/types';
+import { OrderData, YinbaoOrderPayload } from '@/types';
 import dayjs from 'dayjs';
 
 export async function submitCashOrderToYinbao(
@@ -7,7 +7,7 @@ export async function submitCashOrderToYinbao(
   paid: boolean = false,
 ): Promise<any> {
   try {
-    const yinbaoOrder: yinbaoOrderData = {
+    const yinbaoOrder: YinbaoOrderPayload = {
       payMethod: 'Wxpay',
       payOnLine: '1',
       orderRemark: `${paid ? 'paid!' : 'pay on counter!'} ${orderData.notes}`,

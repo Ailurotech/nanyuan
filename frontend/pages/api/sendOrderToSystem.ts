@@ -1,8 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios';
-import { yinbaoOrderData, yinbaoOrderItem } from '@/types';
+import { YinbaoOrderPayload } from '@/types';
 import apiHandler from '@/lib/apiHandler';
-import { generatev2Signature } from '@/components/common/utils/generateSignature';
+import { generateSignatureV2 } from '@/components/common/utils/generateSignature';
 import JSONbig from 'json-bigint';
 
 const SEND_ORDER_API_HOST = process.env.SEND_ORDER_API_HOST as string;
@@ -12,9 +12,9 @@ const APP_KEY = process.env.SEND_ORDER_APP_KEY as string;
 const sendOrderToSystem = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     const timestamp = Date.now().toString();
-    let orderData: yinbaoOrderData = req.body;
+    let orderData: YinbaoOrderPayload = req.body;
 
-    const dataSignatureV3 = generatev2Signature(
+    const dataSignatureV3 = generateSignatureV2(
       APP_ID,
       APP_KEY,
       timestamp,
