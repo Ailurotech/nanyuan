@@ -65,7 +65,7 @@ describe('Reservation Email API', () => {
     expect(readFileSpy).toHaveBeenCalled();
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({
-      error: 'Failed to read logo image file',
+      error: 'Failed to send email: Failed to read logo image file',
     });
   });
 
