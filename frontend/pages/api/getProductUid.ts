@@ -21,7 +21,6 @@ const getProductUid = async (req: NextApiRequest, res: NextApiResponse) => {
     const timestamp = Date.now().toString();
     const requestBody = JSON.stringify({ appId: APP_ID, barcodes });
     const dataSignature = generateSignatureV1(APP_KEY, requestBody);
-    
 
     const { data } = await axios
       .post(
