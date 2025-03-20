@@ -4,6 +4,7 @@ import { YinbaoOrderPayload } from '@/types';
 import apiHandler from '@/lib/apiHandler';
 import { generateSignatureV2 } from '@/components/common/utils/generateSignature';
 import JSONbig from 'json-bigint';
+import { sendOrderToSystemValidator } from '@/components/common/validations/sendOrderToSystemValidator';
 
 const SEND_ORDER_API_HOST = process.env.SEND_ORDER_API_HOST as string;
 const APP_ID = process.env.SEND_ORDER_APP_ID as string;
@@ -13,6 +14,7 @@ const sendOrderToSystem = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     const timestamp = Date.now().toString();
     let orderData: YinbaoOrderPayload = req.body;
+    sendOrderToSystemValidator.validateAll(orderData);
 
     const dataSignatureV3 = generateSignatureV2(
       APP_ID,

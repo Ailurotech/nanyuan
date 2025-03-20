@@ -161,7 +161,7 @@ export interface yinbaoOrderItem {
 }
 
 export interface YinbaoOrderPayload {
-  payMethod: 'Wxpay';
+  payMethod: string;
   payOnLine: string;
   orderDateTime: string;
   reservationTime: string;
