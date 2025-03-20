@@ -5,6 +5,7 @@ import { generateSignatureV1 } from '@/components/common/utils/generateSignature
 import { errorMap } from '@/error/errorMap';
 import { getProductUidValidator } from '@/components/common/validations/getProductUidValidator';
 import apiHandler from '@/lib/apiHandler';
+import { SystemError } from '@/error/SystemError';
 const GET_UID_API_HOST = process.env.GET_UID_API_HOST as string;
 const APP_ID = process.env.SEND_ORDER_APP_ID as string;
 const APP_KEY = process.env.SEND_ORDER_APP_KEY as string;
@@ -20,6 +21,7 @@ const getProductUid = async (req: NextApiRequest, res: NextApiResponse) => {
     const timestamp = Date.now().toString();
     const requestBody = JSON.stringify({ appId: APP_ID, barcodes });
     const dataSignature = generateSignatureV1(APP_KEY, requestBody);
+    
 
     const { data } = await axios
       .post(
@@ -37,7 +39,7 @@ const getProductUid = async (req: NextApiRequest, res: NextApiResponse) => {
         },
       )
       .catch((err) => {
-        throw new Error(`Failed to fetch UIDs: ${JSON.stringify(err)}`);
+        throw new SystemError(`Failed to fetch UIDs: ${JSON.stringify(err)}`);
       });
 
     const barcodeToUid = data.data.reduce(

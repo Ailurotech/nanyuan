@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { OrderData, YinbaoOrderPayload } from '@/types';
 import dayjs from 'dayjs';
-
+import { SystemError } from '@/error/SystemError';
 export async function submitCashOrderToYinbao(
   orderData: OrderData,
   paid: boolean = false,
@@ -32,6 +32,6 @@ export async function submitCashOrderToYinbao(
     return response.data;
   } catch (error) {
     console.error('Failed to send Cash order:', error);
-    throw error;
+    throw new SystemError('Failed to send Cash order');
   }
 }
