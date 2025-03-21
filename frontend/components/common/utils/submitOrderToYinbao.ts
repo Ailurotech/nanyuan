@@ -31,8 +31,6 @@ export async function submitOrderToYinbao(
 
     return response.data;
   } catch (error: any) {
-    throw new YinbaoApiSystemError(
-      'reason: ' + error.response.data.error.message || 'Unknown error',
-    );
+    throw new YinbaoApiSystemError('send order to system failed');
   }
 }
