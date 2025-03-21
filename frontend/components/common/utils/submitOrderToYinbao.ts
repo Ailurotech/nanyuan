@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { OrderData, YinbaoOrderPayload } from '@/types';
 import dayjs from 'dayjs';
-import { yinBaoSystemError } from '@/error/yinbaoSystemError';
+import { yinBaoSystemError } from '@/error/yinBaoSystemError';
 export async function submitOrderToYinbao(
   orderData: OrderData,
   paid: boolean = false,
