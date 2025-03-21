@@ -166,10 +166,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
           await checkoutStripe(orderData);
       }
     } catch (error) {
-      console.error(
-        `${paymentMethod === 'online' ? 'Online payment' : 'Order submission'} failed:`,
-        error,
-      );
+      alert(error);
     }
   };
 
