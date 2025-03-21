@@ -1,6 +1,6 @@
-export class yinbaoSystemError extends Error {
+export class YinbaoSystemError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'yinbaoSystemError';
+    this.name = 'YinbaoSystemError';
   }
 }
