@@ -22,8 +22,7 @@ import { CreateTakeAwayOrder } from '@/components/common/utils/createTakeawayOrd
 import { OrderData, OrderItem } from '@/types';
 import { isValidTime } from '@/components/book-table-page/timeUtils';
 import { checkoutStripe } from '@/components/common/utils/checkoutStripe';
-import { submitCashOrderToYinbao } from '@/components/common/utils/submitCashOrderToYinbao';
-import getProductUid from '@/pages/api/getProductUid';
+import { submitOrderToYinbao } from '@/components/common/utils/submitOrderToYinbao';
 import axios from 'axios';
 
 interface TakeawayProps {
@@ -161,7 +160,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
       await CreateTakeAwayOrder(orderData);
       switch (paymentMethod) {
         case 'offline':
-          await submitCashOrderToYinbao(orderData);
+          await submitOrderToYinbao(orderData);
           break;
         case 'online':
           await checkoutStripe(orderData);

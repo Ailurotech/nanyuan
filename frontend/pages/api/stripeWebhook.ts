@@ -7,7 +7,7 @@ import { Stripe } from 'stripe';
 import { errorMap } from '@/error/errorMap';
 import { WebhookValidator } from '@/components/common/validations/webhookValidator';
 import { OrderData } from '@/types';
-import { submitCashOrderToYinbao } from '@/components/common/utils/submitCashOrderToYinbao';
+import { submitOrderToYinbao } from '@/components/common/utils/submitOrderToYinbao';
 
 export const config = {
   api: {
@@ -56,7 +56,7 @@ const stripeWebhook = async (req: NextApiRequest, res: NextApiResponse) => {
       ...order,
       name: String(order.customerName),
     };
-    await submitCashOrderToYinbao(formattedOrder, true);
+    await submitOrderToYinbao(formattedOrder, true);
 
     res.status(200).json({ received: true });
   } catch (error) {
