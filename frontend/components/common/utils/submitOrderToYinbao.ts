@@ -30,8 +30,9 @@ export async function submitOrderToYinbao(
     );
 
     return response.data;
-  } catch (error) {
-    console.error('Failed to send Cash order:', error);
-    throw new yinBaoSystemError('Failed to send Cash order');
+  } catch (error: any) {
+    throw new yinBaoSystemError(
+      'reason: ' + error.response.data.error.message || 'Unknown error',
+    );
   }
 }
