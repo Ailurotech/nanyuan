@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { OrderData, YinbaoOrderPayload } from '@/types';
 import dayjs from 'dayjs';
-import { YinbaoSystemError } from '@/error/yinbaoSystemError';
+import { YinbaoApiSystemError } from '@/error/yinbaoApiSystemError';
 export async function submitOrderToYinbao(
   orderData: OrderData,
   paid: boolean = false,
@@ -31,7 +31,7 @@ export async function submitOrderToYinbao(
 
     return response.data;
   } catch (error: any) {
-    throw new YinbaoSystemError(
+    throw new YinbaoApiSystemError(
       'reason: ' + error.response.data.error.message || 'Unknown error',
     );
   }
