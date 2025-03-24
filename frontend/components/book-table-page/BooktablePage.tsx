@@ -238,7 +238,7 @@ export function BooktablePage({ restaurant, table }: BooktablePageProps) {
         </form>
         {isModalOpen && (
           <VerifyOtpModal
-            onVerify={(otp) => handleVerifyOtp(otp, getValues('phone'))} 
+            onVerify={(otp) => handleVerifyOtp(otp, getValues('phone'))}
             onClose={() => setIsModalOpen(false)}
           />
         )}
