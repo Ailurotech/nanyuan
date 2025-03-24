@@ -132,7 +132,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
         date: '',
         time: '',
         email: '',
-        notes: 'Enter your special request or notes for your order here...',
+        notes: '',
         items: [],
         totalPrice: 0,
         status: 'Offline',
