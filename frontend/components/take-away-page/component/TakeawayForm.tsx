@@ -268,9 +268,10 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
         </form>
         {isModalOpen && (
           <VerifyOtpModal
-            onVerify={(otp) => handleVerifyOtp(otp, getValues('phone'))}
-            onClose={() => setIsModalOpen(false)}
-          />
+          onVerify={(otp) => handleVerifyOtp(otp, getValues('phone'))}
+          onClose={() => setIsModalOpen(false)}
+        />
+        
         )}
       </section>
     )
