@@ -34,7 +34,7 @@ export default async function handler(
     return res.status(200).json({ message: 'OTP sent' });
   } catch (error) {
     console.error('SNS Error:', error);
-    return res.status(500).json({ message: 'Failed to send SMS' });
+    return res.status(500).json({ message: 'Failed to send SMS', error });
   }
 }
 
