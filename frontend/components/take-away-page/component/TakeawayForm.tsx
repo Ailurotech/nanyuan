@@ -1,6 +1,7 @@
+import { useState, useEffect } from 'react';
 import { ControlledInput } from '@/components/common/ControlledInput';
 import { ControlledTestArea } from '@/components/common/ControlledTestArea';
-import { Button, HStack } from '@chakra-ui/react';
+import { Button, HStack, useDisclosure } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { InputsContainer } from './InputsContainer';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -16,30 +17,49 @@ import {
 import { Restaurant } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
 import clsx from 'clsx';
-import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import * as zod from 'zod';
 import { CreateTakeAwayOrder } from '@/components/common/utils/createTakeawayOrder';
 import { OrderData, OrderItem } from '@/types';
 import { isValidTime } from '@/components/book-table-page/timeUtils';
 import { checkoutStripe } from '@/components/common/utils/checkoutStripe';
+import { SuccessModal } from '@/components/common/SuccessModal';
 
 interface TakeawayProps {
   restaurant: Restaurant;
 }
 
 export function TakeawayForm({ restaurant }: TakeawayProps) {
+  const router = useRouter();
   const {
     SendOtp,
     handleVerifyOtp,
-    verifyOtp,
     setIsModalOpen,
+    verifyOtp,
     isModalOpen,
     timeLeft,
     isRunning,
   } = useSMS();
+
   const [orderList, setOrderList] = useState<OrderItem[]>([]);
   const [totalPrice, setTotalPrice] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
+
+  const {
+    isOpen: isSuccessOpen,
+    onOpen: openSuccess,
+    onClose: closeSuccess,
+  } = useDisclosure();
+  const [successMessage, setSuccessMessage] = useState('');
+
+  const { success } = router.query;
+
+  useEffect(() => {
+    if (success === 'true') {
+      setSuccessMessage('Your payment was successful!');
+      openSuccess();
+    }
+  }, [success, openSuccess]);
 
   useEffect(() => {
     const cart = localStorage.getItem('cart');
@@ -121,6 +141,8 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
       resolver: zodResolver(FormDataSchema),
     });
 
+  const selectedDate = watch('date');
+
   const handleOrderSubmission = async (
     data: OrderData,
     paymentMethod: 'offline' | 'online',
@@ -142,7 +164,15 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
         status: status,
         paymentMethod: paymentMethod,
       };
+
       await CreateTakeAwayOrder(orderData);
+
+      if (paymentMethod === 'offline') {
+        setSuccessMessage(
+          `Your Order detail: Date: ${data.date}, Time: ${data.time}, Total: $${totalPrice}`,
+        );
+        openSuccess();
+      }
       if (paymentMethod === 'online') {
         await checkoutStripe(orderData);
       }
@@ -158,8 +188,6 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
     handleOrderSubmission(data, 'offline', 'Offline');
   const handlePayOnline = (data: OrderData) =>
     handleOrderSubmission(data, 'online', 'Pending');
-
-  const selectedDate = watch('date');
 
   const phoneClickHandler = async () => {
     const result = await trigger('phone');
@@ -272,6 +300,11 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
             onClose={() => setIsModalOpen(false)}
           />
         )}
+        <SuccessModal
+          isOpen={isSuccessOpen}
+          onClose={closeSuccess}
+          message={successMessage}
+        />
       </section>
     )
   );
