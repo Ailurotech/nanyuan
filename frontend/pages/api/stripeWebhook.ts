@@ -8,6 +8,8 @@ import { errorMap } from '@/error/errorMap';
 import { WebhookValidator } from '@/components/common/validations/webhookValidator';
 import { OrderData } from '@/types';
 import { submitOrderToYinbao } from '@/components/common/utils/submitOrderToYinbao';
+import { EmailError } from '@/error/emailError';
+import axios from 'axios';
 
 export const config = {
   api: {
@@ -22,10 +24,6 @@ const sessionStatusMap: Record<string, string> = {
 
 const stripeWebhook = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
-    if (req.method !== 'POST') {
-      return res.status(405).json({ error: 'Method Not Allowed' });
-    }
-
     const sig = req.headers['stripe-signature'];
     const rawBody = await buffer(req);
 
@@ -44,19 +42,25 @@ const stripeWebhook = async (req: NextApiRequest, res: NextApiResponse) => {
       .patch(orderId as string)
       .set({ status: newStatus })
       .commit();
-
+    
     const order = await sanityClient.fetch(
-      `
-        *[_type == "order" && orderId == $orderId][0]
-      `,
+      `*[_type == "order" && orderId == $orderId][0]`,
       { orderId },
     );
-
+    
     const formattedOrder: OrderData = {
       ...order,
       name: String(order.customerName),
     };
     await submitOrderToYinbao(formattedOrder, true);
+    
+    await axios
+      .post(`${process.env.NEXT_PUBLIC_CLIENT_BASE_URL}/api/takeawayOrderEmail`, {
+        orderId,
+      })
+      .catch(() => {
+        throw new EmailError('Failed to send email');
+      });
 
     res.status(200).json({ received: true });
   } catch (error) {

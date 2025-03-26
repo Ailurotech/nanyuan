@@ -1,3 +1,5 @@
+import { Attachment } from 'mailgun-js';
+
 // types.ts
 export interface MenuItem {
   quantity: number;
@@ -158,7 +160,6 @@ export interface yinbaoOrderItem {
   comment: string;
   quantity: number;
   productUid?: bigint | string;
-}
 
 export interface YinbaoOrderPayload {
   payMethod: string;
@@ -170,4 +171,52 @@ export interface YinbaoOrderPayload {
   contactTel: string;
   orderRemark: string;
   items: yinbaoOrderItem[];
+
+export interface LocationInfo {
+  title: string;
+  address: string;
+  phone: string;
+  email: string;
+  images: Array<{
+    _type: string;
+    asset: {
+      _id: string;
+      url: string;
+    };
+    alt: string;
+  }>;
 }
+
+export interface EmailContent {
+  from: string;
+  to: string;
+  subject: string;
+  html: string;
+  inline?: Attachment;
+}
+
+export interface OrderDetails {
+  customerName: string;
+  email: string;
+  phone: string;
+  date: string;
+  totalPrice: number;
+  paymentMethod: string;
+  status: string;
+  notes: string;
+  items: {
+    menuItemName: string;
+    price: number;
+    quantity: number;
+  }[];
+}
+
+export interface ReservationInfo {
+  name: string;
+  phone: string;
+  email: string;
+  time: string;
+  guests: string;
+  table: string;
+  preference: string;
+  notes: string;
