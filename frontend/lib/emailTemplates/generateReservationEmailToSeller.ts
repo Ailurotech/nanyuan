@@ -1,6 +1,6 @@
 import type { ReservationInfo } from '@/types';
 
-export const generateReservationEmail = (
+export const generateReservationEmailToSeller = (
   reservationInfo: ReservationInfo,
 ): string => {
   const emailHtml = `
@@ -9,9 +9,9 @@ export const generateReservationEmail = (
         <div style="text-align:center;">
           <img src="cid:logo.png" alt="Nan Yuan Restaurant Logo" style="width:150px; margin-bottom:10px;">
         </div>
-        <h1 style="text-align:center; color:#2E86C1; margin-bottom:10px;">Reservation Confirmation</h1>
-        <p style="line-height:1.6; color: #E4E4E4;">Dear ${reservationInfo.name},</p>
-        <p style="line-height:1.6; color: #E4E4E4;">Thank you for choosing to dine with us! Your reservation has been confirmed.</p>
+        <h1 style="text-align:center; color:#2E86C1; margin-bottom:10px;">New Reservation Received</h1>
+        <p style="line-height:1.6; color:#E4E4E4;">Dear Team,</p>
+        <p style="line-height:1.6; color:#E4E4E4;">A new reservation has been made through the website. Please review the details below and prepare accordingly.</p>
         
         <h2 style="color:#2E86C1; padding-bottom:10px; margin-top:20px;">Reservation Details</h2>
         <ul style="list-style:none; padding:0; margin:15px 0; background-color:#1E1E1E; padding:15px; border:2px solid #E4E4E4; border-radius:5px;">
@@ -24,7 +24,7 @@ export const generateReservationEmail = (
           <li style="line-height:1.6; color:#E4E4E4;"><strong>Preference:</strong> ${reservationInfo.preference}</li>
           ${reservationInfo.notes ? `<li style="line-height:1.6; color:#E4E4E4;"><strong>Special Requests/Notes:</strong> ${reservationInfo.notes}</li>` : ''}
         </ul>
-        <p style="margin-top:30px; color:#E4E4E4;">We look forward to hosting you.<br/><br/>Best regards,<br/>The Nan Yuan Restaurant</p>
+        <p style="margin-top:30px; color:#E4E4E4;">Please make the necessary arrangements and confirm this reservation at your earliest convenience.<br/><br/>Best regards,<br/>The Nan Yuan Restaurant System</p>
       </div>
     </div>
   `;

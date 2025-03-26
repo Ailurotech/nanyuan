@@ -1,9 +1,10 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import apiHandler from '@/lib/apiHandler';
-import { generateReservationEmail } from '@/lib/emailTemplates/generateReservationEmail';
-import type { ReservationInfo } from '@/types';
+import { generateReservationEmailToCustomer } from '@/lib/emailTemplates/generateReservationEmailToCustomer';
+import { generateReservationEmailToSeller } from '@/lib/emailTemplates/generateReservationEmailToSeller';
 import { errorMap } from '@/error/errorMap';
 import { sendEmail } from '@/lib/sendEmail';
+import type { ReservationInfo } from '@/types';
 
 const sendReservationEmail = async (
   req: NextApiRequest,
@@ -12,11 +13,33 @@ const sendReservationEmail = async (
   try {
     const reservationInfo: ReservationInfo = req.body;
 
-    await sendEmail({
-      to: reservationInfo.email,
-      subject: 'Reservation Confirmation',
-      html: generateReservationEmail(reservationInfo),
-    });
+    const result = await Promise.allSettled([
+      sendEmail({
+        to: reservationInfo.email,
+        subject: 'Reservation Confirmation',
+        html: generateReservationEmailToCustomer(reservationInfo),
+      }),
+      sendEmail({
+        to: `${process.env.SENDER_EMAIL}`,
+        subject: 'New Reservation Received',
+        html: generateReservationEmailToSeller(reservationInfo),
+      }),
+    ]);
+
+    const [customerEmailResult, sellerEmailResult] = result;
+
+    if (customerEmailResult.status === 'rejected') {
+      console.error(
+        'Failed to send customer email:',
+        customerEmailResult.reason,
+      );
+      throw customerEmailResult.reason;
+    }
+
+    if (sellerEmailResult.status === 'rejected') {
+      console.error('Failed to send seller email:', sellerEmailResult.reason);
+      throw sellerEmailResult.reason;
+    }
 
     return res.status(200).json({ message: 'Email sent successfully' });
   } catch (error: unknown) {
