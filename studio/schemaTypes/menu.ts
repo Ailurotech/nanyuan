@@ -6,6 +6,11 @@ export default defineType({
   type: 'document',
   fields: [
     {
+      name: 'barcode',
+      title: 'Barcode',
+      type: 'string',
+    },
+    {
       name: 'name',
       title: 'Dish Name',
       type: 'string',

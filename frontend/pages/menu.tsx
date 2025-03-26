@@ -63,7 +63,7 @@ const MenuPage = ({
     if (existingItem) {
       existingItem.quantity += 1;
     } else {
-      updatedCart.push({ ...item, quantity: 1 });
+      updatedCart.push({ ...item, quantity: 1, barcode: item.barcode });
     }
     setCart(updatedCart);
     setCartCount((prevCount) => prevCount + 1);
