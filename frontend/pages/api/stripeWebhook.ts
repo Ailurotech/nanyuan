@@ -42,22 +42,25 @@ const stripeWebhook = async (req: NextApiRequest, res: NextApiResponse) => {
       .patch(orderId as string)
       .set({ status: newStatus })
       .commit();
-    
+
     const order = await sanityClient.fetch(
       `*[_type == "order" && orderId == $orderId][0]`,
       { orderId },
     );
-    
+
     const formattedOrder: OrderData = {
       ...order,
       name: String(order.customerName),
     };
     await submitOrderToYinbao(formattedOrder, true);
-    
+
     await axios
-      .post(`${process.env.NEXT_PUBLIC_CLIENT_BASE_URL}/api/takeawayOrderEmail`, {
-        orderId,
-      })
+      .post(
+        `${process.env.NEXT_PUBLIC_CLIENT_BASE_URL}/api/takeawayOrderEmail`,
+        {
+          orderId,
+        },
+      )
       .catch(() => {
         throw new EmailError('Failed to send email');
       });
