@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { SNS } from 'aws-sdk';
 import redis from '@/lib/redis';
+import { rateLimitRedis } from '@/lib/rateLimitRedis'; // ✅ 加上这一行
 
 const sns = new SNS({ region: 'ap-southeast-2' });
 
@@ -17,9 +18,20 @@ export default async function handler(
     return res.status(400).json({ message: 'Invalid phone number' });
   }
 
+  // ✅ 这里放 rate limit 检查
+  const { limited } = await rateLimitRedis({
+    key: phone,
+    windowInSeconds: 60, // 每分钟最多3次
+    maxRequests: 3,
+  });
+
+  if (limited) {
+    return res.status(429).json({ message: 'Too many requests' });
+  }
+
   const fullPhone = `+61${phone.replace(/^0/, '')}`;
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  const expiresInSec = 5 * 60; // 5 minutes
+  const expiresInSec = 5 * 60;
 
   try {
     await sns
@@ -30,7 +42,6 @@ export default async function handler(
       .promise();
 
     await redis.set(`otp:${phone}`, otp, 'EX', expiresInSec);
-
     return res.status(200).json({ message: 'OTP sent' });
   } catch (error) {
     console.error('SNS Error:', error);

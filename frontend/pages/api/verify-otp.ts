@@ -8,12 +8,14 @@ export default async function handler(
   res: NextApiResponse,
 ) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Method not allowed' });
+    return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
   const { phone, otp } = req.body;
-  if (!phone || !otp) {
-    return res.status(400).json({ message: 'Missing phone or OTP' });
+
+  // 验证输入
+  if (typeof phone !== 'string' || typeof otp !== 'string') {
+    return res.status(400).json({ message: 'Invalid phone or OTP' });
   }
 
   const key = `${OTP_PREFIX}${phone}`;
@@ -22,7 +24,7 @@ export default async function handler(
     const storedOtp = await redis.get(key);
 
     if (!storedOtp) {
-      return res.status(400).json({ message: 'OTP not found or expired' });
+      return res.status(400).json({ message: 'OTP expired or not found' });
     }
 
     if (storedOtp !== otp) {
@@ -30,9 +32,10 @@ export default async function handler(
     }
 
     await redis.del(key);
+
     return res.status(200).json({ verified: true });
   } catch (error) {
     console.error('OTP Verification Error:', error);
-    return res.status(500).json({ message: 'Internal server error' });
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
 }
