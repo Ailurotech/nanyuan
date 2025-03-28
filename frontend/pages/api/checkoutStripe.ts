@@ -13,7 +13,7 @@ const checkoutStripe = async (req: NextApiRequest, res: NextApiResponse) => {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       mode: 'payment',
-      success_url: `${req.headers.origin}/order-success`,
+      success_url: `${req.headers.origin}/takeaway?success=true`,
       cancel_url: `${req.headers.origin}/takeaway`,
       customer_email: orderData.email,
       line_items: orderData.items.map((item: OrderItem) => ({

@@ -6,6 +6,8 @@ import { MissingFieldError } from '@/error/missingFieldError';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { Readable } from 'stream';
 import { errorMap } from '@/error/errorMap';
+import axios from 'axios';
+
 // Mock stripe and sanity client
 jest.mock('@/lib/stripeClient', () => ({
   stripe: {
@@ -27,6 +29,8 @@ jest.mock('@/lib/sanityClient', () => ({
 jest.mock('@/lib/apiHandler', () => () => ({
   post: jest.fn((handler) => handler),
 }));
+
+jest.mock('axios');
 
 export const mockWebhookRequestResponse = (
   body: string | object,
@@ -79,6 +83,8 @@ describe('✅ Stripe Webhook API Tests', () => {
   test('✅ Should successfully process valid webhook', async () => {
     const { req, res, status, json } =
       mockWebhookRequestResponse(validWebhookEvent);
+
+    (axios.post as jest.Mock).mockResolvedValue({});
 
     await webhookHandler(req, res);
 

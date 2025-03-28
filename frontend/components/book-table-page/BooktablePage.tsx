@@ -1,7 +1,8 @@
+import { useState, useEffect } from 'react';
 import { ControlledInput } from '@/components/common/ControlledInput';
 import { ControlledTestArea } from '@/components/common/ControlledTestArea';
 import { ControlledSelect } from '@/components/common/ControlledSelect';
-import { Button } from '@chakra-ui/react';
+import { Button, useDisclosure } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { InputsContainer } from '@/components/take-away-page/component/InputsContainer';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -17,24 +18,18 @@ import { validateTableAvailabilityAndConflicts } from './checkAvailability';
 import { validateInitialConditions } from './checkAvailability';
 import axios from 'axios';
 import { ReservationData } from '@/types';
+import { SuccessModal } from '@/components/common/SuccessModal';
+import { useRouter } from 'next/router';
 
 interface BooktablePageProps {
   restaurant: Restaurant;
   table: Table[];
 }
 
-type FormData = {
-  name: string;
-  phone: string;
-  time: string;
-  guests: string;
-  preference: string;
-  notes: string;
-  email: string;
-  date: string;
-};
-
 export function BooktablePage({ restaurant, table }: BooktablePageProps) {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const router = useRouter();
+
   const {
     SendOtp,
     handleVerifyOtp,
@@ -44,6 +39,7 @@ export function BooktablePage({ restaurant, table }: BooktablePageProps) {
     timeLeft,
     isRunning,
   } = useSMS();
+
   const requiredField = zod.string().min(1, { message: 'Required Field' });
   const phoneSchema = zod
     .string()
@@ -68,7 +64,6 @@ export function BooktablePage({ restaurant, table }: BooktablePageProps) {
         restaurant.Weekdaytime,
         restaurant.Weekandtime,
       );
-
       if (!isTimeValid) {
         context.addIssue({
           code: zod.ZodIssueCode.custom,
@@ -76,7 +71,6 @@ export function BooktablePage({ restaurant, table }: BooktablePageProps) {
           path: ['time'],
         });
       }
-
       if (restaurant.blacklist.includes(data.phone)) {
         context.addIssue({
           code: zod.ZodIssueCode.custom,
@@ -103,7 +97,7 @@ export function BooktablePage({ restaurant, table }: BooktablePageProps) {
     });
 
   const selectedDate = watch('date');
-
+  const [successMessage, setSuccessMessage] = useState('');
   const onSubmit = async (data: ReservationData) => {
     try {
       const validationResult = await runValidations([
@@ -131,8 +125,29 @@ export function BooktablePage({ restaurant, table }: BooktablePageProps) {
       };
 
       await axios.post('/api/createReservations', createReservationData);
+      setSuccessMessage(
+        `Your table is booked on ${data.date} at ${data.time}. Enjoy your meal!`,
+      );
+      onOpen();
     } catch (error) {
-      console.error('Error during reservation:', error);
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          console.error(
+            `Reservation error (${error.response.status}):`,
+            error.response.data,
+          );
+          alert('Reservation failed, please try again later.');
+        } else if (error.request) {
+          console.error('No response received:', error.request);
+          alert('Network error, please check your internet connection.');
+        } else {
+          console.error('Error in request setup:', error.message);
+          alert('Request failed, please try again later.');
+        }
+      } else {
+        console.error('Unexpected error:', error);
+        alert('An unknown error occurred, please try again later.');
+      }
     }
   };
 
@@ -143,6 +158,14 @@ export function BooktablePage({ restaurant, table }: BooktablePageProps) {
       SendOtp(phone);
     }
   };
+
+  const { success } = router.query;
+
+  useEffect(() => {
+    if (success === 'true') {
+      onOpen();
+    }
+  }, [success, onOpen]);
 
   return (
     <section className="bg-[#191919] min-h-screen pt-[200px] flex flex-col items-center">
@@ -243,6 +266,11 @@ export function BooktablePage({ restaurant, table }: BooktablePageProps) {
           />
         )}
       </div>
+      <SuccessModal
+        isOpen={isOpen}
+        onClose={onClose}
+        message={successMessage}
+      />
     </section>
   );
 }

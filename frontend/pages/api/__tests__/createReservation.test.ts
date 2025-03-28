@@ -8,7 +8,12 @@ import { successfulTest } from '@/test/apiTest/successful';
 jest.mock('@/lib/sanityClient', () => ({
   sanityClient: {
     create: jest.fn(),
+    fetch: jest.fn(() => Promise.resolve('4')), // return "4" to denote a 4-person table type
   },
+}));
+
+jest.mock('axios', () => ({
+  post: jest.fn().mockResolvedValue({ data: { success: true } }),
 }));
 
 jest.mock('@/lib/apiHandler', () => () => ({
