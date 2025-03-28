@@ -1,28 +1,38 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { otpStore } from './send-sms';
+import redis from '@/lib/redis';
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+const OTP_PREFIX = 'otp:';
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
   const { phone, otp } = req.body;
-
-  const record = otpStore.get(phone);
-
-  if (!record) {
-    return res.status(400).json({ message: 'OTP not found or expired' });
+  if (!phone || !otp) {
+    return res.status(400).json({ message: 'Missing phone or OTP' });
   }
 
-  if (Date.now() > record.expiresAt) {
-    otpStore.delete(phone);
-    return res.status(400).json({ message: 'OTP expired' });
-  }
+  const key = `${OTP_PREFIX}${phone}`;
 
-  if (record.otp !== otp) {
-    return res.status(400).json({ message: 'Incorrect OTP' });
-  }
+  try {
+    const storedOtp = await redis.get(key);
 
-  otpStore.delete(phone);
-  return res.status(200).json({ verified: true });
+    if (!storedOtp) {
+      return res.status(400).json({ message: 'OTP not found or expired' });
+    }
+
+    if (storedOtp !== otp) {
+      return res.status(400).json({ message: 'Incorrect OTP' });
+    }
+
+    await redis.del(key);
+    return res.status(200).json({ verified: true });
+  } catch (error) {
+    console.error('OTP Verification Error:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
 }
