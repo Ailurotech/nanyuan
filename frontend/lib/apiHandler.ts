@@ -10,7 +10,9 @@ const apiHandler = () =>
   nextConnect<NextApiRequest, NextApiResponse>()
     .use(async (req, res, next) => {
       const phone = req.body?.phone || req.query?.phone;
-      const key = phone ? `phone:${phone}` : req.socket.remoteAddress || 'unknown';
+      const key = phone
+        ? `phone:${phone}`
+        : req.socket.remoteAddress || 'unknown';
 
       const { limited } = await rateLimitRedis({
         key,
@@ -19,7 +21,9 @@ const apiHandler = () =>
       });
 
       if (limited) {
-        return res.status(429).json({ message: 'Too many requests, slow down.' });
+        return res
+          .status(429)
+          .json({ message: 'Too many requests, slow down.' });
       }
 
       next();

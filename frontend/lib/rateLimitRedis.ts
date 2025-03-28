@@ -1,6 +1,6 @@
 import Redis from 'ioredis';
 
-const redis = new Redis(process.env.REDIS_URL!); 
+const redis = new Redis(process.env.REDIS_URL!);
 
 interface RateLimitOptions {
   key: string;
@@ -8,7 +8,11 @@ interface RateLimitOptions {
   maxRequests: number;
 }
 
-export async function rateLimitRedis({ key, windowInSeconds, maxRequests }: RateLimitOptions) {
+export async function rateLimitRedis({
+  key,
+  windowInSeconds,
+  maxRequests,
+}: RateLimitOptions) {
   const redisKey = `ratelimit:${key}`;
   const current = await redis.incr(redisKey);
 
