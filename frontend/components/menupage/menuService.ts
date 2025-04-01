@@ -5,7 +5,6 @@ export const fetchMenuItems = async (
   cate: string,
   offset?: number,
   limit?: number,
-  lastId?: string,
 ): Promise<MenuItem[]> => {
   try {
     const rangeQuery =
@@ -22,6 +21,7 @@ export const fetchMenuItems = async (
       *[_type == "menu" && isAvailable == true ${categoryFilter}]
       | order(_id asc) ${rangeQuery} {
         _id,
+        barcode,
         name,
         description,
         price,

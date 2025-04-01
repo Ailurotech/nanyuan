@@ -4,6 +4,7 @@ import { Attachment } from 'mailgun-js';
 export interface MenuItem {
   quantity: number;
   _id: string;
+  barcode: number;
   name: string;
   description: string;
   price: number;
@@ -73,6 +74,7 @@ export interface ShoppingCartItem {
   price: number;
   image: string;
   quantity: number;
+  barcode: number;
 }
 
 export interface CartCardProps {
@@ -135,6 +137,8 @@ export interface OrderItem {
   quantity: number;
   menuItem: MenuItemReference;
   name: string;
+  barcode: number;
+  productUid?: bigint | string;
 }
 
 export interface OrderData {
@@ -150,6 +154,26 @@ export interface OrderData {
   paymentMethod: 'offline' | 'online';
   orderId: string;
 }
+
+export interface yinbaoOrderItem {
+  barcode?: string;
+  comment: string;
+  quantity: number;
+  productUid?: bigint | string;
+}
+
+export interface YinbaoOrderPayload {
+  payMethod: string;
+  payOnLine: string;
+  orderDateTime: string;
+  reservationTime: string;
+  contactAddress: string;
+  contactName: string;
+  contactTel: string;
+  orderRemark: string;
+  items: yinbaoOrderItem[];
+}
+
 export interface LocationInfo {
   title: string;
   address: string;

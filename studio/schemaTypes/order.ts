@@ -50,6 +50,7 @@ export default defineType({
               validation: (Rule) => Rule.min(1).required(),
             },
             {name: 'price', title: 'Price', type: 'number'},
+            {name: 'productUid', title: 'Product UID', type: 'string'},
           ],
           preview: {
             select: {

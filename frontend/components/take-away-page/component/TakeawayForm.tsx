@@ -23,6 +23,8 @@ import { CreateTakeAwayOrder } from '@/components/common/utils/createTakeawayOrd
 import { OrderData, OrderItem } from '@/types';
 import { isValidTime } from '@/components/book-table-page/timeUtils';
 import { checkoutStripe } from '@/components/common/utils/checkoutStripe';
+import { submitOrderToYinbao } from '@/components/common/utils/submitOrderToYinbao';
+import axios from 'axios';
 import { SuccessModal } from '@/components/common/SuccessModal';
 
 interface TakeawayProps {
@@ -79,6 +81,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
         _ref: item._id,
       },
       menuItemName: item.name,
+      barcode: item.barcode,
     }));
     setOrderList(parsedList);
     setTotalPrice(
@@ -156,10 +159,21 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
         () => validatePrice(data.totalPrice),
         () => validateOrderItem(orderList),
       ]);
+      const barcodes = orderList.map((item) => item.barcode.toString());
 
+      const response = await axios.post('/api/getProductUid', {
+        barcodes,
+      });
+      const { success, data: barcodeToUid } = response.data;
+      if (!success) {
+        throw new Error('Failed to fetch product UIDs');
+      }
       const orderData: OrderData = {
         ...data,
-        items: orderList,
+        items: orderList.map((item) => ({
+          ...item,
+          productUid: barcodeToUid[item.barcode.toString()],
+        })),
         totalPrice: parseFloat(totalPrice),
         orderId: uuidv4(),
         status: status,
@@ -167,21 +181,20 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
       };
 
       await CreateTakeAwayOrder(orderData);
-
-      if (paymentMethod === 'offline') {
-        setSuccessMessage(
-          `Your Order detail: Date: ${data.date}, Time: ${data.time}, Total: $${totalPrice}`,
-        );
-        openSuccess();
-      }
-      if (paymentMethod === 'online') {
-        await checkoutStripe(orderData);
+      switch (paymentMethod) {
+        case 'offline':
+          await submitOrderToYinbao(orderData);
+          setSuccessMessage(
+            `Your Order detail: Date: ${data.date}, Time: ${data.time}, Total: $${totalPrice}`,
+          );
+          openSuccess();
+          break;
+        case 'online':
+          await checkoutStripe(orderData);
+          break;
       }
     } catch (error) {
-      console.error(
-        `${paymentMethod === 'online' ? 'Online payment' : 'Order submission'} failed:`,
-        error,
-      );
+      alert(error);
     }
   };
 
