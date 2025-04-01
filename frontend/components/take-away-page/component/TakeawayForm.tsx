@@ -185,12 +185,14 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
         case 'offline':
           await submitOrderToYinbao(orderData);
           setSuccessMessage(
-          `Your Order detail: Date: ${data.date}, Time: ${data.time}, Total: $${totalPrice}`,
+            `Your Order detail: Date: ${data.date}, Time: ${data.time}, Total: $${totalPrice}`,
           );
           openSuccess();
           break;
         case 'online':
           await checkoutStripe(orderData);
+          break;
+      }
     } catch (error) {
       alert(error);
     }

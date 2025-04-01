@@ -160,6 +160,7 @@ export interface yinbaoOrderItem {
   comment: string;
   quantity: number;
   productUid?: bigint | string;
+}
 
 export interface YinbaoOrderPayload {
   payMethod: string;
@@ -171,6 +172,7 @@ export interface YinbaoOrderPayload {
   contactTel: string;
   orderRemark: string;
   items: yinbaoOrderItem[];
+}
 
 export interface LocationInfo {
   title: string;
@@ -220,3 +222,4 @@ export interface ReservationInfo {
   table: string;
   preference: string;
   notes: string;
+}
