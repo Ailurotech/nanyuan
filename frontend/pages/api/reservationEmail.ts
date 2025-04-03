@@ -13,7 +13,7 @@ const sendReservationEmail = async (
   try {
     const reservationInfo: ReservationInfo = req.body;
 
-    const result = await Promise.allSettled([
+    await Promise.all([
       sendEmail({
         to: reservationInfo.email,
         subject: 'Reservation Confirmation',
@@ -25,21 +25,6 @@ const sendReservationEmail = async (
         html: generateReservationEmailToSeller(reservationInfo),
       }),
     ]);
-
-    const [customerEmailResult, sellerEmailResult] = result;
-
-    if (customerEmailResult.status === 'rejected') {
-      console.error(
-        'Failed to send customer email:',
-        customerEmailResult.reason,
-      );
-      throw customerEmailResult.reason;
-    }
-
-    if (sellerEmailResult.status === 'rejected') {
-      console.error('Failed to send seller email:', sellerEmailResult.reason);
-      throw sellerEmailResult.reason;
-    }
 
     return res.status(200).json({ message: 'Email sent successfully' });
   } catch (error: unknown) {
