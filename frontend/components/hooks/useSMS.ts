@@ -1,27 +1,36 @@
 import { useState } from 'react';
 import useTimer from './useTimer';
-import { getSMS } from '../AWS-functions/get-sms';
+import axios from 'axios';
 
 export function useSMS() {
-  const [otp, setOtp] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [verifyOtp, setVerifyOtp] = useState(false);
   const { timeLeft, isRunning, startTimer } = useTimer(60);
 
   const SendOtp = async (phone: string) => {
-    const otp = await getSMS({ phone });
-    setOtp(otp);
-    setIsModalOpen(true);
-    startTimer();
+    try {
+      await axios.post('/api/send-sms', { phone });
+      setIsModalOpen(true);
+      startTimer();
+    } catch (error) {
+      console.error('Failed to send OTP:', error);
+    }
   };
 
-  const handleVerifyOtp = (enteredOtp: string) => {
-    if (enteredOtp === otp) {
-      setVerifyOtp(true);
-      setIsModalOpen(false);
-      alert('Successfully verified');
-    } else {
-      alert('OTP is incorrect');
+  const handleVerifyOtp = async (enteredOtp: string, phone: string) => {
+    try {
+      const res = await axios.post('/api/verify-otp', {
+        phone,
+        otp: enteredOtp,
+      });
+
+      if (res.data.verified) {
+        setVerifyOtp(true);
+        setIsModalOpen(false);
+        alert('Successfully verified');
+      }
+    } catch (error) {
+      alert('OTP is incorrect or expired');
     }
   };
 
