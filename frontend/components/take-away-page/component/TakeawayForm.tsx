@@ -180,7 +180,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
         paymentMethod: paymentMethod,
       };
 
-      await axios.post('/api/createTakeAwayOrder', orderData);
+      await CreateTakeAwayOrder(orderData);
       switch (paymentMethod) {
         case 'offline':
           await submitOrderToYinbao(orderData);
