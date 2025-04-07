@@ -55,7 +55,6 @@ export const runValidations = async (
   validations.forEach((validation) => {
     const result = validation();
     if (!result.success && result.errorMessage) {
-      alert(result.errorMessage);
       throw new Error(result.errorMessage);
     }
   });

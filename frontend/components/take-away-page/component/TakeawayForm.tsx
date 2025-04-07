@@ -180,7 +180,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
         paymentMethod: paymentMethod,
       };
 
-      await CreateTakeAwayOrder(orderData);
+      await axios.post('/api/createTakeAwayOrder', orderData);
       switch (paymentMethod) {
         case 'offline':
           await submitOrderToYinbao(orderData);
@@ -194,7 +194,9 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
           break;
       }
     } catch (error) {
-      alert(error);
+      alert(
+        'Submit Order Failed please try again later, or contact us by phone',
+      );
     }
   };
 
