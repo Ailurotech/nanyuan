@@ -194,7 +194,9 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
           break;
       }
     } catch (error) {
-      alert(error);
+      alert(
+        'Submit Order Failed please try again later, or contact us by phone',
+      );
     }
   };
 
