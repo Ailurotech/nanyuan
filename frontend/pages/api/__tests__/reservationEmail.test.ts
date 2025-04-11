@@ -24,14 +24,21 @@ jest.mock('mailgun-js', () => {
   }));
 });
 
-jest.mock('@/lib/emailTemplates/generateReservationEmail', () => ({
-  generateReservationEmail: jest.fn(
-    (reservationInfo) => '<html>Test Email Content</html>',
+jest.mock('@/lib/emailTemplates/generateReservationEmailToCustomer', () => ({
+  generateReservationEmailToCustomer: jest.fn(
+    (reservationInfo) => '<html>Test Customer Email Content</html>',
+  ),
+}));
+
+jest.mock('@/lib/emailTemplates/generateReservationEmailToSeller', () => ({
+  generateReservationEmailToSeller: jest.fn(
+    (reservationInfo) => '<html>Test Seller Email Content</html>',
   ),
 }));
 
 import handler from '@/pages/api/reservationEmail';
-import { generateReservationEmail } from '@/lib/emailTemplates/generateReservationEmail';
+import { generateReservationEmailToCustomer } from '@/lib/emailTemplates/generateReservationEmailToCustomer';
+import { generateReservationEmailToSeller } from '@/lib/emailTemplates/generateReservationEmailToSeller';
 
 describe('Reservation Email API', () => {
   const reservationInfo = {
@@ -69,11 +76,13 @@ describe('Reservation Email API', () => {
     });
   });
 
-  it('should return 500 if Mailgun send fails', async () => {
+  it('should return 500 if Mailgun send email to customer fails', async () => {
     const mockBuffer = Buffer.from('dummy-logo');
     readFileSpy.mockResolvedValue(mockBuffer);
 
-    sendMock.mockRejectedValue(new Error('Mailgun error.'));
+    sendMock
+      .mockImplementationOnce(() => Promise.reject(new Error('Mailgun error.')))
+      .mockImplementationOnce(() => Promise.resolve({}));
 
     const { req, res } = mockRequestResponse('POST', reservationInfo);
 
@@ -81,8 +90,42 @@ describe('Reservation Email API', () => {
     await new Promise((resolve) => setImmediate(resolve));
 
     expect(readFileSpy).toHaveBeenCalled();
-    expect(generateReservationEmail).toHaveBeenCalledWith(reservationInfo);
-    expect(sendMock).toHaveBeenCalled();
+    expect(generateReservationEmailToCustomer).toHaveBeenCalledWith(
+      reservationInfo,
+    );
+    expect(generateReservationEmailToSeller).toHaveBeenCalledWith(
+      reservationInfo,
+    );
+    expect(sendMock).toHaveBeenCalledTimes(2);
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({
+      error: 'Failed to send reservation email',
+    });
+  });
+
+  it('should return 500 if Mailgun send email to seller fails', async () => {
+    const mockBuffer = Buffer.from('dummy-logo');
+    readFileSpy.mockResolvedValue(mockBuffer);
+
+    sendMock
+      .mockImplementationOnce(() => Promise.resolve({}))
+      .mockImplementationOnce(() =>
+        Promise.reject(new Error('Mailgun error.')),
+      );
+
+    const { req, res } = mockRequestResponse('POST', reservationInfo);
+
+    await handler(req, res);
+    await new Promise((resolve) => setImmediate(resolve));
+
+    expect(readFileSpy).toHaveBeenCalled();
+    expect(generateReservationEmailToCustomer).toHaveBeenCalledWith(
+      reservationInfo,
+    );
+    expect(generateReservationEmailToSeller).toHaveBeenCalledWith(
+      reservationInfo,
+    );
+    expect(sendMock).toHaveBeenCalledTimes(2);
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({
       error: 'Failed to send reservation email',
@@ -93,7 +136,7 @@ describe('Reservation Email API', () => {
     const mockBuffer = Buffer.from('dummy-logo');
     readFileSpy.mockResolvedValue(mockBuffer);
 
-    sendMock.mockResolvedValue({});
+    sendMock.mockResolvedValue({}).mockResolvedValue({});
 
     const { req, res } = mockRequestResponse('POST', reservationInfo);
 
@@ -101,8 +144,13 @@ describe('Reservation Email API', () => {
     await new Promise((resolve) => setImmediate(resolve));
 
     expect(readFileSpy).toHaveBeenCalled();
-    expect(generateReservationEmail).toHaveBeenCalledWith(reservationInfo);
-    expect(sendMock).toHaveBeenCalled();
+    expect(generateReservationEmailToCustomer).toHaveBeenCalledWith(
+      reservationInfo,
+    );
+    expect(generateReservationEmailToSeller).toHaveBeenCalledWith(
+      reservationInfo,
+    );
+    expect(sendMock).toHaveBeenCalledTimes(2);
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({
       message: 'Email sent successfully',

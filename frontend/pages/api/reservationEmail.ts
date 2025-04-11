@@ -1,9 +1,10 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import apiHandler from '@/lib/apiHandler';
-import { generateReservationEmail } from '@/lib/emailTemplates/generateReservationEmail';
-import type { ReservationInfo } from '@/types';
+import { generateReservationEmailToCustomer } from '@/lib/emailTemplates/generateReservationEmailToCustomer';
+import { generateReservationEmailToSeller } from '@/lib/emailTemplates/generateReservationEmailToSeller';
 import { errorMap } from '@/error/errorMap';
 import { sendEmail } from '@/lib/sendEmail';
+import type { ReservationInfo } from '@/types';
 
 const sendReservationEmail = async (
   req: NextApiRequest,
@@ -12,11 +13,18 @@ const sendReservationEmail = async (
   try {
     const reservationInfo: ReservationInfo = req.body;
 
-    await sendEmail({
-      to: reservationInfo.email,
-      subject: 'Reservation Confirmation',
-      html: generateReservationEmail(reservationInfo),
-    });
+    await Promise.all([
+      sendEmail({
+        to: reservationInfo.email,
+        subject: 'Reservation Confirmation',
+        html: generateReservationEmailToCustomer(reservationInfo),
+      }),
+      sendEmail({
+        to: `${process.env.SENDER_EMAIL}`,
+        subject: 'New Reservation Received',
+        html: generateReservationEmailToSeller(reservationInfo),
+      }),
+    ]);
 
     return res.status(200).json({ message: 'Email sent successfully' });
   } catch (error: unknown) {
