@@ -10,6 +10,7 @@ import { OrderData } from '@/types';
 import { submitOrderToYinbao } from '@/components/common/utils/submitOrderToYinbao';
 import { EmailError } from '@/error/emailError';
 import axios from 'axios';
+import { withNotification } from '@/lib/notificationMiddleware';
 
 export const config = {
   api: {
@@ -78,4 +79,4 @@ const stripeWebhook = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 };
 
-export default apiHandler().post(stripeWebhook);
+export default apiHandler().post(withNotification(stripeWebhook));
