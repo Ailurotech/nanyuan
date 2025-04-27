@@ -1,4 +1,4 @@
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextApiHandler, NextApiRequest, NextApiResponse } from 'next';
 import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
 
 const snsClient = new SNSClient({
@@ -9,7 +9,7 @@ const snsClient = new SNSClient({
   },
 });
 
-export const withNotification = (handler: Function) => {
+export const withNotification = (handler: NextApiHandler) => {
   return async (req: NextApiRequest, res: NextApiResponse) => {
     try {
       return await handler(req, res);
