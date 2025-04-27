@@ -19,13 +19,13 @@ export const withNotification = (handler: Function) => {
           Message: `Stripe Webhook Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
           PhoneNumber: process.env.NOTIFICATION_PHONE_NUMBER,
         });
-        
+
         await snsClient.send(command);
       } catch (notificationError) {
         console.error('Failed to send notification:', notificationError);
       }
-      
+
       throw error;
     }
   };
-}; 
+};
