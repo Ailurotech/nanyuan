@@ -46,6 +46,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
   const [orderList, setOrderList] = useState<OrderItem[]>([]);
   const [totalPrice, setTotalPrice] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const ONLINE_PAYMENT_CHARGE_PERCENTAGE = 0.0499;
 
   const {
@@ -152,6 +153,12 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
     paymentMethod: 'offline' | 'online',
     status: 'Offline' | 'Pending',
   ) => {
+    if (isSubmitting) {
+      alert(
+        'You are already submitting a request, please wait for it to complete',
+      );
+      return;
+    }
     try {
       await runValidations([
         () => validateOTP(verifyOtp),
@@ -159,7 +166,8 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
         () => validatePrice(data.totalPrice),
         () => validateOrderItem(orderList),
       ]);
-      const barcodes = orderList.map((item) => item.barcode.toString());
+      setIsSubmitting(true);
+      const barcodes = orderList.map((item) => item.barcode.toString() ?? '');
 
       const response = await axios.post('/api/getProductUid', {
         barcodes,
@@ -193,10 +201,9 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
           await checkoutStripe(orderData);
           break;
       }
-    } catch (error) {
-      alert(
-        'Submit Order Failed please try again later, or contact us by phone',
-      );
+    } catch (error: any) {
+      alert(error.message);
+      setIsSubmitting(false);
     }
   };
 

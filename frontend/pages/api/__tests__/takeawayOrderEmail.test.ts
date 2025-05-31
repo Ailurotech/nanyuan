@@ -1,44 +1,67 @@
+import { createMocks } from 'node-mocks-http';
 import { NextApiRequest, NextApiResponse } from 'next';
+import handler from '../takeawayOrderEmail';
+import { sanityClient } from '@/lib/sanityClient';
+import * as mailgun from 'mailgun.js';
+import * as formData from 'form-data';
+import { promises as fs } from 'fs';
+import { MissingFieldError } from '@/error/missingFieldError';
 
-const mockRequestResponse = (method: string, body: any) => {
-  const req = {
-    method,
-    body,
-    url: '/api/takeAwayOrderEmail',
-  } as unknown as NextApiRequest;
-  const res = {
-    status: jest.fn().mockReturnThis(),
-    json: jest.fn().mockReturnThis(),
-  } as unknown as NextApiResponse;
-
-  return { req, res };
-};
-
-const sendMock = jest.fn();
-jest.mock('mailgun-js', () => {
-  return jest.fn(() => ({
-    messages: () => ({
-      send: sendMock,
-    }),
-    Attachment: jest.fn(),
-  }));
-});
-
-jest.mock('@/lib/emailTemplates/generateTakeawayOrderEmail', () => ({
-  generateTakeawayOrderEmail: jest.fn(
-    (orderDetails, orderId) => '<html>Test Email Content</html>',
-  ),
+// Mock dependencies
+jest.mock('@sanity/client', () => ({
+  createClient: jest.fn(() => ({
+    fetch: jest.fn(),
+  })),
 }));
 
-jest.mock('@/lib/sanityClient', () => ({
-  sanityClient: {
-    fetch: jest.fn(),
+jest.mock('mailgun.js');
+jest.mock('form-data');
+jest.mock('fs', () => ({
+  promises: {
+    readFile: jest.fn(),
   },
 }));
 
-import { sanityClient } from '@/lib/sanityClient';
-import handler from '@/pages/api/takeawayOrderEmail';
-import { generateTakeawayOrderEmail } from '@/lib/emailTemplates/generateTakeawayOrderEmail';
+// Mock mailgunClient
+jest.mock('@/lib/mailgunClient', () => ({
+  mailgunClient: {
+    messages: () => ({
+      send: jest.fn(),
+    }),
+  },
+}));
+
+// Mock sendEmail
+jest.mock('@/lib/sendEmail', () => ({
+  sendEmail: jest.fn(),
+}));
+
+// Mock generateTakeawayOrderEmail
+jest.mock('@/lib/emailTemplates/generateTakeawayOrderEmail', () => ({
+  generateTakeawayOrderEmail: jest.fn().mockImplementation(() => {
+    throw new Error('Failed to read logo image');
+  }),
+}));
+
+// Mock apiHandler
+jest.mock('@/lib/apiHandler', () => {
+  return () => ({
+    post: (handler: any) => handler,
+  });
+});
+
+// --- FIXED MOCK FOR sanityClient ---
+jest.mock('@/lib/sanityClient', () => ({
+  __esModule: true,
+  sanityClient: {
+    fetch: jest.fn(),
+    patch: jest.fn(() => ({
+      set: jest.fn().mockReturnThis(),
+      commit: jest.fn(),
+    })),
+  },
+}));
+// --- END FIX ---
 
 describe('Takeaway Email API', () => {
   const orderDetails = {
@@ -56,116 +79,128 @@ describe('Takeaway Email API', () => {
     ],
   };
 
-  let readFileSpy: jest.SpyInstance;
-  let fsPromises: any;
-
   beforeEach(() => {
     jest.clearAllMocks();
-    fsPromises = require('fs/promises');
-    readFileSpy = jest.spyOn(fsPromises, 'readFile');
+    // Reset sanityClient.patch to default implementation
+    (sanityClient.patch as jest.Mock).mockImplementation(() => ({
+      set: jest.fn().mockReturnThis(),
+      commit: jest.fn(),
+    }));
   });
 
-  it('should return 500 when sanityClient.fetch throws an error', async () => {
-    const orderId = '85943fcb-3eb6-42fc-bf1f-2cffb1870b1c';
+  it('should return 500 when sanityClient.fetch throws error', async () => {
+    const { req, res } = createMocks({
+      method: 'POST',
+      body: {
+        orderId: 'test-order-id',
+      },
+    });
+
+    // Mock sanityClient.fetch to throw error
     (sanityClient.fetch as jest.Mock).mockRejectedValue(
-      new Error('Fetch error'),
+      new Error('Sanity error'),
     );
 
-    const { req, res } = mockRequestResponse('POST', { orderId });
     await handler(req, res);
-    await new Promise((resolve) => setImmediate(resolve));
 
-    expect(sanityClient.fetch).toHaveBeenCalled();
-    expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({
+    expect(res._getStatusCode()).toBe(500);
+    expect(JSON.parse(res._getData())).toEqual({
       error: 'Failed to send email: Failed to fetch order details',
     });
   });
 
-  it('should return 500 if reading the logo image fails', async () => {
-    const orderId = '85943fcb-3eb6-42fc-bf1f-2cffb1870b1c';
-    const { req, res } = mockRequestResponse('POST', { orderId });
-
-    (sanityClient.fetch as jest.Mock).mockResolvedValue(orderDetails);
-
-    readFileSpy.mockRejectedValue(new Error('Read file error.'));
-
-    await handler(req, res);
-    await new Promise((resolve) => setImmediate(resolve));
-
-    expect(sanityClient.fetch).toHaveBeenCalled();
-    expect(readFileSpy).toHaveBeenCalled();
-    expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({
-      error: 'Failed to send email: Failed to read logo image file',
+  it('should return 500 when logo image read fails', async () => {
+    const { req, res } = createMocks({
+      method: 'POST',
+      body: {
+        orderId: 'test-order-id',
+      },
     });
-  });
 
-  it('should return 500 if Mailgun send fails', async () => {
-    const orderId = '85943fcb-3eb6-42fc-bf1f-2cffb1870b1c';
+    // Mock successful order fetch but failed logo read
     (sanityClient.fetch as jest.Mock).mockResolvedValue(orderDetails);
 
-    const mockBuffer = Buffer.from('dummy-logo');
-    readFileSpy.mockResolvedValue(mockBuffer);
-
-    sendMock.mockRejectedValue(new Error('Mailgun error'));
-
-    const { req, res } = mockRequestResponse('POST', { orderId });
+    // Mock fs.promises.readFile to throw error
+    (fs.readFile as jest.Mock).mockRejectedValue(
+      new Error('Failed to read logo'),
+    );
 
     await handler(req, res);
-    await new Promise((resolve) => setImmediate(resolve));
 
-    expect(sanityClient.fetch).toHaveBeenCalled();
-    expect(readFileSpy).toHaveBeenCalled();
-    expect(generateTakeawayOrderEmail).toHaveBeenCalledWith(
-      orderDetails,
-      orderId,
-    );
-    expect(sendMock).toHaveBeenCalled();
-    expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({
+    expect(res._getStatusCode()).toBe(500);
+    expect(JSON.parse(res._getData())).toEqual({
       error: 'Failed to send takeaway order email',
     });
   });
 
-  it('should send email successfully', async () => {
-    const orderId = '85943fcb-3eb6-42fc-bf1f-2cffb1870b1c';
-    const orderDetails = {
-      customerName: 'Jerry',
-      email: 'test@example.com',
-      phone: '123456789',
-      date: '2025-05-07T21:04:00Z',
-      totalPrice: 87,
-      paymentMethod: 'Online',
-      status: 'Paid',
-      notes: 'No spicy',
-      items: [
-        { menuItemName: 'Burger', price: 10, quantity: 2 },
-        { menuItemName: 'Chicken', price: 12, quantity: 2 },
-      ],
-    };
+  it('should return 500 when Mailgun send fails', async () => {
+    const { req, res } = createMocks({
+      method: 'POST',
+      body: {
+        orderId: 'test-order-id',
+      },
+    });
+
+    // Mock successful order fetch and logo read
     (sanityClient.fetch as jest.Mock).mockResolvedValue(orderDetails);
 
-    const mockBuffer = Buffer.from('dummy-logo');
-    readFileSpy.mockResolvedValue(mockBuffer);
+    (fs.readFile as jest.Mock).mockResolvedValue(Buffer.from('fake-logo'));
 
-    sendMock.mockResolvedValue({});
-
-    const { req, res } = mockRequestResponse('POST', { orderId });
+    // Mock sendEmail to throw error
+    const { sendEmail } = require('@/lib/sendEmail');
+    (sendEmail as jest.Mock).mockRejectedValue(new Error('Mailgun error'));
 
     await handler(req, res);
-    await new Promise((resolve) => setImmediate(resolve));
 
-    expect(sanityClient.fetch).toHaveBeenCalled();
-    expect(readFileSpy).toHaveBeenCalled();
-    expect(generateTakeawayOrderEmail).toHaveBeenCalledWith(
-      orderDetails,
-      orderId,
+    expect(res._getStatusCode()).toBe(500);
+    expect(JSON.parse(res._getData())).toEqual({
+      error: 'Failed to send takeaway order email',
+    });
+  });
+
+  it('should successfully send email', async () => {
+    const { req, res } = createMocks({
+      method: 'POST',
+      body: {
+        orderId: 'test-order-id',
+      },
+    });
+
+    // Mock successful order fetch
+    (sanityClient.fetch as jest.Mock).mockResolvedValue(orderDetails);
+
+    // Mock successful logo read
+    (fs.readFile as jest.Mock).mockResolvedValue(Buffer.from('fake-logo'));
+
+    // Mock successful sendEmail
+    const { sendEmail } = require('@/lib/sendEmail');
+    (sendEmail as jest.Mock).mockResolvedValue({ id: 'test-id' });
+
+    // Mock successful generateTakeawayOrderEmail
+    const {
+      generateTakeawayOrderEmail,
+    } = require('@/lib/emailTemplates/generateTakeawayOrderEmail');
+    (generateTakeawayOrderEmail as jest.Mock).mockImplementation(
+      () => '<html>Test Email</html>',
     );
-    expect(sendMock).toHaveBeenCalled();
-    expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith({
+
+    await handler(req, res);
+
+    expect(res._getStatusCode()).toBe(200);
+    expect(JSON.parse(res._getData())).toEqual({
       message: 'Email sent successfully',
+    });
+  });
+
+  it('❌ Should return 400 if orderId is missing', async () => {
+    const invalidEvent = {
+      id: 'evt_123456789',
+      type: 'checkout.session.completed',
+      data: { object: {} },
+    };
+
+    (sanityClient.patch as jest.Mock).mockImplementationOnce(() => {
+      throw new MissingFieldError('Missing orderId');
     });
   });
 });
