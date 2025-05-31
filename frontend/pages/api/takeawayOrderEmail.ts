@@ -47,11 +47,10 @@ const sendTakeawayOrderEmail = async (
       html: generateTakeawayOrderEmail(orderDetails, orderId),
     });
     await sendEmail({
-       to: 'bookings.nanyuan@gmail.com',
-       subject: 'Order Confirmation - Restaurant Copy',
-       html: generateTakeawayOrderEmail(orderDetails, orderId),
-     });
-
+      to: 'bookings.nanyuan@gmail.com',
+      subject: 'Order Confirmation - Restaurant Copy',
+      html: generateTakeawayOrderEmail(orderDetails, orderId),
+    });
 
     return res.status(200).json({ message: 'Email sent successfully' });
   } catch (error: unknown) {

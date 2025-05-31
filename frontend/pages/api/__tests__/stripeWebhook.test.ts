@@ -106,9 +106,7 @@ describe('✅ Stripe Webhook API Tests', () => {
     paymentMethod: 'Online',
     status: 'Pending',
     notes: 'Test notes',
-    items: [
-      { menuItemName: 'Item 1', price: 50, quantity: 2 },
-    ],
+    items: [{ menuItemName: 'Item 1', price: 50, quantity: 2 }],
   };
 
   test('✅ Should successfully process valid webhook', async () => {
@@ -163,17 +161,23 @@ describe('✅ Stripe Webhook API Tests', () => {
     // Mock database update failure
     (sanityClient.patch as jest.Mock).mockImplementationOnce(() => ({
       set: jest.fn().mockReturnThis(),
-      commit: jest.fn().mockRejectedValue(new SanityError('Failed to update order status')),
+      commit: jest
+        .fn()
+        .mockRejectedValue(new SanityError('Failed to update order status')),
     }));
 
     await webhookHandler(req, res);
 
     expect(status).toHaveBeenCalledWith(500);
-    expect(json).toHaveBeenCalledWith({ error: 'Failed to send email: Failed to fetch order details' });
+    expect(json).toHaveBeenCalledWith({
+      error: 'Failed to send email: Failed to fetch order details',
+    });
   });
 
   test('❌ Should return 422 if Stripe signature verification fails', async () => {
-    const { WebhookValidator } = require('@/components/common/validations/webhookValidator');
+    const {
+      WebhookValidator,
+    } = require('@/components/common/validations/webhookValidator');
     (WebhookValidator.validateAll as jest.Mock).mockImplementation(() => {
       throw new ValidationError('Invalid Stripe Signature');
     });
@@ -205,17 +209,25 @@ describe('✅ Stripe Webhook API Tests', () => {
       commit: jest.fn().mockResolvedValue({}),
     }));
     (sanityClient.fetch as jest.Mock).mockResolvedValue(mockOrder);
-    
+
     // Mock WebhookValidator to pass validation
-    const { WebhookValidator } = require('@/components/common/validations/webhookValidator');
-    (WebhookValidator.validateAll as jest.Mock).mockImplementation(() => validWebhookEvent);
-    
+    const {
+      WebhookValidator,
+    } = require('@/components/common/validations/webhookValidator');
+    (WebhookValidator.validateAll as jest.Mock).mockImplementation(
+      () => validWebhookEvent,
+    );
+
     // Mock email sending failure
-    (axios.post as jest.Mock).mockRejectedValueOnce(new Error('Failed to send email'));
+    (axios.post as jest.Mock).mockRejectedValueOnce(
+      new Error('Failed to send email'),
+    );
 
     await webhookHandler(req, res);
 
     expect(status).toHaveBeenCalledWith(201);
-    expect(json).toHaveBeenCalledWith({ error: 'Failed to send email, but the order has been created' });
+    expect(json).toHaveBeenCalledWith({
+      error: 'Failed to send email, but the order has been created',
+    });
   });
 });

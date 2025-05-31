@@ -17,11 +17,20 @@ const createTakeawayOrder = async (
 
     await sanityClient.create(data);
 
-    await fetch(`${process.env.NEXT_PUBLIC_CLIENT_BASE_URL}/api/takeawayOrderEmail`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ orderId: data.orderId }),
-    }).catch(() => res.status(202).json("your order alreeady in system，but email service down please contact restaurant for more info"));
+    await fetch(
+      `${process.env.NEXT_PUBLIC_CLIENT_BASE_URL}/api/takeawayOrderEmail`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: data.orderId }),
+      },
+    ).catch(() =>
+      res
+        .status(202)
+        .json(
+          'your order alreeady in system，but email service down please contact restaurant for more info',
+        ),
+    );
 
     return res.status(200).json({ message: 'Order created successfully' });
   } catch (error) {

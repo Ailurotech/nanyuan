@@ -102,7 +102,9 @@ export function BooktablePage({ restaurant, table }: BooktablePageProps) {
 
   const onSubmit = async (data: ReservationData) => {
     if (isSubmitting) {
-      alert('You are already submitting a request, please wait for it to complete');
+      alert(
+        'You are already submitting a request, please wait for it to complete',
+      );
       return;
     }
     try {

@@ -17,16 +17,20 @@ jest.mock('@/lib/sendEmail', () => ({
 }));
 
 jest.mock('@/lib/emailTemplates/generateReservationEmailToCustomer', () => ({
-  generateReservationEmailToCustomer: jest.fn(() => '<html>Test Customer Email Content</html>'),
+  generateReservationEmailToCustomer: jest.fn(
+    () => '<html>Test Customer Email Content</html>',
+  ),
 }));
 
 jest.mock('@/lib/emailTemplates/generateReservationEmailToSeller', () => ({
-  generateReservationEmailToSeller: jest.fn(() => '<html>Test Seller Email Content</html>'),
+  generateReservationEmailToSeller: jest.fn(
+    () => '<html>Test Seller Email Content</html>',
+  ),
 }));
 
 jest.mock('@/lib/apiHandler', () => {
   return () => ({
-    post: (handler: any) => handler
+    post: (handler: any) => handler,
   });
 });
 
@@ -59,18 +63,22 @@ describe('Reservation Email API', () => {
       .mockRejectedValueOnce(new Error('Mailgun error.'))
       .mockResolvedValueOnce({ id: 'test-id' });
 
-    const { req, res } = createMocks({ 
-      method: 'POST', 
+    const { req, res } = createMocks({
+      method: 'POST',
       body: reservationInfo,
       headers: {
-        'x-forwarded-for': '127.0.0.1'
-      }
+        'x-forwarded-for': '127.0.0.1',
+      },
     });
 
     await handler(req, res);
 
-    expect(generateReservationEmailToCustomer).toHaveBeenCalledWith(reservationInfo);
-    expect(generateReservationEmailToSeller).toHaveBeenCalledWith(reservationInfo);
+    expect(generateReservationEmailToCustomer).toHaveBeenCalledWith(
+      reservationInfo,
+    );
+    expect(generateReservationEmailToSeller).toHaveBeenCalledWith(
+      reservationInfo,
+    );
     expect(sendEmailMock).toHaveBeenCalledTimes(2);
     expect(res._getStatusCode()).toBe(500);
     expect(res._getJSONData()).toEqual({
@@ -86,18 +94,22 @@ describe('Reservation Email API', () => {
       .mockResolvedValueOnce({ id: 'test-id' })
       .mockRejectedValueOnce(new Error('Mailgun error.'));
 
-    const { req, res } = createMocks({ 
-      method: 'POST', 
+    const { req, res } = createMocks({
+      method: 'POST',
       body: reservationInfo,
       headers: {
-        'x-forwarded-for': '127.0.0.1'
-      }
+        'x-forwarded-for': '127.0.0.1',
+      },
     });
 
     await handler(req, res);
 
-    expect(generateReservationEmailToCustomer).toHaveBeenCalledWith(reservationInfo);
-    expect(generateReservationEmailToSeller).toHaveBeenCalledWith(reservationInfo);
+    expect(generateReservationEmailToCustomer).toHaveBeenCalledWith(
+      reservationInfo,
+    );
+    expect(generateReservationEmailToSeller).toHaveBeenCalledWith(
+      reservationInfo,
+    );
     expect(sendEmailMock).toHaveBeenCalledTimes(2);
     expect(res._getStatusCode()).toBe(500);
     expect(res._getJSONData()).toEqual({
@@ -111,18 +123,22 @@ describe('Reservation Email API', () => {
 
     sendEmailMock.mockResolvedValue({ id: 'test-id' });
 
-    const { req, res } = createMocks({ 
-      method: 'POST', 
+    const { req, res } = createMocks({
+      method: 'POST',
       body: reservationInfo,
       headers: {
-        'x-forwarded-for': '127.0.0.1'
-      }
+        'x-forwarded-for': '127.0.0.1',
+      },
     });
 
     await handler(req, res);
 
-    expect(generateReservationEmailToCustomer).toHaveBeenCalledWith(reservationInfo);
-    expect(generateReservationEmailToSeller).toHaveBeenCalledWith(reservationInfo);
+    expect(generateReservationEmailToCustomer).toHaveBeenCalledWith(
+      reservationInfo,
+    );
+    expect(generateReservationEmailToSeller).toHaveBeenCalledWith(
+      reservationInfo,
+    );
     expect(sendEmailMock).toHaveBeenCalledTimes(2);
     expect(res._getStatusCode()).toBe(200);
     expect(res._getJSONData()).toEqual({

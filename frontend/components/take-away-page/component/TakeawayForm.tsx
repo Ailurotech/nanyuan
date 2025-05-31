@@ -154,7 +154,9 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
     status: 'Offline' | 'Pending',
   ) => {
     if (isSubmitting) {
-      alert('You are already submitting a request, please wait for it to complete');
+      alert(
+        'You are already submitting a request, please wait for it to complete',
+      );
       return;
     }
     try {
@@ -202,7 +204,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
     } catch (error: any) {
       alert(error.message);
       setIsSubmitting(false);
-    } 
+    }
   };
 
   const onSubmit = (data: OrderData) =>
