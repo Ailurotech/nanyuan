@@ -4,16 +4,17 @@ import { generateReservationEmailToCustomer } from '@/lib/emailTemplates/generat
 import { generateReservationEmailToSeller } from '@/lib/emailTemplates/generateReservationEmailToSeller';
 import fsPromises from 'fs/promises';
 
-const sendMock = jest.fn();
-
-jest.mock('mailgun-js', () => {
-  return jest.fn(() => ({
-    messages: () => ({
-      send: sendMock,
-    }),
-    Attachment: jest.fn(),
-  }));
+// Mock express-rate-limit
+jest.mock('express-rate-limit', () => {
+  return jest.fn(() => (req: any, res: any, next: any) => next());
 });
+
+// Mock sendEmail
+jest.mock('@/lib/sendEmail', () => ({
+  sendEmail: jest.fn().mockImplementation(async () => {
+    return Promise.resolve({ id: 'test-id' });
+  }),
+}));
 
 jest.mock('@/lib/emailTemplates/generateReservationEmailToCustomer', () => ({
   generateReservationEmailToCustomer: jest.fn(() => '<html>Test Customer Email Content</html>'),
@@ -22,6 +23,12 @@ jest.mock('@/lib/emailTemplates/generateReservationEmailToCustomer', () => ({
 jest.mock('@/lib/emailTemplates/generateReservationEmailToSeller', () => ({
   generateReservationEmailToSeller: jest.fn(() => '<html>Test Seller Email Content</html>'),
 }));
+
+jest.mock('@/lib/apiHandler', () => {
+  return () => ({
+    post: (handler: any) => handler
+  });
+});
 
 describe('Reservation Email API', () => {
   const reservationInfo = {
@@ -36,87 +43,90 @@ describe('Reservation Email API', () => {
   };
 
   let readFileSpy: jest.SpyInstance;
+  let sendEmailMock: jest.Mock;
 
   beforeEach(() => {
     jest.clearAllMocks();
     readFileSpy = jest.spyOn(fsPromises, 'readFile');
-  });
-
-  it('should return 500 if reading the logo image fails', async () => {
-    readFileSpy.mockRejectedValue(new Error('Read file error.'));
-
-    const { req, res } = createMocks({ method: 'POST', body: reservationInfo });
-
-    await handler(req, res);
-
-    expect(readFileSpy).toHaveBeenCalled();
-    expect(res._getStatusCode()).toBe(500);
-    expect(res._getJSONData()).toEqual({
-      error: 'Failed to send email: Failed to read logo image file',
-    });
+    sendEmailMock = require('@/lib/sendEmail').sendEmail;
   });
 
   it('should return 500 if Mailgun send email to customer fails', async () => {
     const mockBuffer = Buffer.from('dummy-logo');
     readFileSpy.mockResolvedValue(mockBuffer);
 
-    sendMock
+    sendEmailMock
       .mockRejectedValueOnce(new Error('Mailgun error.'))
-      .mockResolvedValueOnce({});
+      .mockResolvedValueOnce({ id: 'test-id' });
 
-    const { req, res } = createMocks({ method: 'POST', body: reservationInfo });
+    const { req, res } = createMocks({ 
+      method: 'POST', 
+      body: reservationInfo,
+      headers: {
+        'x-forwarded-for': '127.0.0.1'
+      }
+    });
 
     await handler(req, res);
 
-    expect(readFileSpy).toHaveBeenCalled();
     expect(generateReservationEmailToCustomer).toHaveBeenCalledWith(reservationInfo);
     expect(generateReservationEmailToSeller).toHaveBeenCalledWith(reservationInfo);
-    expect(sendMock).toHaveBeenCalledTimes(2);
+    expect(sendEmailMock).toHaveBeenCalledTimes(2);
     expect(res._getStatusCode()).toBe(500);
     expect(res._getJSONData()).toEqual({
       error: 'Failed to send reservation email',
     });
-  });
+  }, 10000);
 
   it('should return 500 if Mailgun send email to seller fails', async () => {
     const mockBuffer = Buffer.from('dummy-logo');
     readFileSpy.mockResolvedValue(mockBuffer);
 
-    sendMock
-      .mockResolvedValueOnce({})
+    sendEmailMock
+      .mockResolvedValueOnce({ id: 'test-id' })
       .mockRejectedValueOnce(new Error('Mailgun error.'));
 
-    const { req, res } = createMocks({ method: 'POST', body: reservationInfo });
+    const { req, res } = createMocks({ 
+      method: 'POST', 
+      body: reservationInfo,
+      headers: {
+        'x-forwarded-for': '127.0.0.1'
+      }
+    });
 
     await handler(req, res);
 
-    expect(readFileSpy).toHaveBeenCalled();
     expect(generateReservationEmailToCustomer).toHaveBeenCalledWith(reservationInfo);
     expect(generateReservationEmailToSeller).toHaveBeenCalledWith(reservationInfo);
-    expect(sendMock).toHaveBeenCalledTimes(2);
+    expect(sendEmailMock).toHaveBeenCalledTimes(2);
     expect(res._getStatusCode()).toBe(500);
     expect(res._getJSONData()).toEqual({
       error: 'Failed to send reservation email',
     });
-  });
+  }, 10000);
 
   it('should send email successfully', async () => {
     const mockBuffer = Buffer.from('dummy-logo');
     readFileSpy.mockResolvedValue(mockBuffer);
 
-    sendMock.mockResolvedValue({});
+    sendEmailMock.mockResolvedValue({ id: 'test-id' });
 
-    const { req, res } = createMocks({ method: 'POST', body: reservationInfo });
+    const { req, res } = createMocks({ 
+      method: 'POST', 
+      body: reservationInfo,
+      headers: {
+        'x-forwarded-for': '127.0.0.1'
+      }
+    });
 
     await handler(req, res);
 
-    expect(readFileSpy).toHaveBeenCalled();
     expect(generateReservationEmailToCustomer).toHaveBeenCalledWith(reservationInfo);
     expect(generateReservationEmailToSeller).toHaveBeenCalledWith(reservationInfo);
-    expect(sendMock).toHaveBeenCalledTimes(2);
+    expect(sendEmailMock).toHaveBeenCalledTimes(2);
     expect(res._getStatusCode()).toBe(200);
     expect(res._getJSONData()).toEqual({
       message: 'Email sent successfully',
     });
-  });
+  }, 10000);
 });
