@@ -1,10 +1,11 @@
 import { createMocks } from 'node-mocks-http';
 import { NextApiRequest, NextApiResponse } from 'next';
 import handler from '../takeawayOrderEmail';
-import * as sanityClient from '@/lib/sanityClient';
+import { sanityClient } from '@/lib/sanityClient';
 import * as mailgun from 'mailgun.js';
 import * as formData from 'form-data';
 import { promises as fs } from 'fs';
+import { MissingFieldError } from '@/error/missingFieldError';
 
 // Mock dependencies
 jest.mock('@sanity/client', () => ({
@@ -49,6 +50,19 @@ jest.mock('@/lib/apiHandler', () => {
   });
 });
 
+// --- FIXED MOCK FOR sanityClient ---
+jest.mock('@/lib/sanityClient', () => ({
+  __esModule: true,
+  sanityClient: {
+    fetch: jest.fn(),
+    patch: jest.fn(() => ({
+      set: jest.fn().mockReturnThis(),
+      commit: jest.fn(),
+    })),
+  },
+}));
+// --- END FIX ---
+
 describe('Takeaway Email API', () => {
   const orderDetails = {
     customerName: 'Jerry',
@@ -83,7 +97,7 @@ describe('Takeaway Email API', () => {
     });
 
     // Mock sanityClient.fetch to throw error
-    (sanityClient.sanityClient.fetch as jest.Mock).mockRejectedValue(new Error('Sanity error'));
+    (sanityClient.fetch as jest.Mock).mockRejectedValue(new Error('Sanity error'));
 
     await handler(req, res);
 
@@ -102,7 +116,7 @@ describe('Takeaway Email API', () => {
     });
 
     // Mock successful order fetch but failed logo read
-    (sanityClient.sanityClient.fetch as jest.Mock).mockResolvedValue(orderDetails);
+    (sanityClient.fetch as jest.Mock).mockResolvedValue(orderDetails);
 
     // Mock fs.promises.readFile to throw error
     (fs.readFile as jest.Mock).mockRejectedValue(new Error('Failed to read logo'));
@@ -124,7 +138,7 @@ describe('Takeaway Email API', () => {
     });
 
     // Mock successful order fetch and logo read
-    (sanityClient.sanityClient.fetch as jest.Mock).mockResolvedValue(orderDetails);
+    (sanityClient.fetch as jest.Mock).mockResolvedValue(orderDetails);
 
     (fs.readFile as jest.Mock).mockResolvedValue(Buffer.from('fake-logo'));
 
@@ -149,7 +163,7 @@ describe('Takeaway Email API', () => {
     });
 
     // Mock successful order fetch
-    (sanityClient.sanityClient.fetch as jest.Mock).mockResolvedValue(orderDetails);
+    (sanityClient.fetch as jest.Mock).mockResolvedValue(orderDetails);
 
     // Mock successful logo read
     (fs.readFile as jest.Mock).mockResolvedValue(Buffer.from('fake-logo'));
