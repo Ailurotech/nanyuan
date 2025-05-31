@@ -165,7 +165,7 @@ export function TakeawayForm({ restaurant }: TakeawayProps) {
         () => validateOrderItem(orderList),
       ]);
       setIsSubmitting(true);
-      const barcodes = orderList.map((item) => item.barcode.toString());
+      const barcodes = orderList.map((item) => item.barcode.toString() ?? '');
 
       const response = await axios.post('/api/getProductUid', {
         barcodes,
