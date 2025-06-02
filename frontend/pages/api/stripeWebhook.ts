@@ -62,8 +62,11 @@ const stripeWebhook = async (req: NextApiRequest, res: NextApiResponse) => {
           orderId,
         },
       )
-      .catch(() => {
-        throw new EmailError('Failed to send email');
+      .catch((error) => {
+        console.error('Failed to send email:', error);
+        return res.status(201).json({
+          error: 'Failed to send email, but the order has been created',
+        });
       });
 
     res.status(200).json({ received: true });
