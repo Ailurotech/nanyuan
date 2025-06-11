@@ -7,6 +7,8 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { Readable } from 'stream';
 import { errorMap } from '@/error/errorMap';
 import axios from 'axios';
+import { EmailError } from '@/error/emailError';
+import { SanityError } from '@/error/sanityError';
 
 // Mock stripe and sanity client
 jest.mock('@/lib/stripeClient', () => ({
@@ -23,6 +25,7 @@ jest.mock('@/lib/sanityClient', () => ({
       set: jest.fn().mockReturnThis(),
       commit: jest.fn(),
     })),
+    fetch: jest.fn(),
   },
 }));
 
@@ -31,6 +34,18 @@ jest.mock('@/lib/apiHandler', () => () => ({
 }));
 
 jest.mock('axios');
+
+// Mock submitOrderToYinbao
+jest.mock('@/components/common/utils/submitOrderToYinbao', () => ({
+  submitOrderToYinbao: jest.fn(),
+}));
+
+// Mock WebhookValidator
+jest.mock('@/components/common/validations/webhookValidator', () => ({
+  WebhookValidator: {
+    validateAll: jest.fn(),
+  },
+}));
 
 export const mockWebhookRequestResponse = (
   body: string | object,
@@ -68,6 +83,11 @@ export const mockWebhookRequestResponse = (
 describe('✅ Stripe Webhook API Tests', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Reset sanityClient.patch to default implementation
+    (sanityClient.patch as jest.Mock).mockImplementation(() => ({
+      set: jest.fn().mockReturnThis(),
+      commit: jest.fn(),
+    }));
   });
 
   const validWebhookEvent = {
@@ -76,14 +96,30 @@ describe('✅ Stripe Webhook API Tests', () => {
     data: { object: { metadata: { orderId: '12345' } } },
   };
 
-  (stripe.webhooks.constructEvent as jest.Mock).mockReturnValue(
-    validWebhookEvent,
-  );
+  const mockOrder = {
+    orderId: '12345',
+    customerName: 'Test Customer',
+    email: 'test@example.com',
+    phone: '1234567890',
+    date: '2024-03-20T12:00:00Z',
+    totalPrice: 100,
+    paymentMethod: 'Online',
+    status: 'Pending',
+    notes: 'Test notes',
+    items: [{ menuItemName: 'Item 1', price: 50, quantity: 2 }],
+  };
 
   test('✅ Should successfully process valid webhook', async () => {
+    (stripe.webhooks.constructEvent as jest.Mock).mockReturnValue(
+      validWebhookEvent,
+    );
+
     const { req, res, status, json } =
       mockWebhookRequestResponse(validWebhookEvent);
 
+    // Mock successful database operations
+    (sanityClient.patch('12345').commit as jest.Mock).mockResolvedValue({});
+    (sanityClient.fetch as jest.Mock).mockResolvedValue(mockOrder);
     (axios.post as jest.Mock).mockResolvedValue({});
 
     await webhookHandler(req, res);
@@ -103,6 +139,11 @@ describe('✅ Stripe Webhook API Tests', () => {
 
     const { req, res, status, json } = mockWebhookRequestResponse(invalidEvent);
 
+    // Mock sanityClient.patch to throw MissingFieldError
+    (sanityClient.patch as jest.Mock).mockImplementationOnce(() => {
+      throw new MissingFieldError('Missing orderId');
+    });
+
     await webhookHandler(req, res);
 
     expect(status).toHaveBeenCalledWith(400);
@@ -110,21 +151,34 @@ describe('✅ Stripe Webhook API Tests', () => {
   });
 
   test('❌ Should return 500 if database update fails', async () => {
-    (sanityClient.patch('1').commit as jest.Mock).mockRejectedValue(
-      new MissingFieldError('Database Error'),
+    (stripe.webhooks.constructEvent as jest.Mock).mockReturnValue(
+      validWebhookEvent,
     );
 
     const { req, res, status, json } =
       mockWebhookRequestResponse(validWebhookEvent);
 
+    // Mock database update failure
+    (sanityClient.patch as jest.Mock).mockImplementationOnce(() => ({
+      set: jest.fn().mockReturnThis(),
+      commit: jest
+        .fn()
+        .mockRejectedValue(new SanityError('Failed to update order status')),
+    }));
+
     await webhookHandler(req, res);
 
-    expect(status).toHaveBeenCalledWith(400);
-    expect(json).toHaveBeenCalledWith({ error: 'Missing required field' });
+    expect(status).toHaveBeenCalledWith(500);
+    expect(json).toHaveBeenCalledWith({
+      error: 'Failed to send email: Failed to fetch order details',
+    });
   });
 
   test('❌ Should return 422 if Stripe signature verification fails', async () => {
-    (stripe.webhooks.constructEvent as jest.Mock).mockImplementation(() => {
+    const {
+      WebhookValidator,
+    } = require('@/components/common/validations/webhookValidator');
+    (WebhookValidator.validateAll as jest.Mock).mockImplementation(() => {
       throw new ValidationError('Invalid Stripe Signature');
     });
 
@@ -139,5 +193,41 @@ describe('✅ Stripe Webhook API Tests', () => {
 
     expect(status).toHaveBeenCalledWith(422);
     expect(json).toHaveBeenCalledWith({ error: 'Format error' });
+  });
+
+  test('❌ Should return 201 if email sending fails', async () => {
+    (stripe.webhooks.constructEvent as jest.Mock).mockReturnValue(
+      validWebhookEvent,
+    );
+
+    const { req, res, status, json } =
+      mockWebhookRequestResponse(validWebhookEvent);
+
+    // Mock successful database operations
+    (sanityClient.patch as jest.Mock).mockImplementationOnce(() => ({
+      set: jest.fn().mockReturnThis(),
+      commit: jest.fn().mockResolvedValue({}),
+    }));
+    (sanityClient.fetch as jest.Mock).mockResolvedValue(mockOrder);
+
+    // Mock WebhookValidator to pass validation
+    const {
+      WebhookValidator,
+    } = require('@/components/common/validations/webhookValidator');
+    (WebhookValidator.validateAll as jest.Mock).mockImplementation(
+      () => validWebhookEvent,
+    );
+
+    // Mock email sending failure
+    (axios.post as jest.Mock).mockRejectedValueOnce(
+      new Error('Failed to send email'),
+    );
+
+    await webhookHandler(req, res);
+
+    expect(status).toHaveBeenCalledWith(201);
+    expect(json).toHaveBeenCalledWith({
+      error: 'Failed to send email, but the order has been created',
+    });
   });
 });

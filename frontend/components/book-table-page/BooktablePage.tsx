@@ -98,8 +98,17 @@ export function BooktablePage({ restaurant, table }: BooktablePageProps) {
 
   const selectedDate = watch('date');
   const [successMessage, setSuccessMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const onSubmit = async (data: ReservationData) => {
+    if (isSubmitting) {
+      alert(
+        'You are already submitting a request, please wait for it to complete',
+      );
+      return;
+    }
     try {
+      setIsSubmitting(true);
       const validationResult = await runValidations([
         () => validateInitialConditions(verifyOtp, data.guests, table),
         () => validateReservationTime(data.date, data.time),
@@ -137,6 +146,8 @@ export function BooktablePage({ restaurant, table }: BooktablePageProps) {
         default:
           console.error('validation error:', error);
       }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 

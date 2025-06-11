@@ -77,7 +77,10 @@ const ShoppingCart = ({ shoppingCartItems }: ShoppingCartProps) => {
                 ADD MORE
               </Button>
             </Link>
-            <Link href="" className="w-100 flex justify-center">
+            <Link
+              href={NavigationRoute.Takeaway.Path}
+              className="w-100 flex justify-center"
+            >
               <Button className="bg-yellow-400 p-3 font-bold px-32 w-1/3 md:mr-10 md:w-3/4">
                 CHECK OUT
               </Button>
