@@ -53,7 +53,6 @@ const stripeWebhook = async (req: NextApiRequest, res: NextApiResponse) => {
       ...order,
       name: String(order.customerName),
     };
-    await submitOrderToYinbao(formattedOrder, true);
 
     await axios
       .post(
@@ -68,6 +67,7 @@ const stripeWebhook = async (req: NextApiRequest, res: NextApiResponse) => {
           error: 'Failed to send email, but the order has been created',
         });
       });
+    await submitOrderToYinbao(formattedOrder, true);
 
     res.status(200).json({ received: true });
   } catch (error) {
