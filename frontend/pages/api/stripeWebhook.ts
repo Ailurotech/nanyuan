@@ -55,18 +55,18 @@ const stripeWebhook = async (req: NextApiRequest, res: NextApiResponse) => {
     };
 
     await axios
-    .post(
-      `${process.env.NEXT_PUBLIC_CLIENT_BASE_URL}/api/takeawayOrderEmail`,
-      {
-        orderId,
-      },
-    )
-    .catch((error) => {
-      console.error('Failed to send email:', error);
-      return res.status(201).json({
-        error: 'Failed to send email, but the order has been created',
+      .post(
+        `${process.env.NEXT_PUBLIC_CLIENT_BASE_URL}/api/takeawayOrderEmail`,
+        {
+          orderId,
+        },
+      )
+      .catch((error) => {
+        console.error('Failed to send email:', error);
+        return res.status(201).json({
+          error: 'Failed to send email, but the order has been created',
+        });
       });
-    });
     await submitOrderToYinbao(formattedOrder, true);
 
     res.status(200).json({ received: true });
